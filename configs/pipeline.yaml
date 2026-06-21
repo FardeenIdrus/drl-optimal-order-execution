@@ -1,0 +1,41 @@
+# Phase 1 data-pipeline configuration — the single source of truth for every
+# parameter across Stages 0-6. Reproduce the whole pipeline with:
+#
+#   PYTHONPATH=src .venv/bin/python -m execution.pipeline \
+#       --config configs/pipeline.yaml --scratch-root <path-to-scratch>
+#
+# Data artifacts live OUTSIDE the repo under --scratch-root (gitignored); the paths
+# below are relative to it. The pipeline is deterministic: same raw data + this config
+# => identical outputs.
+
+coin: BTC
+start: "2024-01-01"        # inclusive (YYYY-MM-DD, UTC)
+end: "2025-12-31"          # inclusive
+skip_ranges:               # known archive gap weeks, excluded by request (inclusive)
+  - ["2025-10-17", "2025-10-22"]
+  - ["2025-11-18", "2025-11-24"]
+
+features:
+  imbalance_depth: 5       # book depth (levels) for imbalance and ask_depth
+  return_lookback: 5       # minutes for recent_return
+  vol_window: 30           # minutes for rolling_vol (from HF realised variance)
+
+regimes:
+  episode_minutes: 30      # execution horizon = episode length
+  test_frac: 0.2           # chronological hold-out fraction
+  buffer_episodes: 1       # episodes dropped at the train/test boundary
+  n_regimes: 2             # 2 = calm/volatile (median split); 3 = terciles
+
+compute:
+  pull_workers: 16         # parallel S3 downloads (Stage 1)
+  resample_workers: 8      # parallel file parsing (Stage 3)
+  resample_batch_files: 96 # files parsed per batch (bounds memory)
+
+# Artifact locations, relative to --scratch-root.
+artifacts:
+  manifest_dir: "manifest"
+  raw_dir: "raw_l2/BTC"
+  minute_parquet: "minute/btc_minute_2024-2025.parquet"
+  features_parquet: "features/btc_features_2024-2025.parquet"
+  episodes_parquet: "episodes/btc_episodes_2024-2025.parquet"
+  dataset_dir: "dataset"

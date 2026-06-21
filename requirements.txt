@@ -1,0 +1,13 @@
+# Project dependencies (Python 3.12). Reproducible env for the data pipeline.
+# Create:  python3.12 -m venv .venv && .venv/bin/pip install -r requirements.txt
+#
+# numpy is pinned to 2.1.2 to stay compatible with the QRM/RL stack (numba) added
+# in a later phase. RL dependencies (torch, stable-baselines3, gymnasium, numba,
+# shap) will be appended here when the environment-adaptation phase begins.
+
+numpy==2.1.2
+pandas==3.0.3
+pyarrow==24.0.0
+lz4==4.4.5
+PyYAML==6.0.3
+pytest==9.1.1

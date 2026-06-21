@@ -5,12 +5,13 @@
 
 # Python
 venv/
+.venv/
 __pycache__/
 *.py[cod]
 .ipynb_checkpoints/
 
 # Data
-data/
+/data/
 *.csv
 *.parquet
 

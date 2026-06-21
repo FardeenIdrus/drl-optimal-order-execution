@@ -1,0 +1,304 @@
+{
+  "scope": {
+    "coin": "BTC",
+    "start": "2024-01-01",
+    "end": "2025-12-31",
+    "skip_ranges": [
+      [
+        "2025-10-17",
+        "2025-10-22"
+      ],
+      [
+        "2025-11-18",
+        "2025-11-24"
+      ]
+    ]
+  },
+  "params": {
+    "features": {
+      "imbalance_depth": 5,
+      "return_lookback": 5,
+      "vol_window": 30
+    },
+    "regimes": {
+      "episode_minutes": 30,
+      "test_frac": 0.2,
+      "buffer_episodes": 1,
+      "n_regimes": 2
+    }
+  },
+  "stage0_source_coverage": {
+    "coin": "BTC",
+    "range": {
+      "start": "2024-01-01",
+      "end": "2025-12-31"
+    },
+    "skip_ranges": [
+      [
+        "2025-10-17",
+        "2025-10-22"
+      ],
+      [
+        "2025-11-18",
+        "2025-11-24"
+      ]
+    ],
+    "days_in_range_excluding_skips": 718,
+    "days_skipped": 13,
+    "days_with_data": 715,
+    "days_fully_covered": 703,
+    "days_missing": [
+      "2024-01-10",
+      "2024-02-01",
+      "2025-11-25"
+    ],
+    "days_partial": [
+      "2024-01-11",
+      "2024-02-02",
+      "2024-06-14",
+      "2024-07-15",
+      "2024-07-21",
+      "2024-07-25",
+      "2024-07-26",
+      "2024-07-30",
+      "2024-10-09",
+      "2024-10-12",
+      "2025-10-16",
+      "2025-11-17"
+    ],
+    "hours_present": 17107,
+    "hours_expected": 17232,
+    "coverage_pct": 99.27,
+    "total_size_bytes": 15807412914,
+    "total_size_gib": 14.72,
+    "list_errors": {}
+  },
+  "stage1_pull": {
+    "raw_files": 17107,
+    "expected": 17107,
+    "byte_exact": true
+  },
+  "stage3_minute": {
+    "minutes_present": 1020217,
+    "expected_minutes": 1026420,
+    "coverage_pct": 99.4,
+    "duplicate_minutes": 0,
+    "timestamps_monotonic": true,
+    "realized_variance_nan": 97,
+    "median_snapshots_per_min": 106.0,
+    "book_ordering_ok": true
+  },
+  "stage4_features": {
+    "params": {
+      "imbalance_depth": 5,
+      "return_lookback": 5,
+      "vol_window": 30
+    },
+    "rows": 1052640,
+    "feature_valid_rows": 995572,
+    "valid_pct": 94.58,
+    "describe": {
+      "spread_bps": {
+        "count": 995572.0,
+        "mean": 0.202124,
+        "std": 0.188819,
+        "min": 0.079602,
+        "25%": 0.112133,
+        "50%": 0.157529,
+        "75%": 0.221106,
+        "max": 34.816252
+      },
+      "imbalance": {
+        "count": 995572.0,
+        "mean": -0.005213,
+        "std": 0.402363,
+        "min": -0.999977,
+        "25%": -0.289459,
+        "50%": -0.007631,
+        "75%": 0.277475,
+        "max": 0.99931
+      },
+      "recent_return": {
+        "count": 995572.0,
+        "mean": 4e-06,
+        "std": 0.001545,
+        "min": -0.065624,
+        "25%": -0.000632,
+        "50%": 0.0,
+        "75%": 0.000645,
+        "max": 0.046752
+      },
+      "rolling_vol": {
+        "count": 995572.0,
+        "mean": 0.001929,
+        "std": 0.001598,
+        "min": 1.3e-05,
+        "25%": 0.001047,
+        "50%": 0.001549,
+        "75%": 0.00235,
+        "max": 0.115217
+      },
+      "ask_depth": {
+        "count": 995572.0,
+        "mean": 8.837982,
+        "std": 9.346894,
+        "min": 0.003923,
+        "25%": 3.784679,
+        "50%": 6.340755,
+        "75%": 11.214438,
+        "max": 1601.087729
+      }
+    },
+    "correlation": {
+      "spread_bps": {
+        "spread_bps": 1.0,
+        "imbalance": -0.011,
+        "recent_return": -0.058,
+        "rolling_vol": 0.478,
+        "ask_depth": -0.111
+      },
+      "imbalance": {
+        "spread_bps": -0.011,
+        "imbalance": 1.0,
+        "recent_return": 0.21,
+        "rolling_vol": 0.008,
+        "ask_depth": -0.481
+      },
+      "recent_return": {
+        "spread_bps": -0.058,
+        "imbalance": 0.21,
+        "recent_return": 1.0,
+        "rolling_vol": 0.001,
+        "ask_depth": -0.083
+      },
+      "rolling_vol": {
+        "spread_bps": 0.478,
+        "imbalance": 0.008,
+        "recent_return": 0.001,
+        "rolling_vol": 1.0,
+        "ask_depth": -0.1
+      },
+      "ask_depth": {
+        "spread_bps": -0.111,
+        "imbalance": -0.481,
+        "recent_return": -0.083,
+        "rolling_vol": -0.1,
+        "ask_depth": 1.0
+      }
+    }
+  },
+  "stage5_regimes": {
+    "n_episodes": 32758,
+    "thresholds": {
+      "median": 0.00163781805766557
+    },
+    "boundary_start_ts": 1752652800000,
+    "counts_by_split_regime": {
+      "test": {
+        "calm": 4596,
+        "volatile": 1955
+      },
+      "train": {
+        "calm": 13104,
+        "volatile": 13103
+      }
+    },
+    "vol_by_regime": {
+      "calm": {
+        "mean": 0.001068,
+        "median": 0.001084,
+        "n": 17700
+      },
+      "volatile": {
+        "mean": 0.002931,
+        "median": 0.002447,
+        "n": 15058
+      }
+    },
+    "test_regime_counts": {
+      "calm": 4596,
+      "volatile": 1955
+    },
+    "min_test_regime_episodes": 1955
+  },
+  "stage6_datasets": {
+    "alignment": "features[t] (uses bars <= t-1) + fill book as-of t (= minute[t-1]); uniform one-bar lag, no look-ahead",
+    "observation_columns": [
+      "spread_bps",
+      "imbalance",
+      "recent_return",
+      "rolling_vol",
+      "ask_depth"
+    ],
+    "fill_book_columns": [
+      "ask_px_1",
+      "ask_px_2",
+      "ask_px_3",
+      "ask_px_4",
+      "ask_px_5",
+      "ask_px_6",
+      "ask_px_7",
+      "ask_px_8",
+      "ask_px_9",
+      "ask_px_10",
+      "ask_px_11",
+      "ask_px_12",
+      "ask_px_13",
+      "ask_px_14",
+      "ask_px_15",
+      "ask_px_16",
+      "ask_px_17",
+      "ask_px_18",
+      "ask_px_19",
+      "ask_px_20",
+      "ask_sz_1",
+      "ask_sz_2",
+      "ask_sz_3",
+      "ask_sz_4",
+      "ask_sz_5",
+      "ask_sz_6",
+      "ask_sz_7",
+      "ask_sz_8",
+      "ask_sz_9",
+      "ask_sz_10",
+      "ask_sz_11",
+      "ask_sz_12",
+      "ask_sz_13",
+      "ask_sz_14",
+      "ask_sz_15",
+      "ask_sz_16",
+      "ask_sz_17",
+      "ask_sz_18",
+      "ask_sz_19",
+      "ask_sz_20",
+      "bid_px_1",
+      "bid_sz_1",
+      "mid"
+    ],
+    "execution_state": "inventory and time-remaining are added by the env at runtime, not stored here",
+    "rows": 982740,
+    "episodes": 32758,
+    "train_rows": 786210,
+    "test_rows": 196530,
+    "steps_per_episode_ok": true,
+    "train_before_test": true,
+    "nan_in_core_fields": 0,
+    "book_ordering_ok": true,
+    "counts_by_split_regime": {
+      "test": {
+        "calm": 4596,
+        "volatile": 1955
+      },
+      "train": {
+        "calm": 13104,
+        "volatile": 13103
+      }
+    }
+  },
+  "determinism": "Phase 1 has no randomness; same raw data + config => identical outputs.",
+  "limitations": [
+    "Minute resolution; one book snapshot per minute for fills (no intra-minute replenishment).",
+    "Hyperliquid BTC perpetual futures (not spot/equities); single asset for now.",
+    "Fixed train-median regime threshold => test regime mix reflects the test period (here ~70/30 calm/volatile)."
+  ]
+}

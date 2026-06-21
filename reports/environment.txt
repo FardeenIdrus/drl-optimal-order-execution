@@ -1,0 +1,13 @@
+# Phase 1 environment (resolved). Python 3.12.13
+iniconfig==2.3.0
+lz4==4.4.5
+numpy==2.1.2
+packaging==26.2
+pandas==3.0.3
+pluggy==1.6.0
+pyarrow==24.0.0
+Pygments==2.20.0
+pytest==9.1.1
+python-dateutil==2.9.0.post0
+PyYAML==6.0.3
+six==1.17.0
