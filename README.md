@@ -61,7 +61,7 @@ PYTHONPATH=src .venv/bin/pytest tests -q
 ```
 The pipeline is deterministic: the same raw data and config produce identical outputs.
 
-## Limitations (honest)
+## Limitations 
 Minute-resolution execution (one book snapshot per minute for fills; no intra-minute
 replenishment); Hyperliquid BTC perpetual futures, single asset; the fixed train-median
 regime threshold means the test regime mix reflects the test period. See `reports/phase1_qa.md`.
