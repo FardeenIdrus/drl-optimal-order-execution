@@ -1,0 +1,76 @@
+# Phase 2 experiment configuration (RL environment + agents).
+# Single source of truth for env/agent parameters, analogous to pipeline.yaml for
+# the data pipeline. Dataset location is passed at runtime via --scratch-root
+# (data lives outside the repo), so no data paths are hardcoded here.
+
+env:
+  # Meta-order sized as a % of ADV (Setup Step 1). ADV = 19,313 BTC (BTC daily
+  # volume from the Hyperliquid candle API, 2024-2025; cached in
+  # scratch/adv/btc_adv.json). Primary = 0.5% of ADV: meaningful impact for a
+  # measurable RL edge; slice 3.2 BTC/min vs volatile per-step depth median 22 /
+  # p10 9.5. Deadline residual under naive TWAP fires 2.26% of test episodes (mean
+  # 3.9 BTC), priced + logged; the adaptive agent should finish better. The gate
+  # runs at every sweep size {0.1,0.25,0.5,1.0}%; the primary must pass.
+  initial_inventory: 96.57    # BTC = 0.50% of ADV (primary / headline)
+  adv_btc: 19313.4
+  order_size_pct_adv: 0.5
+  order_size_sweep_pct_adv: [0.1, 0.25, 0.5, 1.0]
+  order_size_sweep_btc: [19.31, 48.28, 96.57, 193.13]
+  n_steps: 30                 # decisions per episode (30-min horizon, 1-min steps)
+  final_penalty: 1.0          # reward penalty per BTC of unexecuted inventory (training)
+  # Action = MULTIPLE of the TWAP pace: qty = mult * (remaining inventory /
+  # steps_left). The mult=1.0 action reproduces TWAP at every step, so the policy
+  # can match TWAP by construction (fair "beat TWAP" test) and is interpretable as
+  # deviation-from-TWAP; fine resolution near 1.0 captures a small well-timed edge.
+  # Supersedes the earlier fraction-of-remaining grid, which (coarse) could not
+  # represent TWAP's per-step pace and forced lumpy front-loading (Phase 5 Step 5).
+  action_mode: twap_pace_multiple
+  actions: [0.0, 0.5, 0.8, 1.0, 1.2, 1.5, 2.0]
+
+obs:
+  # Microstructure features added to the observation (Step 2), on top of the
+  # execution state [inventory, time]. Normalization (log1p for the heavy-tailed
+  # positives + train-fit standardize) is defined in execution.env.normalize.
+  features: [spread_bps, imbalance, recent_return, rolling_vol, ask_depth]
+
+split:
+  # Validation carved chronologically from the END of train.parquet (most recent,
+  # adjacent to the test boundary) for the Phase-5 generalization gate. The
+  # normalizer is fit on the training sub-split ONLY (leakage-free); TEST stays
+  # sealed until final evaluation. See EpisodeStore.chrono_split (Setup Step 3).
+  val_frac: 0.15
+
+agent:
+  # Phase 5 training. Reward = negative per-step IS in BPS of arrival notional
+  # (well-conditioned; same objective as the is_bps eval metric). Device cpu (the
+  # probe showed MPS ~9x slower for this small net). Budget is a starting value;
+  # extend if the validation curve has not plateaued (never trade rigor for speed).
+  device: cpu
+  reward_bps: true
+  leftover_penalty_bps: 100.0   # full order left unexecuted = 100 bps (scaled by
+                                # fraction left) -> dominates the single-digit-bps IS
+                                # so the agent learns to finish on its own.
+  total_timesteps: 2000000      # ~6 min/run on CPU (probe); extend per the curve.
+  seeds: [0, 1, 2, 3, 4]
+  dqn:                          # mirrors the QRM scaffold (arXiv 2511.15262)
+    net_arch: [30, 30, 30, 30, 30]
+    activation: LeakyReLU
+    learning_rate: 0.0001
+    buffer_size: 1000000
+    batch_size: 1024
+    learning_starts: 40000
+    gamma: 0.995
+    train_freq: 100
+    gradient_steps: 1
+    target_update_interval: 1000
+    n_steps: 1
+    exploration_initial_eps: 1.0
+    exploration_final_eps: 0.01
+    # exploration_fraction is DERIVED from the budget (Setup Step 5), not fixed:
+    # anneal epsilon over the warmup PLUS the first `exploration_anneal_frac` of the
+    # post-warmup learning phase, so it scales with total_timesteps and never decays
+    # before learning_starts. QRM's fixed 0.03 was tuned to their 6.24M budget and
+    # finished annealing at 15k steps -- inside our 40k warmup -- leaving the agent
+    # near-greedy throughout learning. learning_starts stays ABSOLUTE (buffer fill,
+    # not training length). At 2M-6M this rule yields ~0.26; recorded per run.
+    exploration_anneal_frac: 0.25
