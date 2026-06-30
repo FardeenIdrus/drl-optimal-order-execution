@@ -26,7 +26,8 @@ import numpy as np
 from execution.env.episode_store import EpisodeStore
 from execution.env.fills import walk_ask_ladder
 
-MINUTES_PER_DAY = 1440  # crypto trades 24/7; minute-resolution data
+SECONDS_PER_DAY = 86_400  # crypto trades 24/7; periods/day = SECONDS_PER_DAY / bar_seconds
+MINUTES_PER_DAY = 1440    # = SECONDS_PER_DAY / 60; the 60s special case, kept for reference
 
 
 @dataclass(frozen=True)
@@ -50,23 +51,35 @@ def estimate_volatility(store: EpisodeStore, regime: str | None = None) -> float
     return float(np.std(np.diff(mid, axis=1)))
 
 
-def estimate_relative_daily_vol(store: EpisodeStore, regime: str | None = None) -> float:
-    """Dimensionless daily volatility: per-minute relative mid std scaled to a day.
+def estimate_relative_daily_vol(
+    store: EpisodeStore, regime: str | None = None, bar_seconds: int = 60
+) -> float:
+    """Dimensionless daily volatility: per-bar relative mid std scaled to a day.
+
+    A within-episode mid change spans one ``bar_seconds`` bar, so the per-bar std is
+    annualised to a day by sqrt(periods/day) where periods/day = 86_400/bar_seconds
+    (1440 at 60s, 8640 at 10s). This makes the estimate RESOLUTION-INVARIANT: a finer
+    bar has a proportionally smaller per-bar move but proportionally more periods/day,
+    so the recovered daily vol is unchanged (as it physically must be). The previous
+    hard-coded 1440 was correct only at 60s and understated daily vol by sqrt(6) at 10s.
 
     Used to decompose the calibrated ``sqrt_coef`` (= Y*sigma) into an implied
     near-universal ``Y`` for reporting; it is NOT needed by the environment (which
     stores the combined ``sqrt_coef`` per regime).
     """
+    if bar_seconds <= 0:
+        raise ValueError(f"bar_seconds must be positive, got {bar_seconds}")
     mid = store.mid
     if regime is not None:
         mid = mid[store.regime == regime]
     if mid.shape[0] == 0:
         return float("nan")
-    per_min_abs = float(np.std(np.diff(mid, axis=1)))
+    per_bar_abs = float(np.std(np.diff(mid, axis=1)))
     mean_mid = float(np.mean(mid))
     if mean_mid <= 0:
         return float("nan")
-    return per_min_abs / mean_mid * np.sqrt(MINUTES_PER_DAY)
+    periods_per_day = SECONDS_PER_DAY / bar_seconds
+    return per_bar_abs / mean_mid * np.sqrt(periods_per_day)
 
 
 def calibrate_temporary_impact(

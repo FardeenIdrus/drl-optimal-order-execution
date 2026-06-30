@@ -4,6 +4,7 @@ Run with:  PYTHONPATH=src pytest tests/test_dataset.py
 """
 import numpy as np
 import pandas as pd
+import pytest
 
 from execution.data import dataset as D
 from execution.data.regimes import EPISODE_MS, MS_PER_MINUTE
@@ -82,3 +83,43 @@ def test_integrity_and_temporal_order():
     assert rep["train_rows"] == 30 and rep["test_rows"] == 30
     train, test = out[out.split == "train"], out[out.split == "test"]
     assert train["ts"].max() < test["ts"].min()
+
+
+# --- finer-resolution (10s bars: 180 steps/episode, one-bar lag = 10s) -------------
+
+def _minute_df_10s(idx_lo=-1, idx_hi=360):
+    """One row per 10s bar; ask_px_1 = 1000 + bar_index so a book is traceable."""
+    rows = []
+    for idx in range(idx_lo, idx_hi):
+        apx1 = 1000.0 + idx
+        d = {"ts": BASE + idx * 10_000}
+        for i in range(1, 21):
+            d[f"ask_px_{i}"] = apx1 + (i - 1)
+            d[f"ask_sz_{i}"] = 1.0
+        d["bid_px_1"], d["bid_sz_1"], d["mid"] = apx1 - 1.0, 1.0, apx1 - 0.5
+        rows.append(d)
+    return pd.DataFrame(rows)
+
+
+def _features_df_10s(n=360):
+    ts = [BASE + i * 10_000 for i in range(n)]
+    return pd.DataFrame({"ts": ts, "spread_bps": 0.2, "imbalance": 0.1,
+                         "recent_return": 0.0, "rolling_vol": 0.001, "ask_depth": 5.0})
+
+
+def test_materialise_at_10s_resolution():
+    # 360 bars = two 30-min episodes of 180 bars; _episodes_df() spans the same 2 buckets.
+    out = D.materialise(_features_df_10s(360), _minute_df_10s(), _episodes_df(), bar_seconds=10)
+    assert (out.groupby("episode_id")["step"].size() == 180).all()
+    assert list(out[out.episode_id == 0]["step"]) == list(range(180))   # step // bar_ms, not //60s
+    # fill book is the PREVIOUS 10s bar (lag = one 10s bar, NOT 60s):
+    row0 = out[(out.episode_id == 0) & (out.step == 0)].iloc[0]
+    assert row0["ask_px_1"] == 999.0                       # bar 0 trades against bar -1
+    r5 = out[out.ts == BASE + 5 * 10_000].iloc[0]
+    assert r5["ask_px_1"] == 1004.0                        # bar 5 trades against bar 4
+    D.check_integrity(out, bars_per_episode=180)           # 180-step check must pass
+
+
+def test_materialise_rejects_bad_bar_seconds():
+    with pytest.raises(ValueError):
+        D.materialise(_features_df(), _minute_df(), _episodes_df(), bar_seconds=7)

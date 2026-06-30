@@ -27,7 +27,7 @@ import numpy as np
 import yaml
 from stable_baselines3.common.monitor import Monitor
 
-from execution.agents.build import make_dqn
+from execution.agents.build import make_dqn, make_ppo
 from execution.agents.callbacks import ValidationCurveCallback
 from execution.agents.policy import SB3Policy
 from execution.env.benchmarks import TWAP
@@ -54,7 +54,7 @@ class TrainSetup:
 def setup_data(scratch_root: str | Path, cfg: dict) -> TrainSetup:
     """Load train.parquet, carve the chronological validation split, fit the
     train-sub normalizer, and calibrate the per-regime residual coefficient."""
-    ds = Path(scratch_root) / "dataset"
+    ds = Path(scratch_root) / cfg.get("dataset_dir", "dataset")   # dataset_10s at 10s
     n_steps = cfg["env"]["n_steps"]
     full = EpisodeStore.from_parquet(ds / "train.parquet", n_steps=n_steps)
     train_sub, val = full.chrono_split(cfg["split"]["val_frac"])
@@ -78,10 +78,12 @@ def _val_env(setup: TrainSetup, *, size: float, cfg: dict, obs_features: tuple[s
 
 
 def train_one_seed(setup: TrainSetup, *, size: float, cfg: dict, seed: int,
-                   total_timesteps: int, out_dir: Path, device: str = "cpu",
-                   eval_freq: int = 100_000, n_val_eval: int = 400,
+                   total_timesteps: int, out_dir: Path, algo: str = "dqn",
+                   device: str = "cpu", eval_freq: int = 100_000, n_val_eval: int = 400,
                    verbose: int = 0) -> dict:
-    """Train a single DQN seed; save the run bundle; return its metadata."""
+    """Train a single seed of ``algo`` ("dqn" or "ppo"); save the run bundle and
+    return its metadata. Both algorithms share the env, reward, action grid, split,
+    and order size, so a run differs only by the algorithm and its hyperparameters."""
     obs_features = tuple(cfg["obs"]["features"])
     acfg = cfg["agent"]
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -100,8 +102,13 @@ def train_one_seed(setup: TrainSetup, *, size: float, cfg: dict, seed: int,
         obs_features=obs_features, normalizer=setup.normalizer, test_mode=False,
         reward_bps=True, leftover_penalty_bps=acfg["leftover_penalty_bps"], seed=seed,
     ))
-    model = make_dqn(train_env, acfg["dqn"], seed=seed, device=device,
-                     total_timesteps=total_timesteps)
+    if algo == "dqn":
+        model = make_dqn(train_env, acfg["dqn"], seed=seed, device=device,
+                         total_timesteps=total_timesteps)
+    elif algo == "ppo":
+        model = make_ppo(train_env, acfg["ppo"], seed=seed, device=device)
+    else:
+        raise ValueError(f"unknown algo: {algo!r}")
     cb = ValidationCurveCallback(val_env, val_indices, twap_is, eval_freq=eval_freq,
                                  csv_path=out_dir / "curve.csv", verbose=verbose)
 
@@ -113,18 +120,19 @@ def train_one_seed(setup: TrainSetup, *, size: float, cfg: dict, seed: int,
     setup.normalizer.to_json(out_dir / "normalizer.json")
     final = cb.rows[-1] if cb.rows else {}
     meta = {
-        "algo": "dqn", "size_btc": size, "seed": seed,
+        "algo": algo, "size_btc": size, "seed": seed,
         "total_timesteps": total_timesteps, "train_time_s": round(train_time, 1),
         "device": device, "reward_bps": True,
-        "exploration_fraction": float(model.exploration_fraction),  # budget-derived
         "leftover_penalty_bps": acfg["leftover_penalty_bps"],
         "n_val_eval": n_val, "eval_freq": eval_freq,
         "adv_btc": setup.adv, "residual_coef": setup.residual_coef,
-        "dqn_hp": acfg["dqn"], "obs_features": list(obs_features),
+        f"{algo}_hp": acfg[algo], "obs_features": list(obs_features),
         "val_vs_twap_final": final.get("val_vs_twap_mean"),
         "val_full_exec_final": final.get("val_full_exec_frac"),
         "val_residual_freq_final": final.get("val_residual_freq"),
     }
+    if algo == "dqn":
+        meta["exploration_fraction"] = float(model.exploration_fraction)  # budget-derived
     (out_dir / "meta.json").write_text(json.dumps(meta, indent=2))
     return meta
 
@@ -155,10 +163,10 @@ def _plot_curves(run_dirs: list[Path], out_path: Path, title: str) -> None:
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Train DQN on the real-data execution env")
+    ap = argparse.ArgumentParser(description="Train DQN or PPO on the real-data execution env")
     ap.add_argument("--scratch-root", required=True)
     ap.add_argument("--config", default="configs/experiment.yaml")
-    ap.add_argument("--algo", default="dqn", choices=["dqn"])  # ppo added in Step 7
+    ap.add_argument("--algo", default="dqn", choices=["dqn", "ppo"])
     ap.add_argument("--size", type=float, default=None, help="order size BTC (default: primary)")
     ap.add_argument("--seeds", type=int, nargs="*", default=None, help="override config seeds")
     ap.add_argument("--total-timesteps", type=int, default=None)
@@ -183,19 +191,19 @@ def main() -> None:
 
     run_dirs = []
     for seed in seeds:
-        out_dir = out_root / f"dqn_size{size:g}_seed{seed}"
-        print(f"\n[seed {seed}] training -> {out_dir}")
+        out_dir = out_root / f"{args.algo}_size{size:g}_seed{seed}"
+        print(f"\n[{args.algo} seed {seed}] training -> {out_dir}")
         meta = train_one_seed(setup, size=size, cfg=cfg, seed=seed, total_timesteps=total,
-                              out_dir=out_dir, device=args.device, eval_freq=args.eval_freq,
-                              n_val_eval=args.n_val_eval, verbose=1)
+                              out_dir=out_dir, algo=args.algo, device=args.device,
+                              eval_freq=args.eval_freq, n_val_eval=args.n_val_eval, verbose=1)
         run_dirs.append(out_dir)
         print(f"[seed {seed}] done in {meta['train_time_s']}s  "
               f"val_vs_twap_final={meta['val_vs_twap_final']:+.3f} bps  "
               f"full_exec={meta['val_full_exec_final']*100:.1f}%")
 
-    _plot_curves(run_dirs, out_root / f"dqn_size{size:g}_curves.png",
-                 f"DQN val-vs-TWAP, size {size:g} BTC")
-    print(f"\nall seeds done. curves -> {out_root / f'dqn_size{size:g}_curves.png'}")
+    plot_path = out_root / f"{args.algo}_size{size:g}_curves.png"
+    _plot_curves(run_dirs, plot_path, f"{args.algo.upper()} val-vs-TWAP, size {size:g} BTC")
+    print(f"\nall seeds done. curves -> {plot_path}")
 
 
 if __name__ == "__main__":

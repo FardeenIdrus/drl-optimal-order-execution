@@ -65,3 +65,35 @@ def test_relative_daily_vol_positive_when_varied_zero_when_flat():
     varied = make_store()
     varied.mid[:] = np.array([100.0, 101.0, 100.0, 101.0])
     assert estimate_relative_daily_vol(varied) > 0.0
+
+
+def test_relative_daily_vol_annualises_by_bar_width():
+    # periods/day = 86_400/bar_seconds (1440 at 60s, 8640 at 10s). For the SAME store
+    # (same per-bar std), the only difference is the annualisation factor, so the 10s
+    # estimate must exceed the 60s one by exactly sqrt(8640/1440)=sqrt(6).
+    s = make_store()
+    s.mid[:] = np.array([100.0, 101.0, 100.0, 101.0])
+    v60 = estimate_relative_daily_vol(s, bar_seconds=60)
+    v10 = estimate_relative_daily_vol(s, bar_seconds=10)
+    assert v10 / v60 == pytest.approx(np.sqrt(6.0), rel=1e-12)
+    # default is the 60s case (back-compat with the rest of the suite)
+    assert estimate_relative_daily_vol(s) == pytest.approx(v60, rel=1e-12)
+
+
+def test_relative_daily_vol_is_resolution_invariant_for_diffusive_path():
+    # The physical invariance the fix restores: a finer bar has a sqrt(6)-smaller
+    # per-bar move, but sqrt(6)-more periods/day, so the recovered DAILY vol is the
+    # SAME. (Same mean_mid in both, so the relative normalisation is identical.)
+    coarse = make_store()
+    coarse.mid[:] = np.array([100.0, 101.0, 100.0, 101.0])       # std(diff) = 1
+    a = 0.5 / np.sqrt(6.0)
+    fine = make_store()
+    fine.mid[:] = np.array([100.5 - a, 100.5 + a, 100.5 - a, 100.5 + a])  # std(diff)=1/sqrt6, same mean
+    d_coarse = estimate_relative_daily_vol(coarse, bar_seconds=60)
+    d_fine = estimate_relative_daily_vol(fine, bar_seconds=10)
+    assert d_fine == pytest.approx(d_coarse, rel=1e-9)
+
+
+def test_relative_daily_vol_rejects_nonpositive_bar_seconds():
+    with pytest.raises(ValueError):
+        estimate_relative_daily_vol(make_store(), bar_seconds=0)

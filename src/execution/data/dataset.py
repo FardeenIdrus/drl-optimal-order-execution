@@ -38,15 +38,23 @@ _KEYS = ["episode_id", "step", "ts", "regime", "split"]
 
 
 def materialise(
-    features_df: pd.DataFrame, minute_df: pd.DataFrame, episodes_df: pd.DataFrame
+    features_df: pd.DataFrame, minute_df: pd.DataFrame, episodes_df: pd.DataFrame,
+    bar_seconds: int = 60,
 ) -> pd.DataFrame:
-    """Assemble the decision-step table: features[t] + book as-of t (= minute[t-1])."""
+    """Assemble the decision-step table: features[t] + book as-of t (= bar[t-1]).
+
+    The one-bar fill-book lag and the within-episode step index are both in BAR units
+    (``bar_seconds``), so a decision at bar t trades against bar (t-1)'s book and steps
+    run 0..bars_per_episode-1 at any resolution (30 steps at 60s, 180 at 10s)."""
+    if bar_seconds <= 0 or 60 % bar_seconds != 0:
+        raise ValueError(f"bar_seconds must be a positive divisor of 60, got {bar_seconds}")
+    bar_ms = bar_seconds * 1000
     feats = features_df[["ts"] + FEATURES]
 
-    # The book observed at decision t is the previous minute's end-of-minute book, so
-    # relabel each book row forward by one minute.
+    # The book observed at decision t is the previous BAR's end-of-bar book, so relabel
+    # each book row forward by one bar (bar_ms, not a fixed minute).
     book = minute_df[["ts"] + _FILL_BOOK].copy()
-    book["ts"] = book["ts"] + MS_PER_MINUTE
+    book["ts"] = book["ts"] + bar_ms
 
     dec = feats.merge(book, on="ts", how="inner")
     dec["bucket"] = (dec["ts"] // EPISODE_MS) * EPISODE_MS
@@ -55,18 +63,18 @@ def materialise(
         columns={"start_ts": "bucket"}
     )
     dec = dec.merge(eps, on="bucket", how="inner")
-    dec["step"] = ((dec["ts"] - dec["bucket"]) // MS_PER_MINUTE).astype(int)
+    dec["step"] = ((dec["ts"] - dec["bucket"]) // bar_ms).astype(int)
 
     cols = _KEYS + FEATURES + ["mid", "bid_px_1", "bid_sz_1"] + ASK_PX + ASK_SZ
     return dec[cols].sort_values(["episode_id", "step"]).reset_index(drop=True)
 
 
-def check_integrity(table: pd.DataFrame) -> Dict[str, object]:
+def check_integrity(table: pd.DataFrame, bars_per_episode: int = 30) -> Dict[str, object]:
     """Validate the materialised dataset; raise on must-hold invariants."""
     steps = table.groupby("episode_id")["step"].size()
-    bad = steps[steps != 30]
+    bad = steps[steps != bars_per_episode]
     if len(bad):
-        raise ValueError(f"{len(bad)} episodes do not have exactly 30 steps")
+        raise ValueError(f"{len(bad)} episodes do not have exactly {bars_per_episode} steps")
 
     train, test = table[table.split == "train"], table[table.split == "test"]
     if len(train) and len(test) and train["ts"].max() >= test["ts"].min():
@@ -99,15 +107,20 @@ def main() -> None:
     p.add_argument("--minute-parquet", required=True)
     p.add_argument("--episodes-parquet", required=True)
     p.add_argument("--out-dir", required=True, help="output dir for train.parquet/test.parquet (scratch)")
+    p.add_argument("--bar-seconds", type=int, default=60,
+                   help="bar width in seconds (default 60; finer e.g. 10). Sets the fill-book "
+                        "lag, the step index, and the expected steps/episode.")
     args = p.parse_args()
+
+    bars_per_episode = EPISODE_MS // (args.bar_seconds * 1000)   # 30 at 60s, 180 at 10s
 
     features_df = pd.read_parquet(args.features_parquet, columns=["ts"] + FEATURES)
     minute_df = pd.read_parquet(args.minute_parquet, columns=["ts"] + _FILL_BOOK)
     episodes_df = pd.read_parquet(args.episodes_parquet,
                                   columns=["start_ts", "episode_id", "regime", "split"])
 
-    table = materialise(features_df, minute_df, episodes_df)
-    report = check_integrity(table)
+    table = materialise(features_df, minute_df, episodes_df, bar_seconds=args.bar_seconds)
+    report = check_integrity(table, bars_per_episode=bars_per_episode)
 
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)

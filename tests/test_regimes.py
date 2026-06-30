@@ -6,6 +6,7 @@ import math
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from execution.data import regimes as R
 
@@ -70,3 +71,33 @@ def test_regime_labels_by_threshold():
                          test_frac=0.2, buffer_episodes=0)
     eps, thr = R.assign_regime(eps, n_regimes=2)
     assert ((eps["regime"] == "volatile") == (eps["realized_vol"] > thr["median"])).all()
+
+
+# --- finer-resolution (180 bars / 30-min episode at 10s) ---------------------------
+
+def _build_10s(ep_rv, bars_per_ep=180):
+    """One row per 10s bar for len(ep_rv) clock-aligned 30-min episodes (180 bars each)."""
+    rows = []
+    for e, rv in enumerate(ep_rv):
+        for i in range(bars_per_ep):
+            rows.append((BASE + e * EP_MS + i * 10_000, True, rv))
+    df = pd.DataFrame(rows, columns=["ts", "feature_valid", "realized_variance"])
+    return df[["ts", "feature_valid"]], df[["ts", "realized_variance"]]
+
+
+def test_build_episodes_at_10s_resolution():
+    feats, minute = _build_10s([1e-6, 1e-6])
+    eps = R.build_episodes(feats, minute, bar_seconds=10)
+    assert len(eps) == 2
+    assert (eps["n_bars"] == 180).all() and (eps["n_minutes"] == 30).all()
+    # realised vol sums all 180 bars' RV over the same 30-min window
+    assert math.isclose(eps.iloc[0]["realized_vol"], math.sqrt(180 * 1e-6), rel_tol=1e-9)
+    # the 60s default expects 30 rows/episode -> the 10s data (180 rows/bucket) is rejected
+    assert len(R.build_episodes(feats, minute, bar_seconds=60)) == 0
+
+
+def test_build_episodes_rejects_bad_bar_seconds():
+    feats, minute = _build([1e-6])
+    for bad in (7, 0, 11):                                  # must divide 60
+        with pytest.raises(ValueError):
+            R.build_episodes(feats, minute, bar_seconds=bad)

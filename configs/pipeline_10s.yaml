@@ -1,0 +1,55 @@
+# Finer-resolution (10s bar) data-pipeline configuration. Identical to pipeline.yaml
+# EXCEPT bar_seconds (60 -> 10) and the derived-artifact paths (re-tagged "_10s"),
+# so the 60s and 10s datasets sit side by side under one --scratch-root and the 60s
+# artifacts are never overwritten. Reproduce with:
+#
+#   PYTHONPATH=src .venv/bin/python -m execution.pipeline \
+#       --config configs/pipeline_10s.yaml --scratch-root <path-to-scratch> --from minute
+#
+# The raw archive + manifest are SHARED with the 60s run (same paths below), so
+# Stages 0-1 (manifest/pull) are skipped automatically and nothing re-pulls 15 GB.
+# Only Stages 3-6 (resample/features/regimes/dataset) rebuild at 10s.
+#
+# Rationale: at 30-min / 60s the controllable timing signal is swamped by drift
+# noise (RL nulled out vs TWAP). Finer 10s bars raise the episode-level signal-to-
+# noise (the 30-min drift denominator is fixed by the horizon; exploitable
+# microstructure signal grows at the seconds scale). 10s carries ~17 snapshots/bar
+# (median 102/min), so the end-of-bar book and realised variance stay well-sampled.
+
+coin: BTC
+start: "2024-01-01"        # inclusive (YYYY-MM-DD, UTC)
+end: "2025-12-31"          # inclusive
+bar_seconds: 10            # FINER resolution (vs 60 canonical); divides 3600 so no bar spans an hour
+resample_chunk_by: month   # MEMORY-SAFE: resample one calendar month at a time (~300 MB peak)
+                           # instead of building the whole 6x-larger table in RAM (which OOM-froze
+                           # a 16 GB machine). Writes monthly parquet parts under minute_parquet/.
+skip_ranges:               # known archive gap weeks, excluded by request (inclusive)
+  - ["2025-10-17", "2025-10-22"]
+  - ["2025-11-18", "2025-11-24"]
+
+features:
+  imbalance_depth: 5       # book depth (levels) for imbalance and ask_depth (level-count, width-agnostic)
+  return_lookback: 5       # minutes for recent_return (Stage-4 converts minutes -> bars via bar_seconds)
+  vol_window: 30           # minutes for rolling_vol (Stage-4 converts minutes -> bars via bar_seconds)
+
+regimes:
+  episode_minutes: 30      # execution horizon = episode length -> 180 bars of 10s (vs 30 of 60s)
+  test_frac: 0.2           # chronological hold-out fraction
+  buffer_episodes: 1       # episodes dropped at the train/test boundary
+  n_regimes: 2             # 2 = calm/volatile (median split); 3 = terciles
+
+compute:
+  pull_workers: 16         # parallel S3 downloads (Stage 1; skipped - raw is shared with 60s)
+  resample_workers: 8      # parallel file parsing (Stage 3)
+  resample_batch_files: 96 # files parsed per batch (bounds memory)
+
+# Artifact locations, relative to --scratch-root. manifest_dir + raw_dir are SHARED
+# with pipeline.yaml (identical paths -> Stages 0-1 skipped). The four derived
+# artifacts are re-tagged "_10s" so the 60s outputs are preserved side by side.
+artifacts:
+  manifest_dir: "manifest"                               # SHARED with 60s
+  raw_dir: "raw_l2/BTC"                                   # SHARED with 60s (15 GB, not duplicated)
+  minute_parquet: "minute_10s/btc_bar10s_2024-2025"     # DIRECTORY of monthly parts (chunked mode)
+  features_parquet: "features_10s/btc_features_2024-2025.parquet"
+  episodes_parquet: "episodes_10s/btc_episodes_2024-2025.parquet"
+  dataset_dir: "dataset_10s"

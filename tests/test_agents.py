@@ -8,9 +8,9 @@ import json
 
 import numpy as np
 import pytest
-from stable_baselines3 import DQN
+from stable_baselines3 import DQN, PPO
 
-from execution.agents.build import derive_exploration_fraction, make_dqn
+from execution.agents.build import derive_exploration_fraction, make_dqn, make_ppo
 from execution.agents.policy import SB3Policy
 from execution.agents.train import TrainSetup, train_one_seed
 from execution.data.features import FEATURE_COLUMNS
@@ -23,6 +23,10 @@ _TINY_DQN = dict(net_arch=[16, 16], activation="LeakyReLU", learning_rate=1e-3,
                  train_freq=10, gradient_steps=1, target_update_interval=100, n_steps=1,
                  exploration_initial_eps=1.0, exploration_final_eps=0.05,
                  exploration_fraction=0.5)
+
+_TINY_PPO = dict(net_arch=[16, 16], activation="LeakyReLU", learning_rate=3e-4,
+                 n_steps=64, batch_size=32, n_epochs=3, gamma=0.99, gae_lambda=0.95,
+                 clip_range=0.2, ent_coef=0.01)
 
 
 def _synth_store(n_ep, n_steps=30, n_levels=20, seed=0):
@@ -104,3 +108,35 @@ def test_train_one_seed_smoke(tmp_path):
     assert json.loads((tmp_path / "meta.json").read_text())["seed"] == 0
     assert meta["val_vs_twap_final"] is not None        # curve produced a final point
     assert meta["train_time_s"] >= 0.0
+
+
+def test_make_ppo_mirrors_hyperparameters():
+    model = make_ppo(_env(_synth_store(4)), _TINY_PPO, seed=0, device="cpu")
+    assert isinstance(model, PPO)
+    assert model.gamma == pytest.approx(0.99)           # matched to DQN, not PPO's default
+    assert model.n_steps == 64
+    assert model.n_epochs == 3
+    assert model.policy_kwargs["net_arch"] == [16, 16]  # same trunk shape as the DQN test
+
+
+def test_train_one_seed_ppo_smoke(tmp_path):
+    cfg = {
+        "env": {"n_steps": 30, "actions": [0.0, 1.0, 2.0], "initial_inventory": 10.0,
+                "action_mode": "twap_pace_multiple"},
+        "obs": {"features": list(FEATURE_COLUMNS)},
+        "agent": {"leftover_penalty_bps": 100.0, "ppo": _TINY_PPO},
+    }
+    train_sub = _synth_store(20, seed=0)
+    val = _synth_store(8, seed=1)
+    norm = FeatureNormalizer.fit(train_sub.features, train_sub.feature_names)
+    setup = TrainSetup(train_sub, val, norm, {"calm": 0.005, "volatile": 0.005}, 19000.0)
+
+    meta = train_one_seed(setup, size=10.0, cfg=cfg, seed=0, total_timesteps=256,
+                          out_dir=tmp_path, algo="ppo", eval_freq=128, n_val_eval=8)
+
+    assert (tmp_path / "model.zip").exists()
+    assert (tmp_path / "curve.csv").exists()
+    md = json.loads((tmp_path / "meta.json").read_text())
+    assert md["algo"] == "ppo" and "ppo_hp" in md
+    assert "exploration_fraction" not in md             # PPO has no epsilon schedule
+    assert meta["val_vs_twap_final"] is not None

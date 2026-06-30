@@ -44,14 +44,24 @@ EPISODE_MS = EPISODE_MINUTES * MS_PER_MINUTE
 
 
 def build_episodes(
-    features_df: pd.DataFrame, minute_df: pd.DataFrame, episode_minutes: int = EPISODE_MINUTES
+    features_df: pd.DataFrame, minute_df: pd.DataFrame, episode_minutes: int = EPISODE_MINUTES,
+    bar_seconds: int = 60,
 ) -> pd.DataFrame:
     """Build fully-valid, clock-aligned, non-overlapping episodes with realised vol.
 
-    An episode is valid iff all ``episode_minutes`` of its clock-aligned window are
-    present and ``feature_valid``. Realised vol = sqrt(sum of the window's per-minute
-    realised variance); single-snapshot minutes (undefined variance) contribute 0.
+    An episode is a clock-aligned ``episode_minutes``-minute window, which at
+    ``bar_seconds`` resolution holds ``bars_per_episode = episode_minutes*60/bar_seconds``
+    bars (30 at 60s, 180 at 10s). It is valid iff ALL of those bars are present and
+    ``feature_valid``. Realised vol = sqrt(sum of the window's per-bar realised
+    variance); single-snapshot bars (undefined variance) contribute 0. The window is
+    the same wall-clock 30 minutes at any resolution; finer bars just sample its
+    realised variance more granularly (the regime threshold is re-fit on train, so the
+    calm/volatile split stays internally consistent per resolution).
     """
+    if bar_seconds <= 0 or 60 % bar_seconds != 0:
+        raise ValueError(f"bar_seconds must be a positive divisor of 60, got {bar_seconds}")
+    bar_ms = bar_seconds * 1000
+    bars_per_episode = episode_minutes * 60 // bar_seconds
     ep_ms = episode_minutes * MS_PER_MINUTE
     j = features_df[["ts", "feature_valid"]].merge(
         minute_df[["ts", "realized_variance"]], on="ts", how="left"
@@ -64,13 +74,14 @@ def build_episodes(
         n_valid=("feature_valid", "sum"),
         rv_sum=("rv0", "sum"),
     )
-    full_and_valid = (agg["n_rows"] == episode_minutes) & (agg["n_valid"] == episode_minutes)
+    full_and_valid = (agg["n_rows"] == bars_per_episode) & (agg["n_valid"] == bars_per_episode)
     agg = agg[full_and_valid]
 
     eps = pd.DataFrame({
         "start_ts": agg.index.to_numpy(dtype="int64"),
         "end_ts": agg.index.to_numpy(dtype="int64") + ep_ms,  # exclusive
-        "n_minutes": episode_minutes,
+        "n_minutes": episode_minutes,    # wall-clock minutes (width-agnostic)
+        "n_bars": bars_per_episode,      # rows/steps per episode at this resolution
         "realized_vol": np.sqrt(agg["rv_sum"].to_numpy()),
     }).sort_values("start_ts").reset_index(drop=True)
     return eps
@@ -143,12 +154,14 @@ def main() -> None:
     p.add_argument("--test-frac", type=float, default=0.2)
     p.add_argument("--buffer-episodes", type=int, default=1)
     p.add_argument("--n-regimes", type=int, default=2)
+    p.add_argument("--bar-seconds", type=int, default=60,
+                   help="bar width in seconds (default 60; finer e.g. 10). Sets bars/episode.")
     args = p.parse_args()
 
     features_df = pd.read_parquet(args.features_parquet, columns=["ts", "feature_valid"])
     minute_df = pd.read_parquet(args.minute_parquet, columns=["ts", "realized_variance"])
 
-    eps = build_episodes(features_df, minute_df)
+    eps = build_episodes(features_df, minute_df, bar_seconds=args.bar_seconds)
     eps = assign_split(eps, test_frac=args.test_frac, buffer_episodes=args.buffer_episodes)
     eps, thresholds = assign_regime(eps, n_regimes=args.n_regimes)
     eps["episode_id"] = np.arange(len(eps))

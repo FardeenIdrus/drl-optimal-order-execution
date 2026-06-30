@@ -1,7 +1,11 @@
 # Phase 2 experiment configuration (RL environment + agents).
 # Single source of truth for env/agent parameters, analogous to pipeline.yaml for
 # the data pipeline. Dataset location is passed at runtime via --scratch-root
-# (data lives outside the repo), so no data paths are hardcoded here.
+# (data lives outside the repo); dataset_dir selects the subdir under it.
+# The finer-resolution variant is configs/experiment_10s.yaml.
+
+bar_seconds: 60               # bar width (s); n_steps * bar_seconds = 1800s = 30-min horizon
+dataset_dir: dataset          # 60s dataset under --scratch-root (10s lives in dataset_10s/)
 
 env:
   # Meta-order sized as a % of ADV (Setup Step 1). ADV = 19,313 BTC (BTC daily
@@ -74,3 +78,23 @@ agent:
     # near-greedy throughout learning. learning_starts stays ABSOLUTE (buffer fill,
     # not training length). At 2M-6M this rule yields ~0.26; recorded per run.
     exploration_anneal_frac: 0.25
+
+  ppo:                          # PPO is NEW (the QRM scaffold had only DQN). Standard,
+                                # well-established SB3 settings, with the SAME [30x5] LeakyReLU
+                                # trunk and gamma as the DQN so the DQN-vs-PPO comparison
+                                # isolates the algorithm, plus a small entropy bonus to avoid
+                                # premature collapse to a constant TWAP-pace policy. PPO is
+                                # on-policy: no replay buffer, no epsilon (it explores via its
+                                # stochastic policy + ent_coef).
+    net_arch: [30, 30, 30, 30, 30]   # same [30x5] trunk as DQN (fair like-for-like)
+    activation: LeakyReLU
+    learning_rate: 0.0003       # SB3 PPO default
+    n_steps: 2048               # rollout length per update (~68 of the 30-step episodes)
+    batch_size: 64
+    n_epochs: 10
+    gamma: 0.995                # MATCHED to the DQN (not PPO's 0.99 default)
+    gae_lambda: 0.95
+    clip_range: 0.2
+    ent_coef: 0.01              # small exploration bonus (default 0.0); avoids TWAP-collapse
+    vf_coef: 0.5
+    max_grad_norm: 0.5

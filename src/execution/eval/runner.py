@@ -115,48 +115,63 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="Phase-2 Step-1 env smoke test (TWAP on real data)")
     ap.add_argument("--scratch-root", required=True, help="path to scratch_hyperliquid/")
     ap.add_argument("--config", default="configs/experiment.yaml")
-    ap.add_argument("--split", default="test", choices=["train", "test"])
+    ap.add_argument("--split", default="test", choices=["train", "val", "test"])
     ap.add_argument("--max-episodes", type=int, default=None, help="cap episodes (default: all)")
     args = ap.parse_args()
 
     cfg_all = yaml.safe_load(Path(args.config).read_text())
     cfg = cfg_all["env"]
     obs_features = tuple(cfg_all.get("obs", {}).get("features", []))
-    ds_dir = Path(args.scratch_root) / "dataset"
+    ds_dir = Path(args.scratch_root) / cfg_all.get("dataset_dir", "dataset")   # dataset_10s at 10s
 
-    # The feature normalizer is ALWAYS fit on TRAIN (leakage-safe), then frozen and
-    # applied to whichever split we evaluate. Persisted for training/eval reuse.
-    train_store = EpisodeStore.from_parquet(ds_dir / "train.parquet", n_steps=cfg["n_steps"])
-    normalizer = FeatureNormalizer.fit(train_store.features, train_store.feature_names)
-    normalizer.to_json(ds_dir / "normalization.json")
+    # Impact (eta, sigma, residual) and the normalizer are fit on the CALIBRATION store --
+    # the data strictly BEFORE the evaluated split, so nothing leaks:
+    #   --split val  -> calibrate on train_sub (chronological pre-val part of train), eval
+    #                   on val (the gate set; TEST stays sealed). Mirrors the agent's
+    #                   setup_data, so benchmarks and agent share identical calibration.
+    #   --split train-> calibrate and evaluate on full train.
+    #   --split test -> calibrate on full train, evaluate on the sealed test (FINAL only).
+    full_train = EpisodeStore.from_parquet(ds_dir / "train.parquet", n_steps=cfg["n_steps"])
+    if args.split == "val":
+        val_frac = cfg_all.get("split", {}).get("val_frac", 0.15)
+        calib_store, store = full_train.chrono_split(val_frac)
+    elif args.split == "train":
+        calib_store = store = full_train
+    else:  # test
+        calib_store = full_train
+        store = EpisodeStore.from_parquet(ds_dir / "test.parquet", n_steps=cfg["n_steps"])
+    normalizer = FeatureNormalizer.fit(calib_store.features, calib_store.feature_names)
+    if args.split != "val":      # don't clobber the canonical train-fit normalizer with the train_sub fit
+        normalizer.to_json(ds_dir / "normalization.json")
 
-    store = (train_store if args.split == "train"
-             else EpisodeStore.from_parquet(ds_dir / "test.parquet", n_steps=cfg["n_steps"]))
     n = store.n_episodes if args.max_episodes is None else min(args.max_episodes, store.n_episodes)
     idxs = list(range(n))
 
     inv = cfg["initial_inventory"]
     N = cfg["n_steps"]
     adv = cfg.get("adv_btc")
+    # Bar width drives the daily-vol annualisation; explicit in cfg, else derived from
+    # the locked 30-min (1800s) episode: 60s at N=30, 10s at N=180.
+    bar_seconds = int(cfg.get("bar_seconds", 1800 // N))
 
     # Calibrate impact from the TRAIN book (real, leakage-safe): linear eta (the AC
     # reference) AND the per-regime square-root coefficient (the deadline residual).
     q_grid = [1, 2, 5, 10, 20]
-    sigma = estimate_volatility(train_store)
-    cal = calibrate_temporary_impact(train_store, q_grid, adv=adv)
+    sigma = estimate_volatility(calib_store)   # per-step (per-bar) absolute mid vol, USD
+    cal = calibrate_temporary_impact(calib_store, q_grid, adv=adv)
 
     residual_coef_by_regime: dict[str, float] = {}
     print("\n=== Phase 3 benchmarks (real Hyperliquid L2) ===")
     print(f"split: {args.split}   episodes: {n}   meta-order: {inv} BTC over {N} steps   "
           f"ADV: {adv} BTC\n")
     print("Calibrated impact (TRAIN book):")
-    print(f"  sigma (USD per-min mid vol): {sigma:.4f}")
+    print(f"  sigma (USD per-step mid vol, {bar_seconds}s bar): {sigma:.4f}")
     print(f"  eta (linear temp-impact, USD/BTC^2): {cal.eta:.6f}   R^2={cal.r2_linear:.3f}  "
           f"(R^2<1 => real book is convex, not linear -> AC is a reference)")
     print(f"  sqrt_coef (Y*sigma, deadline residual): {cal.sqrt_coef:.4f}   R^2={cal.r2_sqrt:.3f}")
     for reg in ("calm", "volatile"):
-        sig_rel = estimate_relative_daily_vol(train_store, regime=reg)
-        c_r = calibrate_temporary_impact(train_store, q_grid, adv=adv, regime=reg)
+        sig_rel = estimate_relative_daily_vol(calib_store, regime=reg, bar_seconds=bar_seconds)
+        c_r = calibrate_temporary_impact(calib_store, q_grid, adv=adv, regime=reg)
         residual_coef_by_regime[reg] = c_r.sqrt_coef
         y_impl = (c_r.sqrt_coef / sig_rel) if (sig_rel and np.isfinite(sig_rel)) else float("nan")
         print(f"  [{reg:8}] eta={c_r.eta:.6f} (R^2={c_r.r2_linear:.3f})  "

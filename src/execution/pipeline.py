@@ -70,6 +70,8 @@ def plan_stages(cfg: dict, paths: Dict[str, Path]) -> List[Stage]:
     """Build the ordered stage list (output to check + module argv)."""
     coin = cfg["coin"]
     feat, reg, comp = cfg["features"], cfg["regimes"], cfg["compute"]
+    bar_seconds = cfg.get("bar_seconds", 60)   # 60s canonical; finer (e.g. 10) for the resolution study
+    chunk_by = cfg.get("resample_chunk_by", "none")   # 'month' = memory-safe resample for fine bars
     return [
         Stage("manifest", paths["manifest_csv"], [
             "-m", "execution.data.manifest", "--coin", coin,
@@ -81,6 +83,7 @@ def plan_stages(cfg: dict, paths: Dict[str, Path]) -> List[Stage]:
         Stage("minute", paths["minute_parquet"], [
             "-m", "execution.data.resample", "--raw-dir", str(paths["raw_dir"]), "--coin", coin,
             "--manifest", str(paths["manifest_csv"]), "--out", str(paths["minute_parquet"]),
+            "--bar-seconds", str(bar_seconds), "--chunk-by", chunk_by,
             "--workers", str(comp["resample_workers"]),
             "--batch-files", str(comp["resample_batch_files"])]),
         Stage("features", paths["features_parquet"], [
@@ -88,17 +91,20 @@ def plan_stages(cfg: dict, paths: Dict[str, Path]) -> List[Stage]:
             "--out", str(paths["features_parquet"]),
             "--imbalance-depth", str(feat["imbalance_depth"]),
             "--return-lookback", str(feat["return_lookback"]),
-            "--vol-window", str(feat["vol_window"])]),
+            "--vol-window", str(feat["vol_window"]),
+            "--bar-seconds", str(bar_seconds)]),
         Stage("regimes", paths["episodes_parquet"], [
             "-m", "execution.data.regimes", "--features-parquet", str(paths["features_parquet"]),
             "--minute-parquet", str(paths["minute_parquet"]),
             "--out", str(paths["episodes_parquet"]), "--test-frac", str(reg["test_frac"]),
-            "--buffer-episodes", str(reg["buffer_episodes"]), "--n-regimes", str(reg["n_regimes"])]),
+            "--buffer-episodes", str(reg["buffer_episodes"]), "--n-regimes", str(reg["n_regimes"]),
+            "--bar-seconds", str(bar_seconds)]),
         Stage("dataset", paths["train_parquet"], [
             "-m", "execution.data.dataset", "--features-parquet", str(paths["features_parquet"]),
             "--minute-parquet", str(paths["minute_parquet"]),
             "--episodes-parquet", str(paths["episodes_parquet"]),
-            "--out-dir", str(paths["dataset_dir"])]),
+            "--out-dir", str(paths["dataset_dir"]),
+            "--bar-seconds", str(bar_seconds)]),
     ]
 
 

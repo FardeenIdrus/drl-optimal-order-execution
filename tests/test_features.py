@@ -6,6 +6,7 @@ import math
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from execution.data import features as F
 
@@ -84,3 +85,41 @@ def test_no_look_ahead():
     assert out1.iloc[3]["spread_bps"] == out2.iloc[3]["spread_bps"]
     # Decision row 4 uses bar 3 -> must change.
     assert out1.iloc[4]["spread_bps"] != out2.iloc[4]["spread_bps"]
+
+
+# --- finer-resolution (minute windows -> bars via bar_seconds) ---------------------
+
+def test_minute_windows_convert_to_bars_at_10s():
+    # At bar_seconds=10 there are 6 bars/min, so a 1-MINUTE window is a 6-BAR window.
+    # Build a 10s-spaced table (14 bars) and check the return lookback spans 6 bars and
+    # the vol window sums 6 bars -- i.e. the wall-clock window is held fixed, not the
+    # bar count (which would be 1 bar at 60s).
+    n = 14
+    ts = [BASE + i * 10_000 for i in range(n)]                 # 10s spacing
+    mid = [100.0 + i for i in range(n)]
+    df = _minute_df(mid, [1.0]*n, [3.0]*n, [1.0]*n, [1e-6]*n, ts=ts)
+    out = F.compute_features(df, return_lookback=1, vol_window=1, bar_seconds=10)
+
+    assert len(out) == n                                        # grid spacing is 10s, not 60s
+    # recent_return[t] = log(mid[t-1] / mid[t-1-6]); row 8 -> log(mid[7]/mid[1])
+    assert math.isclose(out.iloc[8]["recent_return"], math.log(mid[7] / mid[1]), rel_tol=1e-9)
+    # rolling_vol[t] = sqrt(sum of 6 bars rv[t-6..t-1]) = sqrt(6e-6)
+    assert math.isclose(out.iloc[8]["rolling_vol"], math.sqrt(6e-6), rel_tol=1e-9)
+    # a window needing 6 prior bars cannot be valid before bar 6 (+1 shift) -> row < 7 invalid
+    assert not out.iloc[6]["feature_valid"] and bool(out.iloc[8]["feature_valid"])
+
+
+def test_60s_path_unchanged_under_bar_seconds_default():
+    # bar_seconds defaults to 60, so minute windows == bar counts exactly (no regression).
+    mid = [100.0, 101.0, 102.0, 103.0, 104.0]
+    df = _minute_df(mid, [1.0]*5, [3.0]*5, [1.0]*5, [1e-6]*5)
+    a = F.compute_features(df, return_lookback=2, vol_window=2)
+    b = F.compute_features(df, return_lookback=2, vol_window=2, bar_seconds=60)
+    pd.testing.assert_frame_equal(a, b)
+
+
+def test_features_reject_bad_bar_seconds():
+    df = _minute_df([100.0]*3, [1.0]*3, [2.0]*3, [2.0]*3, [1e-6]*3)
+    for bad in (7, 0, -10, 11):                                 # must divide 60
+        with pytest.raises(ValueError):
+            F.compute_features(df, bar_seconds=bad)

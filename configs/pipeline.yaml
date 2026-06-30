@@ -11,6 +11,9 @@
 coin: BTC
 start: "2024-01-01"        # inclusive (YYYY-MM-DD, UTC)
 end: "2025-12-31"          # inclusive
+bar_seconds: 60            # resample bar width (s). 60 = canonical minute bar. The
+                           # finer-resolution study uses pipeline_10s.yaml (bar_seconds: 10);
+                           # must divide 3600 so a bar never spans an hour boundary.
 skip_ranges:               # known archive gap weeks, excluded by request (inclusive)
   - ["2025-10-17", "2025-10-22"]
   - ["2025-11-18", "2025-11-24"]

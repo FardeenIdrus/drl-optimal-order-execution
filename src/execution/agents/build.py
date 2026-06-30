@@ -10,7 +10,7 @@ from __future__ import annotations
 from typing import Any
 
 import torch.nn as nn
-from stable_baselines3 import DQN
+from stable_baselines3 import DQN, PPO
 
 _ACTIVATIONS: dict[str, type[nn.Module]] = {
     "LeakyReLU": nn.LeakyReLU,
@@ -82,6 +82,44 @@ def make_dqn(env: Any, hp: dict, *, seed: int, device: str = "cpu",
         exploration_initial_eps=hp["exploration_initial_eps"],
         exploration_final_eps=hp["exploration_final_eps"],
         exploration_fraction=exploration_fraction,
+        policy_kwargs=policy_kwargs,
+        seed=seed,
+        device=device,
+        verbose=0,
+    )
+
+
+def make_ppo(env: Any, hp: dict, *, seed: int, device: str = "cpu") -> PPO:
+    """Build an SB3 PPO that is a like-for-like counterpart to the DQN.
+
+    Same observation, reward (bps), action grid, split, and order size as the DQN,
+    and deliberately the SAME ``[30x5]`` LeakyReLU trunk and ``gamma``, so the
+    DQN-vs-PPO comparison isolates the *algorithm* rather than the architecture.
+    PPO is on-policy: it has no replay buffer and no epsilon-greedy schedule, and
+    explores via its stochastic policy plus a small entropy bonus (``ent_coef``),
+    which also guards against the premature collapse to a constant TWAP-pace policy
+    seen in some DQN seeds. The hyperparameters are new (the QRM scaffold had only
+    DQN); they are the well-established SB3 defaults with ``gamma`` matched to the
+    DQN and a small positive ``ent_coef``, all set in config for reproducibility.
+
+    Note for Phase-7 SHAP: PPO has no ``replay_buffer``, so attribution states must
+    be sourced from a policy rollout, not ``model.replay_buffer``.
+    """
+    activation = _ACTIVATIONS[hp.get("activation", "LeakyReLU")]
+    policy_kwargs = dict(net_arch=list(hp["net_arch"]), activation_fn=activation)
+    return PPO(
+        "MlpPolicy",
+        env,
+        learning_rate=hp["learning_rate"],
+        n_steps=hp["n_steps"],
+        batch_size=hp["batch_size"],
+        n_epochs=hp["n_epochs"],
+        gamma=hp["gamma"],
+        gae_lambda=hp["gae_lambda"],
+        clip_range=hp["clip_range"],
+        ent_coef=hp["ent_coef"],
+        vf_coef=hp.get("vf_coef", 0.5),
+        max_grad_norm=hp.get("max_grad_norm", 0.5),
         policy_kwargs=policy_kwargs,
         seed=seed,
         device=device,

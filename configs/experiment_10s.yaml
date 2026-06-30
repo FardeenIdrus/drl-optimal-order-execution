@@ -1,0 +1,89 @@
+# Phase 2 experiment configuration -- FINER RESOLUTION (10s bars).
+# Identical to experiment.yaml EXCEPT: n_steps 30->180 (a 30-min episode is now 180
+# bars of 10s), a bar_seconds field (drives the daily-vol annualisation in the
+# benchmark report), a dataset_dir pointer to the 10s dataset, and a 6x training
+# budget (see total_timesteps). Everything else -- order size, action grid, reward,
+# features, split, network, exploration rule -- is held FIXED so the 60s-vs-10s
+# comparison isolates the time resolution and nothing else.
+
+bar_seconds: 10               # bar width (s); n_steps * bar_seconds = 1800s = 30-min horizon
+dataset_dir: dataset_10s      # 10s dataset under --scratch-root (60s lives in dataset/)
+
+env:
+  # Order size is RESOLUTION-INDEPENDENT: 0.50% of ADV = 96.57 BTC, unchanged from 60s.
+  # The per-step slice is now 96.57/180 = 0.54 BTC per 10s (vs 3.2 BTC/min at 60s); the
+  # depth cross-check and the naive-TWAP residual frequency are RE-MEASURED on the 10s
+  # build QA (the 60s figures -- 2.26% residual, volatile depth median 22 -- do not carry
+  # over unchanged). The gate still runs at every sweep size; the primary must pass.
+  initial_inventory: 96.57    # BTC = 0.50% of ADV (primary / headline)
+  adv_btc: 19313.4
+  order_size_pct_adv: 0.5
+  order_size_sweep_pct_adv: [0.1, 0.25, 0.5, 1.0]
+  order_size_sweep_btc: [19.31, 48.28, 96.57, 193.13]
+  n_steps: 180                # decisions per episode (30-min horizon, 10-sec steps)
+  final_penalty: 1.0          # reward penalty per BTC of unexecuted inventory (training)
+  # Action = MULTIPLE of the TWAP pace: qty = mult * (remaining inventory / steps_left).
+  # mult=1.0 reproduces TWAP at every step (fair "beat TWAP" test); fine resolution near
+  # 1.0 captures a small well-timed edge. Identical grid to 60s -- the pace is relative to
+  # remaining inventory / steps_left, so it auto-adapts to the 180-step horizon.
+  action_mode: twap_pace_multiple
+  actions: [0.0, 0.5, 0.8, 1.0, 1.2, 1.5, 2.0]
+
+obs:
+  # Same five microstructure features. Their lookback windows are held at the SAME
+  # wall-clock duration (5-min momentum, 30-min vol) and converted to bars in Stage 4,
+  # so the feature content is unchanged -- only sampled 6x finer.
+  features: [spread_bps, imbalance, recent_return, rolling_vol, ask_depth]
+
+split:
+  # Validation carved chronologically from the END of train.parquet; normalizer fit on
+  # the training sub-split ONLY (leakage-free); TEST stays sealed. Unchanged from 60s.
+  val_frac: 0.15
+
+agent:
+  device: cpu
+  reward_bps: true
+  leftover_penalty_bps: 100.0
+  # Budget = 6x the 60s 2M. Rationale (rigor-over-runtime): a 10s episode is 180 steps
+  # vs 30, so 2M timesteps would expose the agent to 6x FEWER distinct market episodes.
+  # 12M matches the per-EPISODE experience the 60s run got (~66.7k episodes), so the
+  # comparison reflects resolution, not training starvation. This is a STARTING budget;
+  # extend if the validation curve has not plateaued (never cap learning for runtime).
+  # The budget-relative exploration rule (exploration_anneal_frac) auto-scales to 12M;
+  # learning_starts stays absolute. Cost is scheduling input only, never a reason to
+  # train less.
+  total_timesteps: 12000000
+  seeds: [0, 1, 2, 3, 4]
+  dqn:                          # mirrors the QRM scaffold (arXiv 2511.15262); UNCHANGED from 60s
+    net_arch: [30, 30, 30, 30, 30]
+    activation: LeakyReLU
+    learning_rate: 0.0001
+    buffer_size: 1000000
+    batch_size: 1024
+    learning_starts: 40000
+    gamma: 0.9992                # = 0.995^(1/6): scaled with the bar width so the effective 30-min
+                                  # planning horizon matches 60s (0.995^30 = 0.9992^180 ~ 0.86). Keeping
+                                  # 0.995 would make the 10s agent ~2x more myopic (terminal weight 0.41),
+                                  # confounding decision-frequency with horizon. Robustness ablation at
+                                  # 0.995 planned (see BUILD_PLAN "Discount factor"). Standard continuous-
+                                  # time discounting gamma=exp(-rho*dt).
+    train_freq: 100
+    gradient_steps: 1
+    target_update_interval: 1000
+    n_steps: 1
+    exploration_initial_eps: 1.0
+    exploration_final_eps: 0.01
+    exploration_anneal_frac: 0.25   # derived exploration_fraction; scales with the 12M budget
+  ppo:                          # same [30x5] trunk + gamma as DQN; standard SB3 settings, UNCHANGED
+    net_arch: [30, 30, 30, 30, 30]
+    activation: LeakyReLU
+    learning_rate: 0.0003
+    n_steps: 2048               # rollout length per update (~11 of the 180-step episodes)
+    batch_size: 64
+    n_epochs: 10
+    gamma: 0.9992               # scaled with bar width (= 0.995^(1/6)), matched to DQN; see DQN note above
+    gae_lambda: 0.95
+    clip_range: 0.2
+    ent_coef: 0.01
+    vf_coef: 0.5
+    max_grad_norm: 0.5
