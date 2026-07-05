@@ -72,6 +72,7 @@ def plan_stages(cfg: dict, paths: Dict[str, Path]) -> List[Stage]:
     feat, reg, comp = cfg["features"], cfg["regimes"], cfg["compute"]
     bar_seconds = cfg.get("bar_seconds", 60)   # 60s canonical; finer (e.g. 10) for the resolution study
     chunk_by = cfg.get("resample_chunk_by", "none")   # 'month' = memory-safe resample for fine bars
+    episode_minutes = reg.get("episode_minutes", 30)  # 30-min horizon; shorter (e.g. 10) for the SNR study
     return [
         Stage("manifest", paths["manifest_csv"], [
             "-m", "execution.data.manifest", "--coin", coin,
@@ -98,13 +99,13 @@ def plan_stages(cfg: dict, paths: Dict[str, Path]) -> List[Stage]:
             "--minute-parquet", str(paths["minute_parquet"]),
             "--out", str(paths["episodes_parquet"]), "--test-frac", str(reg["test_frac"]),
             "--buffer-episodes", str(reg["buffer_episodes"]), "--n-regimes", str(reg["n_regimes"]),
-            "--bar-seconds", str(bar_seconds)]),
+            "--bar-seconds", str(bar_seconds), "--episode-minutes", str(episode_minutes)]),
         Stage("dataset", paths["train_parquet"], [
             "-m", "execution.data.dataset", "--features-parquet", str(paths["features_parquet"]),
             "--minute-parquet", str(paths["minute_parquet"]),
             "--episodes-parquet", str(paths["episodes_parquet"]),
             "--out-dir", str(paths["dataset_dir"]),
-            "--bar-seconds", str(bar_seconds)]),
+            "--bar-seconds", str(bar_seconds), "--episode-minutes", str(episode_minutes)]),
     ]
 
 

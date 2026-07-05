@@ -1,0 +1,67 @@
+# Phase 2 experiment configuration -- 10s bars, SHORTER 10-minute horizon (Option 2).
+# Identical to experiment_10s.yaml EXCEPT n_steps (180 -> 60, a 10-min horizon at 10s) and
+# dataset_dir (-> dataset_10s_10min). gamma stays 0.9992 (same 10s bar, so the per-step
+# discount is unchanged; a shorter episode just means fewer steps). A 10-minute window
+# accumulates ~42% less price drift than 30 minutes and concentrates the same order into
+# bigger slices, attacking the signal-to-noise from the noise side. Objective expectation:
+# most likely strengthens the null (a third axis: resolution, size, horizon); a genuine but
+# low-probability shot at recovering an edge. DQN is INCLUDED here (a shorter horizon attacks
+# the cause of its 30-min procrastination collapse -- 60 steps vs 180 -- so check its action
+# distribution after the run).
+
+bar_seconds: 10
+dataset_dir: dataset_10s_10min   # 10s bars, 10-min episodes (60 steps)
+
+env:
+  initial_inventory: 96.57    # BTC = 0.50% of ADV (unchanged; per-step slice now 96.57/60 = 1.61 BTC)
+  adv_btc: 19313.4
+  order_size_pct_adv: 0.5
+  order_size_sweep_pct_adv: [0.1, 0.25, 0.5, 1.0]
+  order_size_sweep_btc: [19.31, 48.28, 96.57, 193.13]
+  n_steps: 60                 # decisions per episode (10-min horizon, 10-sec steps)
+  final_penalty: 1.0
+  action_mode: twap_pace_multiple
+  actions: [0.0, 0.5, 0.8, 1.0, 1.2, 1.5, 2.0]
+
+obs:
+  features: [spread_bps, imbalance, recent_return, rolling_vol, ask_depth]
+
+split:
+  val_frac: 0.15
+
+agent:
+  device: cpu
+  reward_bps: true
+  leftover_penalty_bps: 100.0
+  # 12M steps = ~3 passes over the train_sub episodes (more, shorter episodes than 30-min, so
+  # the per-pass step count is similar). Extend if the validation curve has not plateaued.
+  total_timesteps: 12000000
+  seeds: [0, 1, 2, 3, 4]
+  dqn:
+    net_arch: [30, 30, 30, 30, 30]
+    activation: LeakyReLU
+    learning_rate: 0.0001
+    buffer_size: 1000000
+    batch_size: 1024
+    learning_starts: 40000
+    gamma: 0.9992               # same 10s bar -> same per-step discount (= 0.995^(1/6)); see experiment_10s.yaml
+    train_freq: 100
+    gradient_steps: 1
+    target_update_interval: 1000
+    n_steps: 1
+    exploration_initial_eps: 1.0
+    exploration_final_eps: 0.01
+    exploration_anneal_frac: 0.25
+  ppo:
+    net_arch: [30, 30, 30, 30, 30]
+    activation: LeakyReLU
+    learning_rate: 0.0003
+    n_steps: 2048               # rollout length per update (~34 of the 60-step episodes)
+    batch_size: 64
+    n_epochs: 10
+    gamma: 0.9992
+    gae_lambda: 0.95
+    clip_range: 0.2
+    ent_coef: 0.01
+    vf_coef: 0.5
+    max_grad_norm: 0.5

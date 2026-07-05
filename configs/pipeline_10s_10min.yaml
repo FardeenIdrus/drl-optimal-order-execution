@@ -1,0 +1,55 @@
+# Shorter-horizon (10-minute execution) data-pipeline configuration at 10s bars.
+# Identical to pipeline_10s.yaml EXCEPT regimes.episode_minutes (30 -> 10) and the
+# episodes/dataset artifact paths (re-tagged "_10min"). It REUSES the existing 10s bars
+# and features unchanged (same minute_parquet + features_parquet paths), so only Stages 5-6
+# (regimes + dataset) rebuild. Run with:
+#
+#   PYTHONPATH=src .venv/bin/python -m execution.pipeline \
+#       --config configs/pipeline_10s_10min.yaml --scratch-root <scratch> --from regimes --to dataset
+#
+# Stages 0-4 (manifest/pull/resample/features) all have existing outputs and are skipped,
+# so nothing re-pulls or re-resamples; the expensive work is reused and the 30-min 10s
+# dataset is left untouched.
+#
+# Rationale (Option 2): the controllable timing lever sits ~25x below the per-episode
+# drift noise. A 10-min horizon accumulates ~42% less drift than 30 min (drift ~ sqrt(time))
+# and concentrates the same order into bigger slices, so it attacks the signal-to-noise from
+# the noise side. Objective expectation: ~2-3x SNR improvement vs a ~25x gap, so most likely
+# strengthens the null (a third axis: resolution, size, horizon); a genuine but low-probability
+# shot at an edge. 10-min at 10s = 60 decision steps per episode.
+
+coin: BTC
+start: "2024-01-01"
+end: "2025-12-31"
+bar_seconds: 10            # same 10s bars (reused, not rebuilt)
+resample_chunk_by: month
+skip_ranges:
+  - ["2025-10-17", "2025-10-22"]
+  - ["2025-11-18", "2025-11-24"]
+
+features:
+  imbalance_depth: 5       # same features (reused, not rebuilt)
+  return_lookback: 5
+  vol_window: 30
+
+regimes:
+  episode_minutes: 10      # SHORTER horizon -> 60 bars of 10s per episode (vs 180 at 30 min)
+  test_frac: 0.2
+  buffer_episodes: 1
+  n_regimes: 2
+
+compute:
+  pull_workers: 16
+  resample_workers: 8
+  resample_batch_files: 96
+
+# manifest/raw/minute/features are SHARED with the 30-min 10s run (identical paths -> reused,
+# Stages 0-4 skipped). Only episodes + dataset are re-tagged "_10min" so the 30-min outputs
+# are preserved side by side.
+artifacts:
+  manifest_dir: "manifest"
+  raw_dir: "raw_l2/BTC"
+  minute_parquet: "minute_10s/btc_bar10s_2024-2025"               # SHARED with 30-min 10s
+  features_parquet: "features_10s/btc_features_2024-2025.parquet"  # SHARED with 30-min 10s
+  episodes_parquet: "episodes_10s_10min/btc_episodes_2024-2025.parquet"
+  dataset_dir: "dataset_10s_10min"

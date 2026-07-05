@@ -156,12 +156,16 @@ def main() -> None:
     p.add_argument("--n-regimes", type=int, default=2)
     p.add_argument("--bar-seconds", type=int, default=60,
                    help="bar width in seconds (default 60; finer e.g. 10). Sets bars/episode.")
+    p.add_argument("--episode-minutes", type=int, default=30,
+                   help="execution horizon in minutes (default 30; shorter e.g. 10). Sets the "
+                        "episode window and bars/episode = episode_minutes*60/bar_seconds.")
     args = p.parse_args()
 
     features_df = pd.read_parquet(args.features_parquet, columns=["ts", "feature_valid"])
     minute_df = pd.read_parquet(args.minute_parquet, columns=["ts", "realized_variance"])
 
-    eps = build_episodes(features_df, minute_df, bar_seconds=args.bar_seconds)
+    eps = build_episodes(features_df, minute_df, episode_minutes=args.episode_minutes,
+                         bar_seconds=args.bar_seconds)
     eps = assign_split(eps, test_frac=args.test_frac, buffer_episodes=args.buffer_episodes)
     eps, thresholds = assign_regime(eps, n_regimes=args.n_regimes)
     eps["episode_id"] = np.arange(len(eps))

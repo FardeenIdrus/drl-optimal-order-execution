@@ -150,9 +150,10 @@ def main() -> None:
     inv = cfg["initial_inventory"]
     N = cfg["n_steps"]
     adv = cfg.get("adv_btc")
-    # Bar width drives the daily-vol annualisation; explicit in cfg, else derived from
-    # the locked 30-min (1800s) episode: 60s at N=30, 10s at N=180.
-    bar_seconds = int(cfg.get("bar_seconds", 1800 // N))
+    # Bar width drives the daily-vol annualisation. It is a TOP-LEVEL config field
+    # (cfg_all), not under env; read it there. (The old env-level lookup fell back to a
+    # 1800/N guess that was only correct for the 30-min horizon -- wrong at 10-min.)
+    bar_seconds = int(cfg_all.get("bar_seconds", 1800 // N))
 
     # Calibrate impact from the TRAIN book (real, leakage-safe): linear eta (the AC
     # reference) AND the per-regime square-root coefficient (the deadline residual).

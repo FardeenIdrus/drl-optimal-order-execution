@@ -101,3 +101,18 @@ def test_build_episodes_rejects_bad_bar_seconds():
     for bad in (7, 0, 11):                                  # must divide 60
         with pytest.raises(ValueError):
             R.build_episodes(feats, minute, bar_seconds=bad)
+
+
+def test_build_episodes_short_horizon_10min_at_10s():
+    # Option-2 lever: a 10-minute horizon at 10s = 60 bars/episode (vs 180 at 30 min).
+    EP10 = 10 * R.MS_PER_MINUTE                              # 10-min window
+    base = (1_700_000_000_000 // EP10) * EP10
+    rows = [(base + e * EP10 + i * 10_000, True, 1e-6) for e in range(2) for i in range(60)]
+    df = pd.DataFrame(rows, columns=["ts", "feature_valid", "realized_variance"])
+    eps = R.build_episodes(df[["ts", "feature_valid"]], df[["ts", "realized_variance"]],
+                           episode_minutes=10, bar_seconds=10)
+    assert len(eps) == 2
+    assert (eps["n_bars"] == 60).all() and (eps["n_minutes"] == 10).all()
+    # the default 30-min horizon would expect 180 bars -> the 60-bar windows are rejected
+    assert len(R.build_episodes(df[["ts", "feature_valid"]], df[["ts", "realized_variance"]],
+                                episode_minutes=30, bar_seconds=10)) == 0

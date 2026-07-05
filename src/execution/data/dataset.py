@@ -26,7 +26,7 @@ from typing import Dict, List, Tuple, Union
 import pandas as pd
 
 from execution.data import schema
-from execution.data.regimes import EPISODE_MS, MS_PER_MINUTE
+from execution.data.regimes import MS_PER_MINUTE
 
 logger = logging.getLogger(__name__)
 
@@ -39,16 +39,18 @@ _KEYS = ["episode_id", "step", "ts", "regime", "split"]
 
 def materialise(
     features_df: pd.DataFrame, minute_df: pd.DataFrame, episodes_df: pd.DataFrame,
-    bar_seconds: int = 60,
+    bar_seconds: int = 60, episode_minutes: int = 30,
 ) -> pd.DataFrame:
     """Assemble the decision-step table: features[t] + book as-of t (= bar[t-1]).
 
     The one-bar fill-book lag and the within-episode step index are both in BAR units
     (``bar_seconds``), so a decision at bar t trades against bar (t-1)'s book and steps
-    run 0..bars_per_episode-1 at any resolution (30 steps at 60s, 180 at 10s)."""
+    run 0..bars_per_episode-1 at any resolution (30 steps at 60s/30-min, 180 at 10s/30-min,
+    60 at 10s/10-min). The episode bucket spans ``episode_minutes`` (the execution horizon)."""
     if bar_seconds <= 0 or 60 % bar_seconds != 0:
         raise ValueError(f"bar_seconds must be a positive divisor of 60, got {bar_seconds}")
     bar_ms = bar_seconds * 1000
+    episode_ms = episode_minutes * MS_PER_MINUTE
     feats = features_df[["ts"] + FEATURES]
 
     # The book observed at decision t is the previous BAR's end-of-bar book, so relabel
@@ -57,7 +59,7 @@ def materialise(
     book["ts"] = book["ts"] + bar_ms
 
     dec = feats.merge(book, on="ts", how="inner")
-    dec["bucket"] = (dec["ts"] // EPISODE_MS) * EPISODE_MS
+    dec["bucket"] = (dec["ts"] // episode_ms) * episode_ms
 
     eps = episodes_df[["start_ts", "episode_id", "regime", "split"]].rename(
         columns={"start_ts": "bucket"}
@@ -110,16 +112,21 @@ def main() -> None:
     p.add_argument("--bar-seconds", type=int, default=60,
                    help="bar width in seconds (default 60; finer e.g. 10). Sets the fill-book "
                         "lag, the step index, and the expected steps/episode.")
+    p.add_argument("--episode-minutes", type=int, default=30,
+                   help="execution horizon in minutes (default 30; shorter e.g. 10). With "
+                        "bar-seconds it sets steps/episode = episode_minutes*60/bar_seconds.")
     args = p.parse_args()
 
-    bars_per_episode = EPISODE_MS // (args.bar_seconds * 1000)   # 30 at 60s, 180 at 10s
+    # steps/episode = horizon / bar width: 30 (60s,30min), 180 (10s,30min), 60 (10s,10min)
+    bars_per_episode = args.episode_minutes * MS_PER_MINUTE // (args.bar_seconds * 1000)
 
     features_df = pd.read_parquet(args.features_parquet, columns=["ts"] + FEATURES)
     minute_df = pd.read_parquet(args.minute_parquet, columns=["ts"] + _FILL_BOOK)
     episodes_df = pd.read_parquet(args.episodes_parquet,
                                   columns=["start_ts", "episode_id", "regime", "split"])
 
-    table = materialise(features_df, minute_df, episodes_df, bar_seconds=args.bar_seconds)
+    table = materialise(features_df, minute_df, episodes_df, bar_seconds=args.bar_seconds,
+                        episode_minutes=args.episode_minutes)
     report = check_integrity(table, bars_per_episode=bars_per_episode)
 
     out_dir = Path(args.out_dir)

@@ -123,3 +123,27 @@ def test_materialise_at_10s_resolution():
 def test_materialise_rejects_bad_bar_seconds():
     with pytest.raises(ValueError):
         D.materialise(_features_df(), _minute_df(), _episodes_df(), bar_seconds=7)
+
+
+def test_materialise_short_horizon_10min_at_10s():
+    # Option-2 lever: a 10-minute horizon at 10s = 60 steps/episode (vs 180 at 30 min).
+    EP10 = 10 * MS_PER_MINUTE
+    base = (1_700_000_000_000 // EP10) * EP10
+    n = 120                                                  # two 10-min episodes of 60 bars
+    feats = pd.DataFrame({"ts": [base + i * 10_000 for i in range(n)], "spread_bps": 0.2,
+                          "imbalance": 0.1, "recent_return": 0.0, "rolling_vol": 0.001, "ask_depth": 5.0})
+    rows = []
+    for idx in range(-1, n):
+        apx1 = 1000.0 + idx
+        d = {"ts": base + idx * 10_000}
+        for i in range(1, 21):
+            d[f"ask_px_{i}"], d[f"ask_sz_{i}"] = apx1 + (i - 1), 1.0
+        d["bid_px_1"], d["bid_sz_1"], d["mid"] = apx1 - 1.0, 1.0, apx1 - 0.5
+        rows.append(d)
+    minute = pd.DataFrame(rows)
+    eps = pd.DataFrame({"start_ts": [base, base + EP10], "episode_id": [0, 1],
+                        "regime": ["calm", "volatile"], "split": ["train", "test"]})
+    out = D.materialise(feats, minute, eps, bar_seconds=10, episode_minutes=10)
+    assert (out.groupby("episode_id")["step"].size() == 60).all()      # 60 steps, not 180
+    assert list(out[out.episode_id == 0]["step"]) == list(range(60))
+    D.check_integrity(out, bars_per_episode=60)                          # 60-step check passes
