@@ -88,3 +88,15 @@ def test_assemble_produces_checked_bundle():
     assert b.rate_int_all.shape == (2, K, Q + 1, 3)
     assert b.K == K and b.Q == Q
     assert (b.rate_int_all >= 0).all()
+
+
+def test_sanitize_impossible_transitions():
+    from execution.qrm.assemble import sanitize_impossible_transitions
+    lam = np.ones((2, 4, 2, 3))
+    out = sanitize_impossible_transitions(lam)
+    assert (out[:, 0, :, 1] == 0).all()    # cancel at empty queue zeroed
+    assert (out[:, 0, :, 2] == 0).all()    # market at empty queue zeroed
+    assert (out[:, -1, :, 0] == 0).all()   # limit at the cap zeroed
+    assert (out[:, 0, :, 0] == 1).all()    # limit INTO an empty queue survives
+    assert (out[:, 1:-1, :, :] == 1).all()  # interior untouched
+    assert (lam == 1).all()                 # input not mutated

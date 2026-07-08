@@ -57,6 +57,26 @@ def build_rate_array(lam: np.ndarray) -> np.ndarray:
     return np.ascontiguousarray(lam.transpose(2, 0, 1, 3))
 
 
+def sanitize_impossible_transitions(lam: np.ndarray) -> np.ndarray:
+    """Zero intensities for transitions the engine's state space cannot represent.
+
+    The engine holds queues in WHOLE AES units, so state q=0 is literally empty: a
+    cancel or market order there is impossible. The calibration, however, measures
+    CONTINUOUS volumes and rounds — a level holding < 0.5 AES rounds to bucket 0 yet
+    still hosts real cancels/fills, so the raw table carries event mass the engine can
+    only reject (its sampler retries 10x then aborts — observed as gate seed crashes).
+    Same logic at the cap: a limit arrival at q=Q would leave the modelled state space.
+    Zeroing these cells makes the table consistent with the engine's dynamics; the
+    discarded mass is the sub-half-AES micro-queue activity, which the unit-quantised
+    engine cannot express by construction (documented approximation).
+    """
+    out = lam.copy()
+    out[:, 0, :, 1] = 0.0   # cancel at an empty queue
+    out[:, 0, :, 2] = 0.0   # market order at an empty queue
+    out[:, -1, :, 0] = 0.0  # limit arrival at the queue cap
+    return out
+
+
 def empirical_invariant(time_in: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """Measured stationary queue-size distributions ``(inv_bid, inv_ask)`` per depth.
 
@@ -147,7 +167,7 @@ def assemble(
             book-wide expected unit-consumption rate matches this trades-file anchor
             (see :func:`scale_market_to_rate`).
     """
-    lam = intensities_from(counts, time_in)          # (K, Q+1, 2, 3)
+    lam = sanitize_impossible_transitions(intensities_from(counts, time_in))  # (K, Q+1, 2, 3)
     K, Q1 = lam.shape[0], lam.shape[1]
     if invariant == "empirical":
         inv_bid, inv_ask = empirical_invariant(time_in)

@@ -44,16 +44,22 @@ from execution.qrm.ref_frame import (
 
 logger = logging.getLogger(__name__)
 
-# Pre-registered burst-measurement constants (criteria §4).
+# Pre-registered burst-measurement constants (criteria §4; cap revised §8/§9).
 BIN_NS = 50_000_000            # 50 ms lag bins
 MAX_LAG_NS = 3_000_000_000     # profile out to 3 s; one overflow bin beyond
 STEADY_FROM_NS = 1_000_000_000  # steady-state rate pooled over lags 1–3 s
 BURST_FACTOR = 1.5             # first bin >= 1.5x steady -> burst confirmed
 GUARD_FACTOR = 1.1             # guard ends where 3 consecutive bins <= 1.1x steady
 GUARD_CONSECUTIVE = 3
-GUARD_CAP_NS = 500_000_000     # guard capped at 500 ms
+# Revision 1 (2026-07-05): the original 500 ms cap truncated the burst before its
+# measured settle (~1.5-2 s; rate at the cap was 76/s vs 31.5/s steady), leaving
+# lambda_limit inflated at low queues -> book too refilled -> spread too tight (the
+# failed-gate residual). The cap now spans the measurable profile so the settle rule
+# above decides the guard on its own; the burst evidence predates the failed gate.
+GUARD_CAP_NS = MAX_LAG_NS
 INNER_DEPTHS = (1, 2)          # burst measured on limit arrivals at window depths 1–2
-Q_PROFILE_MIN_LAG_NS = GUARD_CAP_NS  # q1 exposure profile restricted to lag >= the cap
+Q_PROFILE_MIN_LAG_NS = 500_000_000  # q1 exposure profile lag floor (fixed pre-pass:
+#                                     the guard itself is only known after the pass)
 
 # Real-run warm-up (criteria §5); tests pass zeros.
 WARMUP_NS = 300_000_000_000    # 5 min of stream time

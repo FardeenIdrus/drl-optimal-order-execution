@@ -29,7 +29,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import List, Sequence, Tuple
+from typing import List, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -78,7 +78,13 @@ def move_process_from_mids(mid: np.ndarray, tick: float) -> MoveProcess:
     the bulk).
     """
     d = np.diff(np.asarray(mid, float)) / tick
-    d = np.clip(np.rint(d), -MAX_ABS_MOVE, MAX_ABS_MOVE).astype(int)
+    # Remediation I7 — explicit tick-binning rule (np.rint's half-to-even sent every
+    # real 1.5-tick move to the destructive re-form branch and never to the shift
+    # branch): |d| < 0.75 -> 0 (half-tick mid flicker belongs to the endogenous
+    # dynamics); otherwise round half AWAY from zero.
+    mag = np.abs(d)
+    k = np.where(mag < 0.75, 0.0, np.floor(mag + 0.5) * np.sign(d))
+    d = np.clip(k, -MAX_ABS_MOVE, MAX_ABS_MOVE).astype(int)
     support = np.arange(-MAX_ABS_MOVE, MAX_ABS_MOVE + 1)
     counts = np.bincount(d + MAX_ABS_MOVE, minlength=len(support)).astype(float)
     probs = counts / counts.sum()
@@ -138,8 +144,10 @@ def run_exo_qrm(
     state[:K] = sample_stationary_lob(bundle.inv_bid, np.empty((0,), np.int8))
     state[K:] = sample_stationary_lob(bundle.inv_ask, np.empty((0,), np.int8))
     p_ref = initial_price
-    bid_i = int(np.argmax(state[:K] > 0))
-    ask_i = int(np.argmax(state[K:] > 0))
+    # audit C2 / remediation I5: an EMPTY side prices at the window edge K, not
+    # argmax's silent slot 0 (which would pin a stale touch and understate the spread).
+    bid_i = int(np.argmax(state[:K] > 0)) if (state[:K] > 0).any() else K
+    ask_i = int(np.argmax(state[K:] > 0)) if (state[K:] > 0).any() else K
     p_mid = 0.5 * ((p_ref + tick * (ask_i + 0.5)) + (p_ref - tick * (bid_i + 0.5)))
 
     t = 0.0
@@ -149,17 +157,28 @@ def run_exo_qrm(
     q1_zero = 0
     n_boundaries = 0
 
+    n_sampler_stalls = 0
     while t < horizon_s:
         t_next = t + move_process.interval_s
         # 1) endogenous QRM dynamics for one interval
-        (times, p_mids_c, _p_refs, _sides, _depths, events, _redr, states) = simulate_QRM_jit(
-            t, p_mid, p_ref, state, bundle.rate_int_all, tick, 0.7, theta_reinit,
-            t_next, bundle.inv_bid, bundle.inv_ask, max_events_per_interval,
-            bundle.aes, np.nan,
-        )
+        try:
+            (times, p_mids_c, _p_refs, _sides, _depths, events, _redr, states) = simulate_QRM_jit(
+                t, p_mid, p_ref, state, bundle.rate_int_all, tick, 0.7, theta_reinit,
+                t_next, bundle.inv_bid, bundle.inv_ask, max_events_per_interval,
+                bundle.aes, np.nan,
+            )
+        except ValueError:
+            # The vendored sampler aborts after 10 rejected draws (it can corner itself
+            # in a near-empty one-sided state). Treat as "no endogenous events this
+            # interval" — the book carries unchanged into the exogenous move, which
+            # re-forms/shifts it out of the corner. Counted and reported: a high stall
+            # share would invalidate a run, so the gate output exposes it.
+            n_sampler_stalls += 1
+            times = ()
         if len(times):
             state = states[-1].copy()
             p_mid = float(p_mids_c[-1])
+            p_ref = float(_p_refs[-1])   # remediation I6: keep the engine's frame
             for k in (1, 2, 3):
                 ev_counts[k - 1] += int((events == k).sum())
         t = t_next
@@ -184,9 +203,9 @@ def run_exo_qrm(
             p_ref += dm * tick
             state[:K] = sample_stationary_lob(bundle.inv_bid, np.empty((0,), np.int8))
             state[K:] = sample_stationary_lob(bundle.inv_ask, np.empty((0,), np.int8))
-        # bookkeeping at the boundary
-        bid_i = int(np.argmax(state[:K] > 0))
-        ask_i = int(np.argmax(state[K:] > 0))
+        # bookkeeping at the boundary (audit C2 / I5: empty side -> window edge K)
+        bid_i = int(np.argmax(state[:K] > 0)) if (state[:K] > 0).any() else K
+        ask_i = int(np.argmax(state[K:] > 0)) if (state[K:] > 0).any() else K
         p_mid = 0.5 * ((p_ref + tick * (ask_i + 0.5)) + (p_ref - tick * (bid_i + 0.5)))
         mids.append(p_mid)
         spreads.append(ask_i + bid_i + 1.0)
@@ -204,4 +223,5 @@ def run_exo_qrm(
                       "market": ev_counts[2] / tot},
         "n_events": int(tot),
         "q1_zero_frac": q1_zero / max(n_boundaries, 1),
+        "sampler_stall_frac": n_sampler_stalls / max(n_boundaries, 1),
     }
