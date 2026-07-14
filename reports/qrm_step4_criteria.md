@@ -65,6 +65,22 @@ instant-dump mean cost >= fixed-TWAP mean cost; mean cost non-decreasing in orde
 - No post-hoc threshold changes; if a result sits at a boundary, it is reported at the
   boundary.
 
+**3a. TRANSPARENCY ADDITION (2026-07-09) — auto-report the across-seed view alongside the
+frozen per-seed screen. CHANGES NO RULE OR VERDICT above.** The §3 screen is deliberately
+strict (per-seed Wilcoxon at p<0.01), which by design can stamp a small-but-consistent edge
+as "null" even when every seed points the same way (the PPO-volatile v3 case: 0/5 seeds
+individually significant, yet 5/5 cheaper, across-seed t p=0.006). To make sure such an edge
+is never silently mislabelled, `step5_judgement.py --mode screen` now attaches an
+INFORMATIONAL `across_seed` block to every cell's verdict: pooled edge vs both benchmarks,
+the one-sided across-seed t-test p, the 95% CI, and #cheaper. It is reported ALONGSIDE, never
+in place of, the frozen EDGE/ESCALATE flag — the frozen verdicts are byte-identical
+before/after (asserted on the sealed v3 file; original kept as `judgement_preAcrossSeed_backup.json`).
+The block also guards the OPPOSITE error: when the audit invalidated seeds it runs on
+survivors only, so it carries `n_seeds_total`, `trustworthy=False`, and a survivorship
+warning whenever any seed was dropped (e.g. DQN-volatile v3: across-seed p=0.042 but only
+2/5 valid -> flagged, NOT an edge). This is the same across-seed statistic already
+pre-registered for §6 confirmation, now merely surfaced at the screening stage too.
+
 ## 3b. REVISION 1 (2026-07-06, user-approved) — mechanism-gated changes to G1/G2/G3
 ## after the first gate run; ORIGINAL results preserved verbatim below
 
@@ -152,6 +168,13 @@ as engineering shakedown. Changes affecting THIS protocol, logged before the re-
 
 ## 5. PRIMARY VERDICT (2026-07-06) + pre-registered TUNING ROBUSTNESS CHECK
 
+> **SUPERSEDED (2026-07-08).** The `step5/judgement.json` verdict below is the ORIGINAL buggy
+> campaign (reclassified as engineering shakedown by §4b). It was replaced by the corrected
+> `step5_v2` (remediation R7), which was ITSELF found to be drift-confounded by the pre-launch audit
+> and is being replaced by the drift-fixed `step5_v3`. The pre-registered TUNING TABLE below (Waves
+> 1-3 + continuation rules) REMAINS VALID and is what R8a runs on the drift-fixed env. Latest state:
+> `reports/qrm_prelaunch_audit_2026-07-08.md`.
+
 **Primary result (step5/judgement.json, 2,000 CRN episodes/agent): NULL in all four
 cells.** Audit: 13/20 valid — ALL five volatile DQN seeds + one calm DQN seed collapsed
 into deadline-dump reliance (residuals 18-100 % of the order; the L2 pathology
@@ -201,6 +224,42 @@ skip a listed variant.
    adaptive-TWAP <= −0.02 bps and p < 0.05 (but short of the §3 edge) triggers a
    focused follow-up at that cell: full 5-seed protocol plus the Wave-3 combination
    designs, before any conclusion about that cell is reported.
+
+## 5c. SELECTION BATCH RESOLUTIONS (logged 2026-07-10, BEFORE the batch runs) — how the §5
+## continuation rules apply to the actual R8a screen outcome (`step5_tuning_v3`, sealed 2026-07-09)
+
+The screen's strict 3-seed ESCALATE trigger (>=2/3 per-seed significant) fired for ZERO variants.
+The §5-rule-3 consistency criterion (pooled <= -0.02 AND across-seed p < 0.05) is met by SEVEN
+cells. Resolutions, all fixed here before any new run:
+
+1. **Escalation set = ALL SEVEN qualifying cells, no discretionary subset:** ppo_volatile
+   {v3b, v3a, v2, v1b, v4b, v5} + ppo_calm {v4a}. Each gets seeds 3,4 added (config byte-identical
+   to its 3-seed siblings, only the seed differs) -> full 5-seed evidence in the qualifying regime.
+   14 runs.
+2. **V6 target ambiguity + resolution.** "Best Wave-1 variant" is ambiguous: by the across-both-
+   regimes metric it is V1b (-0.031 vs V2's -0.029); by the volatile/primary-regime metric (§6.7
+   designates volatile primary) it is V2 (-0.055 vs -0.042). RESOLUTION: literal V6 = V2 @ 10M steps
+   (tag `_v6`), resolving toward the primary-regime metric. ADDITION (new, mechanism-named): `_v6b`
+   = V3b @ 10M steps — lr 1e-4 makes per-step updates ~3x smaller than base, so the "needed longer"
+   suspicion applies MOST strongly to v3b, and v3b is the selection front-runner, so the 10M axis
+   must be tested where it matters. V1b @ 10M is NOT run (last of the three contenders on the
+   primary metric; its capacity dial enters the batch via combo `_w3a`; if `_w3a` wins selection,
+   the 10M axis extends to it before confirmation). 6 + 6 runs, both regimes, seeds 0-2.
+3. **Wave-3 combo (b) interpretation.** Rule (b) says "the two variants with the best pooled cost
+   combined" — the literal top-2 (v3b, v3a) are the SAME dial (learning rate) set to two values and
+   cannot coexist in one agent. Mechanical resolution: the best two COMBINABLE (different-dial)
+   variants = v3b x v2. So: `_w3a` = v1b x v2 (rule (a), unambiguous: v1b beats v1a on both regimes)
+   and `_w3b` = v3b x v2 (rule (b) as resolved). 3 seeds x 2 regimes each = 12 runs.
+4. **Placement + judging:** new runs train into `runs_tuning_v3/` (same dir, so grouping pools the
+   escalated seeds with their siblings). The selection judgement re-scores the WHOLE dir (60 + 38 =
+   98 runs) into a NEW out dir `step5_selection_v3/` — `step5_tuning_v3/` stays sealed as the 60-run
+   screen record. The scorer is deterministic on the same eval block (proven: --mode screen exactly
+   reproduced the v3 verdicts), so re-scored old cells reproduce their sealed numbers.
+5. **Selection then applies §5 continuation rule 2 verbatim:** best pooled cost vs adaptive-TWAP
+   across both regimes among HEALTHY (audit-passing) configurations, ties toward simpler; mechanical,
+   no discretion. The winner goes to §6/§6.7 confirmation unchanged.
+6. **Seeds:** escalation uses training seeds 3,4; V6/combos use 0-2. Confirmation seeds 5-9 remain
+   untouched; the sealed 9e6 eval block remains untouched.
 
 ## 6. OUT-OF-SAMPLE CONFIRMATION PROTOCOL (R8b) — pre-registered 2026-07-08, BEFORE any confirmation run
 
@@ -267,3 +326,225 @@ on 5e6 is expected to be optimistically biased THERE, which is exactly why §6 r
 untouched 9e6. The L2 test set stays sealed. This §6 is committed before the confirmation runs;
 if 6.1/6.2 re-derive the target/primary regime after tuning, those are logged here (with the
 tuning-result reference) BEFORE confirmation executes.
+
+## 6.7 REVISION (pre-registered 2026-07-09, informed by the clean v3 primary, BEFORE any R8 run)
+
+Addresses the three methodology-audit items (M1 regime-selection, M2 disclosure+power, M3
+null-branch), locked in now while the fresh 9e6 block is still untouched.
+
+**M1 — the confirmation is now a SINGLE-regime test, so no regime-selection alpha inflation.** The
+clean v3 primary shows the favourable PPO signal is VOLATILE-specific: volatile 5/5 seeds cheaper,
+pooled −0.047, across-seed p=0.006; calm collapsed to a tie (pooled −0.006, p=0.18) once the drift
+was removed. So the confirmation targets ONE regime, VOLATILE, chosen NOT by "larger of two" but
+because it is the only regime with any signal AND is a-priori the expected one on mechanism (volatile
+has larger market impact and larger book reaction, so a reactive-market edge should live there). Calm
+is reported as a documented clean null, NOT tested for an edge. This supersedes §6.2's "larger of two"
+rule and removes the max-of-2 concern.
+
+**M2 — full disclosure of how §6.4 differs from the §3 screening test, with justification.** §6.4
+relaxes §3 on three axes; all are deliberate and disclosed: (i) p 0.01→0.05 — a single pre-registered
+replication carries no multiple-agent burden; (ii) two-sided→one-sided — the hypothesis has a
+committed direction (cheaper), and the effect was directional in discovery; (iii) both-baselines→
+significance-vs-adaptive-only — adaptive-TWAP is the harder, self-correcting benchmark, and §6.4(a)
+still requires the mean to be cheaper vs BOTH. POWER NOTE (pre-registered): at the observed volatile
+effect (~−0.047 bps, across-seed SD ~0.024 over 5 seeds), the one-sided n=5 t-test at α=0.05 has
+roughly ~80% power to detect it — i.e. the bar is genuinely HARD to clear, not lowered to fit; a null
+confirmation is a real possibility, which is the point.
+
+**M3 — null-branch deliverable committed NOW (before the result).** If the confirmation FAILS (or is
+not run), the dissertation's contribution is the reaction-inclusive, mechanistically-explained,
+per-regime NEGATIVE result: (a) a reactive QRM execution environment built + calibrated + bug-hardened
++ drift-neutralised on real BTC L4; (b) the demonstration that a naive setup manufactures a spurious
+edge (the drift confound) and that neutralising it dissolves the calm "edge" while leaving a genuine
+but sub-threshold volatile signal; (c) per-regime SHAP/ablation attribution of WHY the effect is
+volatile-specific and why it stays small. This is a valid, defensible contribution independent of
+whether the confirmation passes; it is committed here so the pivot cannot read as post-hoc.
+
+## 6.8 CONFIRMATION VERDICT (recorded 2026-07-11 — the one-shot §6 run happened; outcome logged verbatim)
+
+Executed exactly as pre-registered (§6.4 rule, §6.7 single-regime volatile, sealed block
+seed0=9,000,000 verified untouched beforehand, audit-before-costs, fresh seeds 5-9):
+
+**PASS = FALSE — the volatile edge DID NOT REPLICATE.** pooled vs adaptive = -0.0023 bps
+(vs -0.0628 on the development block); across-seed one-sided t p = 0.3785 (rule: <0.05);
+cheaper in 3/5 valid seeds (rule: >=4/5); 95% CI [-0.0217, +0.0171]; all 5 seeds
+behaviour-valid (no collapse). Raw record: `$S/step5_confirm_v3a/judgement.json`.
+
+Per §6.5/§6.7 M3 (pre-committed): the project headline is a BOUNDARY NULL; the development-set
+signal is reported as unreplicated; NO re-runs, NO second confirmation attempt, NO threshold
+revisiting. The M3 null-branch deliverable is now the dissertation's contribution frame.
+
+## 6.9 POST-VERDICT PROCESS AUDIT (2026-07-11, user-requested) — selection-rule deviation
+## DISCLOSED + three-block diagnostic
+
+**Audit trigger:** the edge trajectory (base -0.047 -> v3b@3seeds -0.084 -> v3a@5seeds -0.063 ->
+confirmation -0.002) raised the question whether selection/testing was correct.
+
+**Finding 1 — the confirmation EXECUTION was correct (verified):** the judged runs are exactly the
+5 fresh-seed v3a builds (folder list == judgement run list; all metas exact: lr 1e-3, 2M steps,
+tag _v3a); block = 9,000,000 as pre-registered; §6.4 rule applied as written. A from-scratch
+reproduction of a recorded number using library primitives (not the judge script) was run as an
+independent check (result recorded in the live doc when complete).
+
+**Finding 2 — a SELECTION-RULE DEVIATION (execution error, disclosed):** §6.1/§5-rule-2 as written
+select "best pooled cost vs adaptive-TWAP ACROSS BOTH REGIMES among HEALTHY configurations."
+The actual selection (2026-07-10) ranked VOLATILE-ONLY and additionally restricted to
+escalated-to-5-seed configs (a filter not in the written rule). Recomputed rankings from
+`step5_selection_v3` under the literal rule: strict health (no invalid seeds anywhere), simple
+average: v1b -0.0386 > v4a -0.0343 > w3a -0.0341 (v3a -0.0307); valid-run-weighted: v1b -0.0430 >
+v3a -0.0387; lenient health: v3b -0.0421 > v1b -0.0386. Under NO across-both reading is v3a the
+literal pick; it wins only volatile-only (-0.0628, and only by 0.0008 over w3a). The volatile-only
+reading has a coherent rationale (§6.7 made volatile the sole confirmation regime, and calm shows
+no signal anywhere) but it was NOT the rule as written and is recorded here as a deviation.
+
+**Finding 3 — three-block diagnostic (why the trajectory happened):** the final-checkpoint score of
+every relevant config on the 1e6 MONITOR block (n=200/run, never used for any decision) vs the two
+judgement blocks:
+| config (volatile) | 1e6 monitor block | 5e6 dev block | 9e6 sealed block |
+|---|---|---|---|
+| base PPO | +0.066 | -0.047 | (not run) |
+| v3a | +0.147 | -0.063 | -0.002 |
+| v3b | +0.114 | -0.060 | (not run) |
+| v1b | +0.057 | -0.056 | (not run) |
+| confirm agents (fresh seeds) | +0.126 | (not run) | -0.002 |
+EVERY config flips sign with the block: worse-than-TWAP on 1e6, better on 5e6, ~zero on 9e6.
+Interpretation: the dev-block edge was common-mode BLOCK LUCK shared by all variants (they were all
+measured on the same 2,000 markets), not config skill; across-variant "robustness" was therefore
+correlated evidence, not replication. Block-to-block variance of the paired mean dominates the
+within-block CRN significance — a design lesson recorded for the write-up.
+
+**Consequence assessment for the deviation:** likely NIL for the headline. The literal-rule picks
+(v1b or v3b) carry the same shared-block inflation, and the 1e6 block provides direct independent-
+block evidence AGAINST both (+0.057 / +0.114, i.e. worse than TWAP there). No config shows
+cross-block consistency. Decision on any remedial test of the literal-rule target rests with the
+user; the recorded recommendation is NOT to run one (sequential-testing multiplicity + §6
+terminality + the diagnostic above), and instead to disclose this deviation in the write-up.
+
+## 7. ROBUSTNESS SWEEP PROTOCOL (pre-registered 2026-07-12, BEFORE any sweep run; §1 design executed
+## on the null branch)
+
+**Purpose.** With the headline a §6.8 boundary null, the sweeps answer: does "agent matches TWAP,
+does not beat it" HOLD across order size and horizon, or is the null specific to 25 BTC / 5 min?
+Either answer completes the §1 design (the L2 track's multi-axis pattern).
+
+**7.1 Config (fixed).** The §5-selected config: PPO, lr 1e-3, all else base (2M steps, net 30x5,
+reward 1.0). The §6.9 selection-metric deviation is disclosed and does not alter the sweep design
+(under a null, any top-cluster config tells the same story; the recorded selection is used).
+
+**7.2 Cells + seeds.** New training, 3 seeds (0,1,2) x 2 regimes per cell:
+- Size ladder: 5 BTC (tag `_v3aB5`), 12.5 BTC (`_v3aB12`), 50 BTC (`_v3aB50`), horizon 300 s.
+- Horizon variant: 25 BTC at 600 s / 600 decisions (`_v3aH600`). Cadence stays 1/s; per-step gamma
+  unchanged (the locked fixed-rate rule). NO cadence sweep (pre-registered out).
+- Centre point 25 BTC/300 s = the EXISTING sealed v3a numbers in `step5_selection_v3` (volatile 5
+  seeds, calm 3) — not re-run.
+Total new runs: 24. Dirs: `runs_sweep_b5/ b12/ b50/ h600/` (6 runs each), judged per-dir into
+`step5_sweep_b5/ b12/ b50/ h600/` with matching `--order-btc`/`--env-steps`.
+
+**7.3 Evaluation.** Dev block eval_seed0=5,000,000, n=2,000 CRN episodes, audit BEFORE costs, both
+TWAP baselines re-run per cell at the cell's size/horizon, screen-mode verdicts + the informational
+across-seed block. Sealed blocks (9e6 and any future confirmation block) are NOT touched.
+
+**7.4 Audit thresholds unchanged — transfer VERIFIED before this registration.** The residual
+criterion (episodes with >1 unit left at deadline; cap 10%) was checked on TWAP itself at all four
+sizes x both regimes (n=200, dev seeds): res_frac <= 0.01 everywhere (worst 0.010, fixed-TWAP 5 BTC
+volatile). The 25-BTC-calibrated audit is fair across the ladder; no threshold change.
+
+**7.5 Interpretation cap + if-edge procedure (pre-committed).** No edge claim can arise from a
+sweep cell directly. Any cell meeting §5-rule-3 (pooled <= -0.02 bps AND across-seed p < 0.05,
+fully valid) triggers, in order: (i) escalation to 5 seeds; (ii) CROSS-BLOCK replication on a
+second dev block (eval_seed0 = 6,000,000, n=2,000) — the check that would have caught the 25-BTC
+block-luck illusion; (iii) only if BOTH survive, at most ONE newly pre-registered sealed
+confirmation on a fresh never-used block, disclosed as an additional test in the §6 family. The
+§6.8 headline stands unless that confirmation passes.
+
+**7.6 Code surface (logged; defaults verified).** New flags: `train_reactive --env-steps`;
+`step5_judgement --order-btc --env-steps` (env + audit + baselines threaded). At defaults the new
+code EXACTLY reproduces sealed records (audit entry of `runs_confirm_v3a/ppo_volatile_s5_v3a`
+reproduced field-for-field) and the 219-test suite passes. meta.json now records `env_steps`;
+judgement.json records `order_btc` + `env_steps` (provenance).
+
+## 6.10 REMEDIAL CONFIRMATION (pre-registered 2026-07-13, BEFORE the run) — the §6.9 deviation remedy
+
+**Purpose.** §6.9 disclosed that the §6.1 selection rule as written ("best pooled cost across BOTH
+regimes among healthy configs") selects ppo_v1b (net 128x128), not the volatile-only-ranked v3a
+that was tested. This is the ONE remedial test of the literal-rule target, closing the "the
+pre-registered pick was never tested" gap with data. User-approved 2026-07-12/13.
+
+**Design (mirrors §6/§6.7 exactly):**
+- Target config: PPO, net_arch [128,128], all else base (2M steps, reward 1.0, lr 3e-4 default) —
+  verified from `runs_tuning_v3/ppo_volatile_s0_v1b/meta.json` (no other overrides).
+- Regime: VOLATILE only (§6.7 M1, the regime of record; v1b's calm pooled -0.021 is below the
+  materiality floor and calm is excluded a priori as before).
+- Fresh training seeds 10,11,12,13,14 (verified unused anywhere; episode bases 100M-140M, verified
+  disjoint from every eval block).
+- Sealed eval block: eval_seed0 = 13,000,000, n = 2,000 (verified untouched by any prior result;
+  distinct from the spent 9e6 block and the 6e6 cross-block reserve).
+- Pass rule = §6.4 verbatim: pooled < 0 vs BOTH benchmarks AND across-seed one-sided t p < 0.05
+  vs adaptive AND cheaper in >= 4/5 valid seeds. Audit before costs. ONE SHOT, no re-runs.
+- Dirs: `runs_confirm_v1b/` -> `step5_confirm_v1b/`.
+
+**Multiplicity disclosure (fixed now):** this is the SECOND sealed test in the §6 family (first:
+v3a on 9e6, FAIL). Under a global null, the familywise chance of >=1 false pass across the two
+tests is ~9.75% at alpha=0.05 each; any pass here is reported WITH that caveat. Expectation on
+record: likely FAIL — v1b reads WORSE than TWAP (+0.057) on the independent 1e6 monitor block and
+shares the dev-block-luck structure (§6.9). The test is run for completeness of the record.
+
+**Terminality:** whatever the outcome, the confirmation family is CLOSED at two tests. No further
+sealed confirmations for any config, regime, or sweep cell except via the §7.5 procedure (which
+requires cross-block replication first).
+
+## 7.7 SWEEP EXPANSION (pre-registered 2026-07-13, BEFORE any expansion run) — full grid + cadence
+## for maximal null-coverage defensibility (user-approved 2026-07-13)
+
+Rationale: §7 delivered a CROSS (size varied at 5-min; horizon varied at 25 BTC only) and no
+cadence axis — faithful to §1 but lighter than the L2 three-axis design. To make the null maximally
+defensible (a complete coverage grid an examiner cannot poke a corner in), the sweep is EXPANDED.
+Methodologically safe: expanding a robustness analysis on an established null cannot p-hack an edge
+that is not being claimed, and §7.5's if-edge procedure (escalate -> cross-block -> at most one
+sealed test) caps any accidental trigger. All cells use the §5-selected config (PPO lr 1e-3, else
+base, 2M steps, seeds 0/1/2, both regimes), dev block 5e6, n=2000, audit-before-costs.
+
+**PART A+B — full size x horizon grid (4x4 = 16 cells).**
+Sizes {5, 12.5, 25, 50} BTC x horizons {2.5, 5, 10, 20 min} = {150, 300, 600, 1200} s (env_steps).
+Rationale for 4 horizons incl. 20-min: the long horizon is where an execution edge is MOST likely
+(max freedom to time liquidity), so a null there is the single most convincing cell.
+- ALREADY RUN (5 cells): 5-min column {5,12.5,25,50 BTC} = `runs_sweep_b5/b12/b50` + selection
+  25BTC; and 25 BTC/10-min = `runs_sweep_h600`.
+- NEW (11 cells x 6 runs = 66): entire 2.5-min column (4 sizes); 10-min at {5,12.5,50} (3); entire
+  20-min column (4). Each new cell -> own `runs_grid_<cell>/` + `step5_grid_<cell>/`, tag encodes
+  size+horizon (e.g. `_gS5H150`), judged with matching `--order-btc`/`--env-steps`. NOTE: 20-min
+  cells have 1200-decision episodes -> ~4x slower to judge (scheduling only).
+
+**PART C — cadence check (12 runs + a verified env change).**
+At the PRIMARY cell only (25 BTC / 5-min), test decision cadence {0.5 s, 2 s} vs the existing 1 s
+(2 new cells x 2 regimes x 3 seeds = 12). NOT crossed with size/horizon (a 3-way factorial is
+implausible-interaction gold-plating). REQUIRED env work, done + VERIFIED before these 12 runs:
+(1) make `INTERVALS_PER_DECISION` an env parameter (thread through episode-length, step loop,
+pace-multiple/carry accounting); (2) re-derive gamma by the fixed-rate rule (0.995^(cadence_s/60));
+(3) re-derive + sanity-check the fixed/adaptive TWAP baselines at the new cadence (must still
+complete ~100%); (4) re-check the behaviour audit at the new decision count (600 decisions at 0.5s
+for a 300s episode; verify TWAP residual < 10% cap, as done for the 10-min variant); (5) confirm
+realism gates unaffected (env mechanics unchanged); (6) add unit tests; (7) confirm defaults still
+reproduce sealed records + 219 tests pass.
+
+**Verdict handling.** Same §7.5 interpretation cap for every new cell. Expected outcome: null
+everywhere (four independent falsification lines already stand); the value is COMPLETENESS, stated
+as such. Sequencing: A+B first (no code risk), then C as its own verified sub-project. Runs AFTER
+the §6.10 remedial confirmation completes.
+
+## 6.11 REMEDIAL CONFIRMATION VERDICT (recorded 2026-07-13 — §6.10 executed, outcome verbatim)
+
+Executed exactly as §6.10 pre-registered (target ppo_v1b net 128x128, fresh seeds 10-14, sealed
+block 13,000,000 verified untouched beforehand, audit-before-costs, §6.4 rule).
+
+**PASS = FALSE — the literal-rule pick ALSO did not replicate.** pooled vs adaptive = -0.0022 bps
+(vs -0.056 on the development block); across-seed one-sided t p = 0.3936 (rule: <0.05); cheaper in
+2/5 valid seeds (rule: >=4/5); 95% CI [-0.0232, +0.0188] bracketing zero; all 5 seeds valid.
+Raw: `$S/step5_confirm_v1b/judgement.json`.
+
+**CONFIRMATION FAMILY NOW CLOSED at two tests, both FAIL** (v3a on 9e6: -0.0023; v1b on 13e6:
+-0.0022). This RESOLVES the §6.9 selection-metric deviation with data: whether you rank by the
+volatile-only metric (-> v3a) or the literal across-both-regimes rule (-> v1b), the selected
+agent does not beat TWAP out-of-sample. The disclosed deviation is therefore immaterial to the
+conclusion; both candidate champions return ~zero on fresh sealed data. No further sealed
+confirmations (§6.5/§6.7 terminality + §7.5 for any future sweep trigger).

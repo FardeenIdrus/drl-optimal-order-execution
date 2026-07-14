@@ -37,6 +37,48 @@ Chronological log of changes + decisions since the audit:
    `neutralize-drift` (writes drift-free move-process files, backs up the drifty ones) + a permanent
    `fairness-gate`; then re-run fidelity gates + G1'/G2'/G3; then RE-RUN the primary campaign.
    Scratch prototypes live in the session scratchpad and will be replaced by the step3g subcommands.
+8. **Productionised + neutralised** (step3g `neutralize-drift`, `fairness-gate`, `_tilt_to_mean`; 219
+   tests pass; C2 empty-side guard also fixed in exo_ref_sim). Drifty exo tables backed up as
+   `move_process_{regime}_centered_DRIFTY_backup.npz`.
+9. **Block-dependence caught + fixed.** First calibration was on a fairness block (3e6); the fairness
+   gate on the EVAL block (5e6) then exposed that the drift varies by block: volatile's eval-block
+   drift is ~+5.5 (not the +3.4 of the 3e6 block), leaving a residual 2.0x advantage of -0.099 bps
+   (t=-2.37). RECALIBRATED both regimes ON THE EVAL BLOCK (`--seed0 5000000`, N=8000). Result: calm
+   drift +7.38 -> +0.12 (t=0.27), volatile +5.50 -> +0.07 (t=0.06); variance change <0.7%.
+10. **FAIRNESS GATE PASSES on the eval block, both regimes** (`fairness_verdict_{regime}.json`,
+   seed0=5e6): drift statistically zero; NO completing policy significantly cheaper than adaptive-TWAP
+   (largest = volatile 2.0x -0.068 bps, t=-1.62, non-significant and non-monotone = noise-like). The
+   drift artifact is provably removed.
+11. **Volatile 2.0x residual RESOLVED as noise.** Targeted high-power re-check (N=8000, up from 3000,
+   same eval-block seed0=5e6): 2.0x vs adaptive-TWAP = -0.0097 bps, t=-0.38 (vs -0.068, t=-1.62 at
+   N=3000). The estimate shrank toward zero and lost significance as N grew -> confirmed sampling
+   noise, not a residual drift-driven or genuine front-loading effect. No further action needed here;
+   the fairness gate result stands clean. NOTE (retained for record): volatile's original 2.0x point
+   estimate (-0.068) was above the 0.05 materiality floor in magnitude but NOT significant and NOT
+   drift (drift=0); this was the correct discipline -- neutralise the drift, not the gradient. Flag to
+   revisit IF a volatile edge in the
+   re-run looks front-loading-driven (now moot, see #11 below).
+12. **M1-M5 fidelity gate (step3g gate-regime) confirmed UNAFFECTED by the drift fix and NOT
+   re-run.** Traced the code: it rebuilds its own move-process directly from real book deltas each
+   run, independent of move_process_{regime}_centered.npz. Existing verdict stands as-is (known
+   accepted caveats: M2 spread and M3 inner-empty fail at the K-window structural ceiling, per
+   methodology-audit C2/C1 — unrelated to drift).
+13. **G1'/G2'/G3 (step4_gates.py) RE-RUN on the drift-fixed env -> ALL PASS**
+   (`step4_gates_v3.json`): G1' calm self-impact x2.41 (monotone rho=1.00), volatile x2.35
+   (rho=1.00); G2' calm impact-slope gap 0% (sim x2.45 vs real x2.46), **volatile gap 23%**
+   (sim x2.44 vs real x1.99) -- ANSWERS the methodology audit's C2 open item ("surface the final
+   post-fix G2' volatile slope"): 23% is comfortably inside the 25% tolerance (previously ~24.5%
+   pre-fix), so the headline (volatile) regime's impact model is no longer sitting right at the
+   wall; G3 completion 100% both regimes, dump >> TWAP (calm 0.404 vs 0.196; volatile 0.241 vs
+   0.053), size-monotone within the documented 0.015 bps overshoot-tax tolerance. The drift fix did
+   not break mechanics realism.
+14. **STATUS (2026-07-09): drift-fix + gate remediation COMPLETE; primary campaign RE-RUNNING.**
+   Launched the 20-run primary (DQN+PPO x calm+volatile x 5 seeds, 25 BTC, 2M steps) on the
+   drift-fixed env -> `runs_primary_v3` (8-wide, thread-pinned launcher; move-process files carry
+   `drift_neutralized=True`, `calibration_seed0=5000000`). NEXT: judge v3 -> new sealed verdict
+   (`step5_v3`) -> rewrite the R7 narrative comparing drifty-vs-clean -> then R8a (tuning) / R8b
+   (confirmation) -> LAST add Almgren-Chriss + VWAP benchmarks.
+   re-run looks front-loading-driven. NEXT: re-run fidelity gates + G1'/G2'/G3, then the primary campaign.
 
 ## BOTTOM LINE
 

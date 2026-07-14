@@ -1,0 +1,28 @@
+% Auto-generated from step5_v3/judgement.json + behaviour_audit.json. Do not edit by hand.
+\begin{tabular}{llrrrrc}
+\toprule
+algo & regime & seed & vs fixed-TWAP & $p_{\mathrm{fix}}$ & vs adaptive-TWAP & valid \\
+ & & & (bps) & & (bps) & \\
+\midrule
+dqn & calm & 0 & +0.1124 & 0.015 & +0.1125 & \textbf{NO} \\
+dqn & calm & 1 & +0.0596 & 0.072 & +0.0597 & \textbf{NO} \\
+dqn & calm & 2 & +0.0263 & 0.326 & +0.0264 & \textbf{NO} \\
+dqn & calm & 3 & +0.1533 & 0.000 & +0.1534 & \textbf{NO} \\
+dqn & calm & 4 & -0.0016 & 0.829 & -0.0015 & yes \\
+dqn & volatile & 0 & +0.4176 & 0.001 & +0.4169 & \textbf{NO} \\
+dqn & volatile & 1 & -0.0296 & 0.632 & -0.0303 & yes \\
+dqn & volatile & 2 & +0.3017 & 0.003 & +0.3011 & \textbf{NO} \\
+dqn & volatile & 3 & -0.0389 & 0.383 & -0.0396 & yes \\
+dqn & volatile & 4 & -0.0197 & 0.893 & -0.0203 & \textbf{NO} \\
+ppo & calm & 0 & -0.0108 & 0.958 & -0.0107 & yes \\
+ppo & calm & 1 & +0.0110 & 0.576 & +0.0111 & yes \\
+ppo & calm & 2 & -0.0194 & 0.324 & -0.0193 & yes \\
+ppo & calm & 3 & +0.0020 & 0.597 & +0.0020 & yes \\
+ppo & calm & 4 & -0.0108 & 0.632 & -0.0107 & yes \\
+ppo & volatile & 0 & -0.0317 & 0.350 & -0.0324 & yes \\
+ppo & volatile & 1 & -0.0357 & 0.442 & -0.0364 & yes \\
+ppo & volatile & 2 & -0.0892 & 0.012 & -0.0898 & yes \\
+ppo & volatile & 3 & -0.0319 & 0.417 & -0.0326 & yes \\
+ppo & volatile & 4 & -0.0433 & 0.444 & -0.0439 & yes \\
+\bottomrule
+\end{tabular}

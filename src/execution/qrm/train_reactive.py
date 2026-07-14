@@ -62,17 +62,20 @@ class GymReactive(gym.Env):
         return obs, r * self.reward_scale, done, False, info
 
 
-def _core(scratch: Path, regime: str, order_btc: float) -> ReactiveQRMEnv:
+def _core(scratch: Path, regime: str, order_btc: float,
+          env_steps: int = 300) -> ReactiveQRMEnv:
     return ReactiveQRMEnv(
         str(scratch / "step3g" / f"qrm_bundle_{regime}_b.npz"),
-        str(scratch / "step3g" / f"move_process_{regime}_centered.npz"), order_btc=order_btc)  # R2: drift-free
+        str(scratch / "step3g" / f"move_process_{regime}_centered.npz"),
+        order_btc=order_btc, n_steps=env_steps)  # R2: drift-free; env_steps: §7 horizon variant
 
 
 def eval_paired_vs_adaptive(scratch: Path, regime: str, order_btc: float,
-                            model, n_eps: int, seed0: int = 1_000_000) -> dict:
+                            model, n_eps: int, seed0: int = 1_000_000,
+                            env_steps: int = 300) -> dict:
     """CRN-paired mean cost difference (model − adaptive-TWAP), bps; negative = better."""
     from execution.qrm.reactive_baselines import adaptive_twap, run_episodes
-    core = _core(scratch, regime, order_btc)
+    core = _core(scratch, regime, order_btc, env_steps)
     seeds = list(range(seed0, seed0 + n_eps))
     base = run_episodes(core, adaptive_twap, seeds)
 
@@ -95,6 +98,8 @@ def main() -> None:
     ap.add_argument("--regime", choices=["calm", "volatile"], required=True)
     ap.add_argument("--seed", type=int, required=True)
     ap.add_argument("--order-btc", type=float, default=25.0)
+    ap.add_argument("--env-steps", type=int, default=300,
+                    help="episode horizon in 1s decisions (criteria §7: 600 = 10-min variant)")
     ap.add_argument("--steps", type=int, default=TRAIN_STEPS)
     ap.add_argument("--net-arch", default="30,30,30,30,30",
                     help="comma-separated layer widths (criteria §5 V1a/V1b)")
@@ -107,13 +112,17 @@ def main() -> None:
     ap.add_argument("--dqn-final-eps", type=float, default=None, help="DQN D1")
     ap.add_argument("--dqn-anneal-frac", type=float, default=None, help="DQN D1")
     args = ap.parse_args()
+    # audit A1: a variant --tag MUST start with "_" or step5_judgement's tag_of regex
+    # (`_s{seed}(_.+)?$`) silently pools the variant into the base group, corrupting its cell.
+    assert not args.tag or args.tag.startswith("_"), \
+        f"--tag must start with '_' (got {args.tag!r})"
     scratch = Path(args.scratch)
     run_dir = Path(args.out) / f"{args.algo}_{args.regime}_s{args.seed}{args.tag}"
     run_dir.mkdir(parents=True, exist_ok=True)
     net_arch = [int(x) for x in args.net_arch.split(",")]
 
     from execution.agents.build import make_dqn, make_ppo
-    core = _core(scratch, args.regime, args.order_btc)
+    core = _core(scratch, args.regime, args.order_btc, args.env_steps)
     env = GymReactive(core, train_seed_base=args.seed * 10_000_000,
                       reward_scale=args.reward_scale)
     # the L2 track's locked hyperparameters (configs/experiment*.yaml agent blocks),
@@ -158,7 +167,8 @@ def main() -> None:
         def _on_step(self) -> bool:
             if self.num_timesteps % EVAL_EVERY == 0:
                 r = eval_paired_vs_adaptive(scratch, args.regime, args.order_btc,
-                                            self.model, N_EVAL_CURVE)
+                                            self.model, N_EVAL_CURVE,
+                                            env_steps=args.env_steps)
                 eps = getattr(self.model, "exploration_rate", None)
                 curve.append({"steps": int(self.num_timesteps), **r,
                               **({"eps": float(eps)} if eps is not None else {})})
@@ -173,7 +183,8 @@ def main() -> None:
     (run_dir / "curve.json").write_text(json.dumps(curve, indent=2))
     (run_dir / "meta.json").write_text(json.dumps({
         "algo": args.algo, "regime": args.regime, "seed": args.seed,
-        "order_btc": args.order_btc, "steps": args.steps, "gamma": GAMMA_1S,
+        "order_btc": args.order_btc, "env_steps": args.env_steps,
+        "steps": args.steps, "gamma": GAMMA_1S,
         "net_arch": net_arch, "reward_scale": args.reward_scale, "tag": args.tag,
         "overrides": {"lr": args.lr, "ent_coef": args.ent_coef,
                       "ppo_n_steps": args.ppo_n_steps,
