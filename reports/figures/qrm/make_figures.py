@@ -470,6 +470,104 @@ def fig_regime_comparison():
     save(fig, "fig8_regime_comparison")
 
 
+# ---------------------------------------------------------------- figure 9
+# The 16 grid cells: 11 judged 2026-07-15 (step5_grid_*) + the 5 already-tested cells
+# (5-min column from the sweeps + selection centre; 25 BTC/10-min from the h600 sweep).
+GRID_SOURCES = [
+    # (size_btc, horizon_min, dirname, tag)
+    (5.0, 2.5, "step5_grid_b5h150", "_gS5H150"),
+    (12.5, 2.5, "step5_grid_b12h150", "_gS12H150"),
+    (25.0, 2.5, "step5_grid_b25h150", "_gS25H150"),
+    (50.0, 2.5, "step5_grid_b50h150", "_gS50H150"),
+    (5.0, 5.0, "step5_sweep_b5", "_v3aB5"),
+    (12.5, 5.0, "step5_sweep_b12", "_v3aB12"),
+    (25.0, 5.0, "step5_selection_v3", "_v3a"),
+    (50.0, 5.0, "step5_sweep_b50", "_v3aB50"),
+    (5.0, 10.0, "step5_grid_b5h600", "_gS5H600"),
+    (12.5, 10.0, "step5_grid_b12h600", "_gS12H600"),
+    (25.0, 10.0, "step5_sweep_h600", "_v3aH600"),
+    (50.0, 10.0, "step5_grid_b50h600", "_gS50H600"),
+    (5.0, 20.0, "step5_grid_b5h1200", "_gS5H1200"),
+    (12.5, 20.0, "step5_grid_b12h1200", "_gS12H1200"),
+    (25.0, 20.0, "step5_grid_b25h1200", "_gS25H1200"),
+    (50.0, 20.0, "step5_grid_b50h1200", "_gS50H1200"),
+]
+
+
+def grid_cell_stats(regime: str):
+    """Uniform recomputation for all 16 cells: valid-seed means vs adaptive, pooled,
+    one-sided across-seed t p, n_valid/n_total, §7.5 trigger (pooled<=-0.02, p<0.05,
+    fully valid). Single code path for figure 9 + table T4."""
+    from scipy.stats import ttest_1samp
+    out = {}
+    for size, hz, dirname, tag in GRID_SOURCES:
+        j, a = _load(dirname)
+        vals, n_total = [], 0
+        for r in j["per_run"]:
+            if r["algo"] != "ppo" or r["regime"] != regime:
+                continue
+            if _tag_of(r["run"], r["seed"]) != tag:
+                continue
+            n_total += 1
+            if a[r["run"]]["valid"]:
+                vals.append(r["mean_vs_adaptive_bps"])
+        vals = np.array(vals)
+        pooled = float(vals.mean()) if len(vals) else np.nan
+        p = float(ttest_1samp(vals, 0.0, alternative="less").pvalue) if len(vals) >= 2 else np.nan
+        n_cheap = int((vals < 0).sum())
+        trigger = (len(vals) == n_total and pooled <= -0.02
+                   and not np.isnan(p) and p < 0.05)
+        out[(size, hz)] = dict(pooled=pooled, p=p, n_valid=len(vals),
+                               n_total=n_total, n_cheaper=n_cheap, trigger=trigger)
+    return out
+
+
+def fig_grid_heatmap():
+    """F9: 4 sizes x 4 horizons pooled cost vs adaptive-TWAP, per regime; §7.5
+    triggers outlined. Dev-block evidence; caption carries the interpretation cap."""
+    from matplotlib.patches import Rectangle
+    sizes = [5.0, 12.5, 25.0, 50.0]
+    horizons = [2.5, 5.0, 10.0, 20.0]
+    fig, axes = plt.subplots(1, 2, figsize=(10.2, 4.6))
+    vmax = 0.17
+    for ax, regime in zip(axes, ["calm", "volatile"]):
+        stats = grid_cell_stats(regime)
+        M = np.array([[stats[(s, h)]["pooled"] for s in sizes] for h in horizons])
+        im = ax.imshow(M, cmap="coolwarm", vmin=-vmax, vmax=vmax, aspect="auto")
+        for i, h in enumerate(horizons):
+            for j, s in enumerate(sizes):
+                st = stats[(s, h)]
+                # the centre cell's dev-block signal was already chased through the §6
+                # confirmation family and FAILED both sealed tests — resolved, not a trigger
+                resolved = (s, h) == (25.0, 5.0) and regime == "volatile"
+                lines = [f"{st['pooled']:+.3f}", f"p={st['p']:.3f}"]
+                if st["n_valid"] != st["n_total"]:
+                    lines.append(f"{st['n_valid']}/{st['n_total']} valid")
+                elif st["n_total"] != 3:
+                    lines.append(f"n={st['n_total']}")
+                if resolved:
+                    lines.append("sealed: FAIL ×2")
+                ax.text(j, i, "\n".join(lines), ha="center", va="center", fontsize=7.6)
+                if resolved:
+                    ax.add_patch(Rectangle((j - 0.5, i - 0.5), 1, 1, fill=False,
+                                           edgecolor="dimgrey", lw=2.0, ls="--", zorder=4))
+                elif st["trigger"]:
+                    ax.add_patch(Rectangle((j - 0.5, i - 0.5), 1, 1, fill=False,
+                                           edgecolor="black", lw=2.4, zorder=4))
+        ax.set_xticks(range(4)); ax.set_xticklabels([f"{s:g}" for s in sizes])
+        ax.set_yticks(range(4)); ax.set_yticklabels([f"{h:g}" for h in horizons])
+        ax.set_xlabel("order size (BTC)")
+        ax.set_title(f"{regime} regime", fontsize=10)
+        ax.spines[:].set_visible(False)
+    axes[0].set_ylabel("deadline (minutes)")
+    cb = fig.colorbar(im, ax=axes, fraction=0.032, pad=0.02)
+    cb.set_label("pooled cost vs adaptive-TWAP (bps)\nnegative = agent cheaper", fontsize=8.5)
+    fig.suptitle("Robustness grid, development-block evidence: two calm cells (solid outline) meet the\n"
+                 "pre-registered follow-up trigger; the centre volatile signal (dashed) already failed two sealed tests",
+                 y=1.06)
+    save(fig, "fig9_grid_heatmap")
+
+
 if __name__ == "__main__":
     fig_dev_vs_sealed()
     fig_size_response()
@@ -479,4 +577,5 @@ if __name__ == "__main__":
     fig_drift_confound()
     fig_dqn_collapse()
     fig_regime_comparison()
+    fig_grid_heatmap()
     print("ALL FIGURES DONE ->", OUT)

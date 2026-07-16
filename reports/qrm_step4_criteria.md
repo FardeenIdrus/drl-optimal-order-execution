@@ -5,6 +5,10 @@ decisions are recorded there; this file freezes the NUMBERS: gate pass bands and
 definition of "beats TWAP". Revisions only with a stated mechanism, logged here (the 3f
 discipline). Nothing below was computed from any simulation of the agent environment.
 
+Path convention (added 2026-07-15): every `$S/...` raw-result path in this file resolves with
+`$S` = `/Users/fardeenidrus/Desktop/MSc Dissertation/scratch_hyperliquid/oxford_l4`. The JSON
+files at those paths are the source of truth for every number; markdown is a convenience copy.
+
 ## 1. Locked design (summary; full rationale in BUILD_PLAN)
 
 - Cadence 1 s; horizon 300 s (10-min robustness variant at primary size only, post-hoc).
@@ -457,6 +461,38 @@ block-luck illusion; (iii) only if BOTH survive, at most ONE newly pre-registere
 confirmation on a fresh never-used block, disclosed as an additional test in the §6 family. The
 §6.8 headline stands unless that confirmation passes.
 
+**7.5a SURVIVAL CRITERIA + EXECUTION DETAIL (pinned 2026-07-15, BEFORE the first §7.5
+execution — user-approved).** §7.5 named the steps but not the numeric pass bars; they are fixed
+here before any escalation run. Triggering groups (grid judgements 2026-07-15): ppo-calm
+50 BTC/600 s (`runs_grid_b50h600`, pooled -0.0539, p=0.014) and ppo-calm 25 BTC/1200 s
+(`runs_grid_b25h1200`, pooled -0.0629, p=0.0003).
+- **Step (i) — escalation.** Train seeds 3 and 4 for each group, identical config (PPO lr 1e-3,
+  all else base, same order size / env steps / tag, same dirs). Re-judge each full dir into a NEW
+  `step5_esc_<cell>/` (the original `step5_grid_<cell>/` stays the untouched record of the
+  trigger). SURVIVES iff, for the calm group with 5 seeds on the dev block (5e6, n=2000):
+  pooled vs adaptive <= -0.02 bps AND one-sided across-seed t p vs adaptive < 0.05 AND cheaper
+  vs adaptive in >= 4/5 seeds AND >= 4/5 seeds audit-valid. (Basis = §5-rule-3's adaptive-TWAP
+  form, matching the trigger itself; vs-fixed numbers are recorded alongside but do not gate.)
+- **Step (ii) — cross-block.** Same 5 agents, NO retraining, judged at eval_seed0 = 6,000,000
+  (verified 2026-07-15: no judgement on record has ever used this block; first use), n=2000,
+  into `step5_xblock_<cell>/`. SURVIVES iff the identical condition holds on this block.
+- **Step (iii) — sealed stage (only if a group survives BOTH).** Returns to the user BEFORE any
+  registration, with two pre-stated options: (a) literal §7.5 — ONE test at alpha=0.05 on the
+  group with the stronger cross-block result; or (b) if both groups survive, BOTH tested at
+  alpha=0.025 each (same familywise error, more information; would be a disclosed, dated
+  amendment). Either way: fresh never-used block, one shot, third test in the §6 family (the
+  §6.11 closure explicitly carves out the §7.5 route), familywise multiplicity stated in the
+  registration. Groups that fail (i) or (ii) are reported in full and closed.
+
+**7.5b LADDER VERDICT (recorded 2026-07-15 — §7.5a executed exactly as written).**
+Step (i): BOTH groups survived at 5 seeds (50/10min calm pooled -0.0432, p=0.0037, 5/5;
+25/20min calm -0.0609, p=0.0001, 5/5; determinism of the original seeds verified).
+Step (ii), reserve block 6,000,000 first use: **BOTH FAIL** — 50/10min calm -0.0095 (p=0.17,
+4/5); 25/20min calm +0.0177 (p=0.96, 1/5, sign-FLIPPED). Ladder CLOSED per the fail rule;
+step (iii) never reached; NO third sealed test spent; the 6e6 reserve block is now SPENT as
+a cross-block instrument. The §6.8 boundary-null headline stands across the full §7.7 grid.
+Raw: `$S/step5_esc_{b50h600,b25h1200}/` + `$S/step5_xblock_{b50h600,b25h1200}/`.
+
 **7.6 Code surface (logged; defaults verified).** New flags: `train_reactive --env-steps`;
 `step5_judgement --order-btc --env-steps` (env + audit + baselines threaded). At defaults the new
 code EXACTLY reproduces sealed records (audit entry of `runs_confirm_v3a/ppo_volatile_s5_v3a`
@@ -531,6 +567,59 @@ reproduce sealed records + 219 tests pass.
 everywhere (four independent falsification lines already stand); the value is COMPLETENESS, stated
 as such. Sequencing: A+B first (no code risk), then C as its own verified sub-project. Runs AFTER
 the §6.10 remedial confirmation completes.
+
+**PART D — DQN cross-setting probe (added 2026-07-15, BEFORE any probe run; decision pending).**
+Motivation (user, 2026-07-15): the grid (Parts A+B) is PPO-only, justified by DQN's audit
+disqualification at the primary cell (7/10 collapsed; both §5 fix variants d1/d2 failed to cure
+it). That scopes the defensible DQN claim to the primary setting; an examiner may ask whether the
+collapse is setting-specific (e.g. a 2.5-min deadline leaves less room to do nothing). Part D
+converts that caveat into evidence: train DQN (base config) at a SMALL set of grid cells chosen
+for informativeness, both regimes, 3 seeds, audit-before-costs as always. PRIMARY ENDPOINT =
+behaviour-audit outcome (does the collapse persist), not the cost edge; any cost claim would go
+through the frozen §3/§7.5 machinery unchanged.
+
+**FINALISED REGISTRATION (2026-07-15, user-approved Option B, BEFORE any probe run).**
+- Cells (3, chosen to bracket the collapse mechanism): **5 BTC x 2.5-min** (easiest execution
+  problem + least room to idle: if DQN trades properly anywhere, here), **25 BTC x 2.5-min**
+  (primary size, shortest deadline: isolates the deadline effect), **25 BTC x 20-min**
+  (maximum idle room: if idle-driven, collapse should be worst here).
+- Config: DQN BASE per §5 (the collapse was diagnosed on base; d1/d2 failed to cure it).
+  2M steps, both regimes, seeds 0-2 -> 18 runs. Tags `_dqS{5,25}H{150,1200}`; dirs
+  `runs_dqnprobe_<cell>/` (kept separate from the PPO grid dirs); judged with matching
+  --order-btc/--env-steps into `step5_dqnprobe_<cell>/`, dev block 5e6, n=2000,
+  audit-before-costs.
+- PRIMARY ENDPOINT: per-cell behaviour-audit outcome (valid/collapsed counts + do-nothing
+  share + deadline-residual). Cost results secondary, frozen rules unchanged; the reserve
+  block is NOT touched by this probe (spent, §7.5b).
+
+**PART E — DQN library-default update-rhythm variant "d3" (pre-registered 2026-07-16,
+BEFORE any run; user-approved).** Motivation: argument bank §N5+correction disclosed that the
+base DQN's update rhythm deviates from the SB3 library default (train_freq 100 / batch 1024 =
+~20k large updates vs the default 4/32 = ~500k small ones; total gradient sample-throughput is
+MATCHED ~16-20M either way, verified from source + saved models). An examiner can attribute the
+collapse to this coarse rhythm rather than to value-based learning. Part E closes that with data.
+- Variant d3 = DQN BASE with exactly ONE named change, "library-default update rhythm":
+  `--dqn-train-freq 4 --dqn-batch-size 32` (new flags added 2026-07-16; defaults-identity
+  verified byte-exact + 219 tests pass, per the §7.6 discipline). Everything else base.
+- Cells (3): 25 BTC/5-min (primary; the flagship claim), 25 BTC/2.5-min (the 0/6 total-collapse
+  cell), 5 BTC/2.5-min (the healthy control — must stay healthy for interpretability).
+  x 2 regimes x 3 seeds = 18 runs. Tags `_d3S25H300`, `_d3S25H150`, `_d3S5H150`;
+  dirs `runs_d3_{b25h300,b25h150,b5h150}/`; judged with matching flags into
+  `step5_d3_<cell>/`, dev block 5e6, n=2000, audit-before-costs.
+- PRIMARY ENDPOINT: behaviour-audit outcome vs the base-config cells (does the collapse
+  persist under the default rhythm). Interpretation pre-stated: d3 still collapsing -> the
+  failure mode is robust to the rhythm objection; d3 healthy -> the cause is LOCATED (update
+  granularity), reported as such. Cost results secondary through the frozen §3/§7.5 machinery;
+  no reserve/sealed block touched.
+
+**PART D OUTCOME (recorded 2026-07-16 — executed exactly as registered above).** 18/18
+trained, integrity ALL PASS, judged 2026-07-16. Audit verdicts: 5 BTC/2.5-min **4/6 valid**;
+25 BTC/2.5-min **0/6 valid**; 25 BTC/20-min **2/6 valid** (primary-campaign reference:
+25 BTC/5-min = 3/10). Conclusion: the collapse is SYSTEMATIC at the primary size (all
+deadlines), SIZE-driven (the idle-room hypothesis is refuted: shortest deadline at 25 BTC is
+the worst cell), and calm-concentrated (1/9 calm valid vs 5/9 volatile). No cost trigger in
+any group (only fully-valid group: 5 BTC/2.5-min volatile, pooled -0.021, p=0.26 = null).
+Part D CLOSED; nothing escalates. Raw: `$S/step5_dqnprobe_{b5h150,b25h150,b25h1200}/`.
 
 ## 6.11 REMEDIAL CONFIRMATION VERDICT (recorded 2026-07-13 — §6.10 executed, outcome verbatim)
 

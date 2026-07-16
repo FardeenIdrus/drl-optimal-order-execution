@@ -111,6 +111,10 @@ def main() -> None:
     ap.add_argument("--ppo-n-steps", type=int, default=None, help="override PPO rollout (V5)")
     ap.add_argument("--dqn-final-eps", type=float, default=None, help="DQN D1")
     ap.add_argument("--dqn-anneal-frac", type=float, default=None, help="DQN D1")
+    ap.add_argument("--dqn-train-freq", type=int, default=None,
+                    help="override DQN update interval in env steps (criteria §7.7 Part E d3)")
+    ap.add_argument("--dqn-batch-size", type=int, default=None,
+                    help="override DQN batch size (criteria §7.7 Part E d3)")
     args = ap.parse_args()
     # audit A1: a variant --tag MUST start with "_" or step5_judgement's tag_of regex
     # (`_s{seed}(_.+)?$`) silently pools the variant into the base group, corrupting its cell.
@@ -140,6 +144,10 @@ def main() -> None:
             hp["exploration_final_eps"] = args.dqn_final_eps
         if args.dqn_anneal_frac is not None:
             hp["exploration_anneal_frac"] = args.dqn_anneal_frac
+        if args.dqn_train_freq is not None:
+            hp["train_freq"] = args.dqn_train_freq
+        if args.dqn_batch_size is not None:
+            hp["batch_size"] = args.dqn_batch_size
         model = make_dqn(env, hp, seed=args.seed, total_timesteps=args.steps)
     else:
         hp = {"net_arch": net_arch, "activation": "LeakyReLU",
@@ -189,7 +197,9 @@ def main() -> None:
         "overrides": {"lr": args.lr, "ent_coef": args.ent_coef,
                       "ppo_n_steps": args.ppo_n_steps,
                       "dqn_final_eps": args.dqn_final_eps,
-                      "dqn_anneal_frac": args.dqn_anneal_frac},
+                      "dqn_anneal_frac": args.dqn_anneal_frac,
+                      "dqn_train_freq": args.dqn_train_freq,
+                      "dqn_batch_size": args.dqn_batch_size},
         "wall_s": time.perf_counter() - t0,
         "criteria": "reports/qrm_step4_criteria.md"}, indent=2))
     logger.info("run complete -> %s", run_dir)

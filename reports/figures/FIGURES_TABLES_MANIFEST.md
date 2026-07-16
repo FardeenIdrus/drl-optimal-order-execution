@@ -25,7 +25,7 @@ scienceplots style for uniformity; seaborn for distribution plots.
 | F6 | Drift confound before/after | BUILT v1 | SUPERSEDED_step5_v2 + step5_v3 | "manufactured edge" exhibit |
 | F7 | DQN collapse audit scatter | BUILT v3 (2026-07-14: zoom is now its own SIDE PANEL — the overlaid inset had covered the dqn point at (50,29); filled invalid markers get a white edge so the two near-coincident points at (87,86.5)/(87,89.5) read as distinct squares; true positions, nothing nudged) | step5_v3 behaviour_audit | |
 | F8 | Regime comparison calm vs volatile (RQ2) | BUILT v1 | step5_v3 + step5_selection_v3 | |
-| F9 | Grid heatmap 4 sizes x 4 horizons, per regime | PENDING (grid training 24/66) | step5_grid_* + step5_sweep_* + selection | |
+| F9 | Grid heatmap 4 sizes x 4 horizons, per regime | BUILT 2026-07-15 (16 cells; solid outline = 2 live §7.5 triggers (calm); dashed = centre volatile, already failed 2 sealed tests) | step5_grid_* + step5_sweep_* + selection | |
 | F10a | Absolute execution costs per policy/regime (descriptive anchor) | PENDING (needs per-episode re-eval) | re-eval dump | Carlo descriptive stats |
 | F10b | Per-episode cost distributions (violin/density), agent vs both TWAPs | PENDING (same re-eval) | re-eval dump | seaborn |
 | F11 | Intra-day / intra-week volume + liquidity profiles | PENDING (liquidity study) | L4 trades/book | Carlo request; feeds VWAP |
@@ -36,6 +36,9 @@ scienceplots style for uniformity; seaborn for distribution plots.
 | F16 | Action-distribution profiles: what the agent actually does per regime (pace histogram) | CANDIDATE | behaviour_audit action_shares | feeds RQ3 |
 | F17 | Fairness gate: pace-multiple cost gradient before/after drift fix | CANDIDATE | step3g fairness records | methods |
 | F18 | Sealed-confirmation per-seed detail (both tests, both benchmarks) | CANDIDATE | step5_confirm_* | may fold into T3 |
+| F19 | Ladder collapse: per-seed dev-block vs reserve-block (both escalated calm groups; the p=0.0001 group sign-flips) | PLANNED (added 2026-07-15; the third block-luck exhibit, argument §L5) | step5_esc_* + step5_xblock_* | slope-graph style |
+| F20 | DQN collapse rate by setting (4 settings incl. primary; valid/collapsed per regime) | PLANNED (added 2026-07-16; argument §N — systematic, size-driven) | step5_dqnprobe_* + step5_v3 audit | companion to F7 |
+| F21 | DQN Q-value tilt: per-agent do-nothing argmax share vs audit outcome (collapse = near-flat values tipping to action 0) | CANDIDATE (added 2026-07-16; argument §N5; regenerate via reports/diagnostics/dqn_q_flatness.py) | dqn_q_flatness.py output | |
 
 ## FIGURES — L2 / frozen-replay track (secondary chapter; full set per comprehensive-first)
 
@@ -54,7 +57,7 @@ scienceplots style for uniformity; seaborn for distribution plots.
 | T1 | Primary campaign: all 20 runs per-seed, both benchmarks, p, audit flag | BUILT 2026-07-14 (compiled OK; numbers verified vs source) | step5_v3 |
 | T2 | Tuning/selection: all 28 groups (seeds, valid, pooled, across-seed p) | BUILT 2026-07-14 (compiled OK) | step5_selection_v3 |
 | T3 | Both sealed confirmations: per-seed + pass/fail criteria checklist | BUILT 2026-07-14 (compiled OK; verified) | step5_confirm_v3a/v1b |
-| T4 | Robustness grid: 4x4 pooled + p per regime | PENDING (grid) | step5_grid_* + sweeps |
+| T4 | Robustness grid: 4x4 pooled + p per regime | BUILT 2026-07-15 (compiled OK; 2 live triggers flagged; centre volatile marked closed/§6-FAIL) | step5_grid_* + sweeps + selection |
 | T5 | Environment validation: impact ratios, dump costs, drift/fairness numbers | PENDING (data ready) | gate records |
 | T6 | Descriptive stats: cost distribution summaries per policy/regime | PENDING (re-eval) | re-eval dump |
 | T7 | L2 track: three-axis null summary | PENDING (data ready) | L2 results |

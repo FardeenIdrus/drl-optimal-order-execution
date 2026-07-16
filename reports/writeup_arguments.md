@@ -345,3 +345,227 @@ Viva defence if asked "why wasn't the extension the original design": J3 verbati
 model, measure-vs-invent dilemma resolved conservatively at design time, prediction channel
 already covered by Track 1, gap articulated and then CLOSED (or: named precisely as future work,
 if it ends up descoped).
+
+## K. BENCHMARK JUSTIFICATION — why adaptive TWAP is the headline benchmark and normal (fixed)
+## TWAP is co-primary (logged 2026-07-15, prompted by Carlo's question)
+
+K1. BOTH benchmarks are measured and required, always. Every per-run row records the paired
+difference vs fixed TWAP AND vs adaptive TWAP; the frozen §3 edge rule requires beating BOTH;
+both sealed confirmations required pooled < 0 vs both. Nothing was ever compared to adaptive
+alone. "Normal TWAP" (the textbook even schedule, order/N per second, open-loop with a
+fractional-unit carry) is the `vs fixed` column in every table.
+
+K2. Why adaptive TWAP (trade remaining/time-left each second, self-correcting) is the HEADLINE:
+ (a) CONSTRAINT REALISM. The environment has a hard completion deadline and partial fills
+     (orders walk a real reconstructed book). Open-loop schedules drift off course through no
+     fault of their logic; every production TWAP algorithm has catch-up logic. Beating only an
+     open-loop TWAP could credit mere schedule-keeping as "skill".
+ (b) LIKE-FOR-LIKE. The agent's action space is defined as multiples (0x..2x) of the adaptive
+     pace; adaptive TWAP IS the always-1.0x action — the neutral element of the agent's own
+     control space, run through the same env, same constraints, same episode randomness (CRN).
+     The agent beats it iff deviating from neutral pacing adds value. Cleanest possible skill
+     test; also the fairness anchor verified by the step-3g pace-gradient gate.
+ (c) STRICTNESS. Headlining the weaker benchmark inflates apparent edges. Where the two diverge
+     (small orders at long deadlines; slice-rounding effects of a few hundredths of a bp), the
+     require-both rule stops an agent winning only because one benchmark is locally clumsy.
+
+K3. Benchmark-robustness of the conclusions (checkable): at the primary cell the two benchmarks
+differ by <0.001 bps per seed; at the two §7.7 grid trigger cells the pooled numbers vs fixed
+and vs adaptive agree to the third decimal; both sealed failures failed against both. No
+conclusion in the project changes if "normal TWAP" is made the headline instead.
+
+K4. Report placement: one methods-chapter paragraph (definitions of both, the three reasons,
+and K3's robustness note). AC and VWAP join as additional benchmarks later (roadmap step 6).
+
+## L. THE §7.7 GRID FINDINGS + THE TWO CALM TRIGGERS (logged 2026-07-15, BEFORE the §7.5
+## ladder outcome — framing written pre-outcome by design)
+
+L1. FACTS. 66 new runs, 11 cells, judged one-shot on the dev block: strict per-seed edge rule
+fires nowhere; 20/22 groups null; TWO calm groups meet the §5-rule-3 trigger — 50 BTC/10-min
+(pooled -0.054, p=0.014, 3/3 cheaper) and 25 BTC/20-min (-0.063, p=0.0003, seeds -0.060/-0.064/
+-0.065). Six groups total had every valid seed cheaper vs adaptive; the whole 10-min column
+leans agent-favourable (15/18 seeds). Anti-results in the same table: 12.5 BTC/20-min volatile
+consistently WORSE (+0.16, two seeds sig. wrong-direction); 5 BTC/20-min calm worse with a
+tight positive CI. 64/66 valid (two mild deadline-leaning failures, both at 2.5-min).
+
+L2. WHY THE TRIGGERS CANNOT BE CLAIMED YET (the four reasons, for the report): n=3 seeds
+(1-in-8 same-side by chance; ~2-3 all-cheaper groups expected among 22); 2-dof t fragility
+(p=0.0003 comes from three means landing within 0.005 of each other); ONE shared evaluation
+block (seed agreement cannot detect block luck — demonstrated live by the volatile 5-seed
+p=0.004 -> two sealed fails); standouts of a 22-group screen (winner's curse). Cells within a
+horizon share episode randomness, so the 10-min column lean is partly one draw of luck painted
+across a column — the cross-block step tests exactly this.
+
+L3. WHY THEY ARE NOT DISMISSED EITHER: both exceed the -0.05 claim floor in magnitude; the
+project's response is the pre-registered §7.5/§7.5a ladder (5 seeds -> reserve block ->
+at most one sealed test), i.e. chase properly, claim only on out-of-sample evidence. Either
+outcome is dissertation material: survival -> a confirmed calm-regime edge at large-size/
+long-deadline becomes the headline finding; death -> a third, fully instrumented block-luck
+demonstration (strengthens argument D with a calm-regime replication of the illusion).
+
+L4. REGIME-INVERSION NOTE: the original candidate was volatile-only; these are calm-only, with
+no pre-stated mechanism. If the ladder confirms a calm edge, the RQ3 attribution must supply
+the mechanism post-hoc and say so honestly (exploratory, not pre-registered).
+
+## L5 addition (2026-07-15): THE LADDER OUTCOME — the third and cleanest block-luck
+## demonstration (updates L1-L4; the grid null is now final)
+
+FACTS. Both triggered calm groups survived escalation to 5 seeds on the dev block
+(50/10min: pooled -0.0432, p=0.0037, 5/5 cheaper; 25/20min: -0.0609, p=0.0001, 5/5, CI
+[-0.074, -0.048]) and then BOTH FAILED the first-ever use of the reserve block (6e6):
+50/10min -> -0.0095 (p=0.17); 25/20min -> +0.0177 (p=0.96, 1/5 cheaper) — a full sign flip.
+No sealed test was spent. Raw: step5_esc_* / step5_xblock_*.
+
+WHY THIS IS THE DISSERTATION'S STRONGEST METHODOLOGICAL EXHIBIT:
+1. It is the most extreme possible form of the illusion: five independently trained agents,
+   agreeing to within 0.005 bps of each other (p=0.0001), all simultaneously WRONG about
+   fresh data from the same simulator. Seed agreement measures training-randomness luck
+   only; it is structurally blind to evaluation-block luck.
+2. It happened in the CALM regime after the identical illusion happened in the VOLATILE
+   regime (the §6.8 candidate: 5 seeds, p=0.004 dev -> ~0.000 on two sealed blocks). Two
+   regimes, three demonstrations, same mechanism.
+3. The 10-min-column caveat (logged BEFORE the outcome: cells within a horizon share episode
+   draws, so a whole column can lean together by luck) was VINDICATED: the reserve block
+   reversed the entire column pattern, calm and volatile alike (volatile 50/10min flipped
+   from -0.082 to +0.075 pooled).
+4. The ladder's cost-benefit is the practical lesson: 4 training runs + 2 evaluations caught
+   what would otherwise have consumed a third one-shot sealed test. Cross-block replication
+   BEFORE confirmation is the transferable methodological recommendation.
+
+REPORT PLACEMENT: extends argument D (spurious-edge anatomy) with a calm-regime replication;
+figure candidate F19 = per-seed dev-vs-reserve collapse (both groups); the grid chapter's
+conclusion = "null across the full size x deadline design space, robust to two evaluation
+blocks; every apparent exception died on fresh data, exactly as the pre-registered machinery
+predicted it would if it were luck."
+
+## M. METHODOLOGY-CHAPTER DISCUSSION POINT: why this project uses a THREE-layer evaluation
+## (screen -> replicate -> confirm), not the textbook two (validate -> test)
+## (logged 2026-07-15, user decision: goes in the methodology section as a rigor argument)
+
+M1. THE STANDARD PATTERN AND WHY IT IS INSUFFICIENT HERE. The default ML evaluation split
+(one validation set, one test set) is designed for evaluating a HANDFUL of candidates. This
+project screened ~200 trained agents across 22+ design-space groups against the same
+development block. Under that selection pressure the validation set is partially "used up":
+winners are winners partly BECAUSE they fit that block's specific noise (winner's curse /
+backtest-overfitting). A single val->test pipeline then exposes the scarce one-shot test set
+to candidates whose apparent strength is substantially selection artifact.
+
+M2. THE RECOGNISED REMEDY, AND ITS NAMES ELSEWHERE. Fields that screen at volume insert a
+REPLICATION layer between screening and confirmation: genomics (discovery cohort ->
+replication cohort -> confirmation), clinical research (phase II -> phase III), ML
+competitions (public -> private leaderboard, plus experienced teams' own extra holdout),
+quantitative finance (second out-of-sample fold before believing a backtest; the
+backtest-overfitting literature, e.g. Bailey/Lopez de Prado, recommends exactly this).
+Our "reserve block" is this replication layer under a project-specific name.
+
+M3. HONEST DISCLOSURES THAT BELONG IN THE TEXT. (a) The layer was added MID-PROJECT, dated,
+in response to two failed sealed confirmations — a documented methodology strengthening,
+not original design. (b) It is affordable here only because the simulator generates episode
+blocks freely; with scarce real data a second held-out set is often impossible, which is
+partly why the two-layer default dominates. (c) Blocks are seed-ranges of the SAME calibrated
+simulator: the layers test generalisation across market-path draws, not across time periods.
+
+M4. THE EMPIRICAL VINDICATION (the paragraph's punchline). First use of the replication
+layer: a candidate carrying p=0.0001 with 5/5 seeds agreeing on the development block
+SIGN-FLIPPED to +0.018 (p=0.96) on the replication block (§L5). Under the textbook two-layer
+pipeline this candidate would have consumed a one-shot sealed test. The three-layer design
+caught it for the cost of 4 training runs and 2 evaluations. This single concrete example is
+the strongest possible justification of the design and should close the methodology section.
+
+## N. THE DQN SYSTEMATIC-COLLAPSE FINDING (§7.7 Part D probe, logged 2026-07-16)
+
+N1. FACTS. 18-run probe (base DQN, 3 cells, both regimes, 3 seeds): valid rates 4/6 at
+5 BTC/2.5-min, 0/6 at 25 BTC/2.5-min, 2/6 at 25 BTC/20-min; primary campaign reference 3/10
+at 25 BTC/5-min. Raw: step5_dqnprobe_*.
+
+N2. THE CLAIM THE REPORT CAN NOW MAKE (upgraded from "collapsed at one setting"):
+DQN's do-nothing-then-dump collapse is SYSTEMATIC across the deadline axis at the primary
+order size (fails at 2.5, 5, and 20 minutes), is DRIVEN BY ORDER SIZE (mostly healthy at
+5 BTC), and concentrates in the CALM regime (1/9 valid vs 5/9 volatile). The pre-stated
+idle-room hypothesis (shorter deadline -> less collapse) is REFUTED by the probe's own
+design: the shortest deadline at 25 BTC is the worst cell.
+
+N3. INTERPRETATION FOR THE DISCUSSION CHAPTER (mechanism, honestly labelled post-hoc):
+at 5 BTC an agent's trades barely move the book, so per-step rewards are nearly
+policy-independent and the value function can learn from clean feedback; at 25 BTC each
+trade has real impact, reward becomes strongly action-dependent, and the deadline penalty
+dominates the return — a sparse/deceptive credit-assignment landscape in which the
+"do nothing, pay the terminal penalty" policy is a strong local attractor for value-based
+bootstrapping. PPO's on-policy updates with entropy regularisation escape it; DQN's replay
++ bootstrapped targets do not (both §5 fixes failed). Calm concentration fits: calm books
+recover slower relative to volatility, so impact feedback is cleaner in volatile markets.
+Label as interpretation, not established mechanism; cite the collapse-rate table.
+
+N4. PLACEMENT: RQ1 algorithm comparison (PPO vs DQN), figure F7 (primary-setting scatter)
++ candidate F20 (collapse rate by setting), behaviour-audit defense C6 (the audit is what
+caught all of this before costs), limitations (value-based methods under impact).
+
+## N5 addendum (2026-07-16): THE MEASURED Q-VALUE DIAGNOSTIC + the scoped verdict
+## (user-approved for the report; every claim below verified before logging — including
+## one correction to the first-pass reading)
+
+EVIDENCE (script: reports/diagnostics/dqn_q_flatness.py — deterministic, re-runnable;
+all 12 DQN probe agents of the two 2.5-min cells, 5 dev-block episodes each):
+- Reward scale (measured, adaptive-TWAP rollouts): per-step |reward| mean ~0.010 bps,
+  sd 0.025 (25 BTC) / 0.057 (5 BTC).
+- ALL agents' learned Q-values barely separate the 7 actions: mean within-state
+  best-minus-worst spread 0.006-0.012 — an order of magnitude BELOW per-step reward noise.
+- What separates collapsed from valid is WHERE the near-flat surface tips: collapsed agents
+  (n=8) rank "do nothing" first in 47.8% of states on average (worst: 94.5%); valid agents
+  (n=4) in 14.3%.
+- CORRECTION logged for honesty: a first single-pair comparison suggested collapsed agents
+  have FLATTER Q-values than valid ones; the full 12-agent sweep refutes that contrast
+  (0.0082 vs 0.0095, overlapping). The claim the report may make is the corrected one:
+  the value signal is near the edge of resolvability for ALL DQN runs on this problem;
+  collapse = the tilt landing on action 0. Do not cite the flatness CONTRAST.
+
+FIX-ATTEMPT NUMBERS (exact, from step5_selection_v3): d1 (exploration_final_eps 0.05,
+anneal 0.5): 1/3 calm + 1/3 volatile valid. d2 (reward x100 + net [64,64]): 0/3 calm,
+3/3 volatile valid. Correct phrasing: the two pre-registered fixes did not RELIABLY cure
+the collapse (d2 helped volatile at the primary cell only; calm stayed 0/3).
+
+MECHANISM PARAGRAPH (verified): SB3 PPO trains with normalize_advantage=True (library
+default; confirmed our code never overrides it) — every batch's learning signal is
+rescaled to unit variance, so "action A beat the batch average" earns a full-strength
+gradient regardless of raw reward scale. DQN regresses RAW-scale Q-targets; at raw scale
+these differences are microscopic (see the measured numbers above), leaving the argmax to
+noise and structural bias. This is offered as the mechanistic interpretation, clearly
+labelled; the measured facts stand on their own.
+
+THE SCOPED VERDICT (the sentence the report should carry): base DQN, under the same
+conditions where PPO learns healthy policies everywhere, systematically collapses once
+order size makes rewards impact-dominated; its action-value separations are an order of
+magnitude below reward noise, the do-nothing/terminal-dump policy becomes the default
+tilt, and two documented fix attempts did not reliably cure it. This is a real,
+reproducible failure mode of THIS value-based configuration on THIS problem class — not
+proof that no value-based method can work: published value-based execution agents exist
+(e.g. Nevmyvaka-Feng-Kearns 2006; Ning-Lin-Jaimungal's Double-DQN execution), and testing
+such upgrades (Double-DQN, prioritised replay, dueling) is out of scope, named as future
+work. NO implementation bug: the PPO control (identical env/reward/actions/trunk/gamma,
+100% audit-valid everywhere) rules out a broken environment; terminal handling and reward
+accounting verified in code.
+
+Figure candidate F21: per-agent do-nothing argmax share vs audit outcome (the tilt plot).
+
+## N5 correction (2026-07-16, same day — the "update-schedule disadvantage" framing was
+## imprecise; arithmetic verified from source (train_reactive.py:132-134,146-147) AND from a
+## saved model's own attributes)
+
+WRONG framing (do not use): "our DQN gets ~25x fewer updates than the library default, so
+the config may handicap it" — this conflates update CALLS with learning compute.
+VERIFIED numbers (QRM track, 2M env steps):
+- our DQN: train_freq=100, gradient_steps=1, batch=1024 -> 20,000 update calls x 1024
+  samples = 20.5M gradient sample-passes;
+- our PPO: n_steps=2048, epochs=10, batch=64 -> ~312,500 update calls x 64 = 20.0M
+  sample-passes;
+- SB3-default DQN (train_freq=4, batch=32) would be 500,000 calls x 32 = 16M sample-passes.
+CORRECT statement: total gradient sample-THROUGHPUT is matched between our DQN and our PPO
+(~20M each; the comparison is compute-fair). What differs is GRANULARITY: DQN takes ~20k
+large low-variance steps where PPO takes ~312k small ones (and the library default would
+take 500k). Whether the collapse is an artifact of the coarse update rhythm (fewer chances
+to propagate value through bootstrapping) rather than of value-based learning per se is an
+OPEN EMPIRICAL QUESTION -> closed by the pre-registered d3 variant (criteria §7.7 Part E):
+DQN with the library-default rhythm (train_freq=4, gradient_steps=1, batch=32), all else
+base, at {25/5min, 25/2.5min, 5/2.5min} x 2 regimes x 3 seeds. d3 still collapsing ->
+the failure mode is robust to the rhythm objection; d3 healthy -> the cause is located
+(update granularity), a sharper finding. Either way the report's DQN section cites d3.

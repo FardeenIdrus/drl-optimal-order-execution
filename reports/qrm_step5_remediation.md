@@ -471,6 +471,267 @@ deviation from even pacing only adds noise cost.
 **Verdict: the boundary null HOLDS across order sizes 5-50 BTC and at the 10-minute horizon, in
 both regimes.** The §1 multi-axis design is complete (cadence sweep pre-registered out).
 
+## CURRENT RESULTS (D) — §7.7 GRID, Parts A+B (sealed judgements 2026-07-15, `step5_grid_*`): NULL IN 20/22 GROUPS; TWO CALM GROUPS TRIGGER THE §7.5 LADDER (escalation NOT yet launched — user decision pending)
+
+Provenance: 66 runs (11 new cells x 2 regimes x 3 seeds), integrity-checked before judging
+(all metas parsed: order size / deadline / config / seed / regime / gamma correct; curves
+complete to 2M steps). Judged 2026-07-15, one judge per cell with matching
+--order-btc/--env-steps (recorded in each judgement.json), screen mode, dev block
+eval_seed0=5,000,000, n=2,000 CRN episodes, audit-before-costs. Parse-verified 11/11.
+
+**SOURCE OF TRUTH = the JSON files at the paths below (2026-07-15, user rule: markdown tables
+in this doc are a convenience COPY; every number cited in the report must trace to these files).**
+Base path `$S` = `/Users/fardeenidrus/Desktop/MSc Dissertation/scratch_hyperliquid/oxford_l4`.
+Per cell: trained agents live in `$S/runs_grid_<cell>/<run>/` (one folder per run:
+`model.zip` + `meta.json` + `curve.json`); scored results in `$S/step5_grid_<cell>/judgement.json`
+(field `per_run`, one row per run, keyed by run name) + `$S/step5_grid_<cell>/behaviour_audit.json`.
+
+| cell | trained agents (runs) | scored results (judgement + audit) |
+|---|---|---|
+| 5 BTC / 2.5 min | `$S/runs_grid_b5h150/` | `$S/step5_grid_b5h150/` |
+| 12.5 BTC / 2.5 min | `$S/runs_grid_b12h150/` | `$S/step5_grid_b12h150/` |
+| 25 BTC / 2.5 min | `$S/runs_grid_b25h150/` | `$S/step5_grid_b25h150/` |
+| 50 BTC / 2.5 min | `$S/runs_grid_b50h150/` | `$S/step5_grid_b50h150/` |
+| 5 BTC / 10 min | `$S/runs_grid_b5h600/` | `$S/step5_grid_b5h600/` |
+| 12.5 BTC / 10 min | `$S/runs_grid_b12h600/` | `$S/step5_grid_b12h600/` |
+| 50 BTC / 10 min (TRIGGER, calm) | `$S/runs_grid_b50h600/` | `$S/step5_grid_b50h600/` |
+| 5 BTC / 20 min | `$S/runs_grid_b5h1200/` | `$S/step5_grid_b5h1200/` |
+| 12.5 BTC / 20 min | `$S/runs_grid_b12h1200/` | `$S/step5_grid_b12h1200/` |
+| 25 BTC / 20 min (TRIGGER, calm) | `$S/runs_grid_b25h1200/` | `$S/step5_grid_b25h1200/` |
+| 50 BTC / 20 min | `$S/runs_grid_b50h1200/` | `$S/step5_grid_b50h1200/` |
+
+Run naming inside each cell: `ppo_{calm|volatile}_s{0,1,2}_gS{5|12|25|50}H{150|600|1200}`
+(the two trigger cells additionally gain `s3`,`s4` calm runs from the §7.5a escalation).
+The already-tested 5 cells cited by F9/T4: `$S/step5_selection_v3/` (25 BTC/5-min),
+`$S/step5_sweep_{b5,b12,b50}/` (5-min column), `$S/step5_sweep_h600/` (25 BTC/10-min).
+Escalation/cross-block results will land in `$S/step5_esc_<cell>/` and `$S/step5_xblock_<cell>/`.
+
+**Audit: 64/66 valid.** Two invalid, both calm at the 2.5-min deadline, both on the
+deadline-residual criterion (forced-deadline buy finished >10% of episodes: 16% and 12.5%) —
+mild deadline-leaning at the tightest horizon, not the DQN-style collapse:
+`ppo_calm_s2_gS25H150`, `ppo_calm_s1_gS50H150`. Excluded from group verdicts per protocol.
+
+**Strict per-seed ESCALATE flag: FALSE in all 22 groups** (no group has >=2 individually
+significant seeds with pooled <= -0.05).
+
+**§7.5 TRIGGER (pooled <= -0.02 AND across-seed p < 0.05, fully valid): fires in TWO groups,
+both CALM:**
+- **50 BTC / 10-min / calm**: pooled -0.0539 bps, across-seed p=0.014, 3/3 cheaper,
+  95% CI [-0.0935, -0.0143].
+- **25 BTC / 20-min / calm**: pooled -0.0629 bps, across-seed p=0.0003, 3/3 cheaper,
+  95% CI [-0.0691, -0.0567] (strikingly tight).
+
+**Interpretation context (logged before any escalation runs):**
+1. These are DEV-BLOCK (5e6) numbers — the same block on which the 25-BTC volatile "edge"
+   looked real (p=0.0043, 5 seeds) and then failed BOTH sealed tests. The §7.5 ladder
+   (escalate to 5 seeds -> cross-block 6e6 -> at most ONE sealed test) exists precisely for
+   this situation; step (ii) is the check that would have caught the earlier block-luck illusion.
+2. Regime inversion: the original candidate edge was VOLATILE-only; these triggers are
+   CALM-only (volatile in the same cells: 50/10min p=0.083; 25/20min pooled POSITIVE +0.016).
+   A real mechanism appearing only in calm at two scattered cells, after calm showed nothing
+   at the primary cell, has no pre-stated mechanism story.
+3. Multiplicity: 22 groups screened; under a global null the §5-rule-3 condition is expected
+   to fire roughly once by chance (p<0.05 alone: ~1.1 expected across 22 one-sided tests;
+   the -0.02 floor tightens that, block-luck correlation across same-block cells loosens it).
+   Two firings including one at p=0.0003 is worth the pre-registered follow-up, nothing more.
+4. No edge claim can arise from these dev-block results directly (§7.5 interpretation cap).
+   The §6.8 boundary-null headline STANDS unless a §7.5-triggered sealed confirmation passes.
+
+**Next per §7.5 (pending user go-ahead): (i) escalate BOTH triggered groups to 5 seeds
+(train seeds 3,4 calm for the two cells = 4 runs); (ii) cross-block replication of the
+escalated groups on eval_seed0=6,000,000 (n=2,000, first use of the reserve block); (iii) only
+if BOTH steps survive: at most ONE newly pre-registered sealed confirmation (§6 family
+disclosure applies).**
+
+### FULL PER-SEED TABLE — all 66 grid runs, both benchmarks (sealed judgements 2026-07-15, `step5_grid_*`)
+
+| size (BTC) | horizon | regime | seed | vs fixed (bps) | p_fixed | vs adaptive (bps) | p_adaptive | valid |
+|---|---|---|---|---|---|---|---|---|
+| 5.0 | 2.5min | calm | 0 | +0.0036 | 0.731 | -0.0029 | 0.952 | yes |
+| 5.0 | 2.5min | calm | 1 | -0.0252 | 0.026 | -0.0317 | 0.015 | yes |
+| 5.0 | 2.5min | calm | 2 | +0.0130 | 0.383 | +0.0065 | 0.716 | yes |
+| 5.0 | 2.5min | volatile | 0 | -0.0102 | 0.782 | -0.0103 | 0.753 | yes |
+| 5.0 | 2.5min | volatile | 1 | +0.0017 | 0.856 | +0.0016 | 0.882 | yes |
+| 5.0 | 2.5min | volatile | 2 | -0.0309 | 0.207 | -0.0310 | 0.207 | yes |
+| 12.5 | 2.5min | calm | 0 | -0.0010 | 0.955 | -0.0012 | 0.950 | yes |
+| 12.5 | 2.5min | calm | 1 | +0.0010 | 0.931 | +0.0009 | 0.961 | yes |
+| 12.5 | 2.5min | calm | 2 | +0.0102 | 0.566 | +0.0101 | 0.574 | yes |
+| 12.5 | 2.5min | volatile | 0 | +0.0177 | 0.426 | +0.0191 | 0.382 | yes |
+| 12.5 | 2.5min | volatile | 1 | -0.0232 | 0.293 | -0.0219 | 0.337 | yes |
+| 12.5 | 2.5min | volatile | 2 | +0.0392 | 0.198 | +0.0406 | 0.193 | yes |
+| 25.0 | 2.5min | calm | 0 | -0.0069 | 0.562 | -0.0069 | 0.564 | yes |
+| 25.0 | 2.5min | calm | 1 | +0.0127 | 0.308 | +0.0127 | 0.304 | yes |
+| 25.0 | 2.5min | calm | 2 | -0.0195 | 0.263 | -0.0195 | 0.269 | **NO** |
+| 25.0 | 2.5min | volatile | 0 | -0.0059 | 0.900 | -0.0069 | 0.870 | yes |
+| 25.0 | 2.5min | volatile | 1 | -0.0159 | 0.505 | -0.0168 | 0.484 | yes |
+| 25.0 | 2.5min | volatile | 2 | -0.0156 | 0.758 | -0.0166 | 0.719 | yes |
+| 50.0 | 2.5min | calm | 0 | +0.0071 | 0.724 | +0.0069 | 0.733 | yes |
+| 50.0 | 2.5min | calm | 1 | +0.0181 | 0.114 | +0.0179 | 0.116 | **NO** |
+| 50.0 | 2.5min | calm | 2 | +0.0053 | 0.811 | +0.0051 | 0.816 | yes |
+| 50.0 | 2.5min | volatile | 0 | +0.0243 | 0.474 | +0.0244 | 0.476 | yes |
+| 50.0 | 2.5min | volatile | 1 | +0.0442 | 0.110 | +0.0443 | 0.112 | yes |
+| 50.0 | 2.5min | volatile | 2 | +0.0214 | 0.582 | +0.0215 | 0.587 | yes |
+| 5.0 | 10min | calm | 0 | +0.0027 | 0.891 | +0.0105 | 0.831 | yes |
+| 5.0 | 10min | calm | 1 | -0.0081 | 0.799 | -0.0004 | 0.836 | yes |
+| 5.0 | 10min | calm | 2 | +0.0136 | 0.538 | +0.0213 | 0.487 | yes |
+| 5.0 | 10min | volatile | 0 | -0.0004 | 0.989 | -0.0448 | 0.471 | yes |
+| 5.0 | 10min | volatile | 1 | -0.0383 | 0.658 | -0.0827 | 0.096 | yes |
+| 5.0 | 10min | volatile | 2 | +0.0569 | 0.396 | +0.0125 | 0.948 | yes |
+| 12.5 | 10min | calm | 0 | -0.0172 | 0.490 | -0.0217 | 0.385 | yes |
+| 12.5 | 10min | calm | 1 | -0.0048 | 0.901 | -0.0093 | 0.998 | yes |
+| 12.5 | 10min | calm | 2 | -0.0178 | 0.464 | -0.0223 | 0.434 | yes |
+| 12.5 | 10min | volatile | 0 | -0.0163 | 0.637 | -0.0159 | 0.663 | yes |
+| 12.5 | 10min | volatile | 1 | -0.0575 | 0.139 | -0.0570 | 0.158 | yes |
+| 12.5 | 10min | volatile | 2 | -0.0063 | 0.777 | -0.0058 | 0.737 | yes |
+| 50.0 | 10min | calm | 0 | -0.0453 | 0.066 | -0.0453 | 0.066 | yes |
+| 50.0 | 10min | calm | 1 | -0.0723 | 0.017 | -0.0723 | 0.017 | yes |
+| 50.0 | 10min | calm | 2 | -0.0441 | 0.138 | -0.0441 | 0.138 | yes |
+| 50.0 | 10min | volatile | 0 | -0.0215 | 0.597 | -0.0223 | 0.585 | yes |
+| 50.0 | 10min | volatile | 1 | -0.1532 | 0.018 | -0.1540 | 0.017 | yes |
+| 50.0 | 10min | volatile | 2 | -0.0692 | 0.213 | -0.0700 | 0.206 | yes |
+| 5.0 | 20min | calm | 0 | +0.0842 | 0.024 | +0.0362 | 0.283 | yes |
+| 5.0 | 20min | calm | 1 | +0.0792 | 0.028 | +0.0312 | 0.495 | yes |
+| 5.0 | 20min | calm | 2 | +0.0818 | 0.022 | +0.0339 | 0.268 | yes |
+| 5.0 | 20min | volatile | 0 | +0.0545 | 0.304 | +0.1334 | 0.106 | yes |
+| 5.0 | 20min | volatile | 1 | -0.0422 | 0.984 | +0.0367 | 0.478 | yes |
+| 5.0 | 20min | volatile | 2 | -0.0545 | 0.368 | +0.0244 | 0.846 | yes |
+| 12.5 | 20min | calm | 0 | +0.0313 | 0.413 | +0.0347 | 0.346 | yes |
+| 12.5 | 20min | calm | 1 | -0.0056 | 0.918 | -0.0022 | 0.821 | yes |
+| 12.5 | 20min | calm | 2 | +0.0208 | 0.632 | +0.0242 | 0.595 | yes |
+| 12.5 | 20min | volatile | 0 | +0.1971 | 0.005 | +0.1976 | 0.005 | yes |
+| 12.5 | 20min | volatile | 1 | +0.1652 | 0.007 | +0.1658 | 0.005 | yes |
+| 12.5 | 20min | volatile | 2 | +0.1274 | 0.075 | +0.1279 | 0.065 | yes |
+| 25.0 | 20min | calm | 0 | -0.0612 | 0.086 | -0.0601 | 0.090 | yes |
+| 25.0 | 20min | calm | 1 | -0.0651 | 0.126 | -0.0640 | 0.134 | yes |
+| 25.0 | 20min | calm | 2 | -0.0658 | 0.060 | -0.0647 | 0.061 | yes |
+| 25.0 | 20min | volatile | 0 | -0.0024 | 0.979 | -0.0056 | 0.996 | yes |
+| 25.0 | 20min | volatile | 1 | -0.0178 | 0.650 | -0.0210 | 0.625 | yes |
+| 25.0 | 20min | volatile | 2 | +0.0764 | 0.213 | +0.0732 | 0.220 | yes |
+| 50.0 | 20min | calm | 0 | -0.0472 | 0.160 | -0.0470 | 0.163 | yes |
+| 50.0 | 20min | calm | 1 | +0.0567 | 0.083 | +0.0569 | 0.082 | yes |
+| 50.0 | 20min | calm | 2 | -0.0610 | 0.086 | -0.0608 | 0.087 | yes |
+| 50.0 | 20min | volatile | 0 | -0.0757 | 0.218 | -0.0766 | 0.217 | yes |
+| 50.0 | 20min | volatile | 1 | +0.0434 | 0.428 | +0.0424 | 0.443 | yes |
+| 50.0 | 20min | volatile | 2 | +0.0801 | 0.386 | +0.0791 | 0.393 | yes |
+
+### GROUP VERDICTS — 22 groups (11 cells x 2 regimes)
+
+| size (BTC) | horizon | regime | valid/total | cheaper vs adaptive | pooled vs adaptive (bps) | pooled vs fixed (bps) | across-seed p (adaptive) | 95% CI (adaptive) | ESCALATE | §7.5 trigger |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 5.0 | 10min | calm | 3/3 | 1/3 | +0.0105 | +0.0027 | 0.8819 | [-0.0165, +0.0374] | False | no |
+| 5.0 | 10min | volatile | 3/3 | 2/3 | -0.0383 | +0.0060 | 0.1503 | [-0.1574, +0.0808] | False | no |
+| 12.5 | 10min | calm | 3/3 | 3/3 | -0.0178 | -0.0133 | 0.0261 | [-0.0359, +0.0004] | False | no |
+| 12.5 | 10min | volatile | 3/3 | 3/3 | -0.0262 | -0.0267 | 0.1180 | [-0.0937, +0.0412] | False | no |
+| 50.0 | 10min | calm | 3/3 | 3/3 | -0.0539 | -0.0539 | 0.0140 | [-0.0935, -0.0143] | False | **YES** |
+| 50.0 | 10min | volatile | 3/3 | 3/3 | -0.0821 | -0.0813 | 0.0833 | [-0.2477, +0.0835] | False | no |
+| 5.0 | 2.5min | calm | 3/3 | 2/3 | -0.0094 | -0.0029 | 0.2498 | [-0.0588, +0.0400] | False | no |
+| 5.0 | 2.5min | volatile | 3/3 | 2/3 | -0.0132 | -0.0131 | 0.1492 | [-0.0542, +0.0277] | False | no |
+| 12.5 | 2.5min | calm | 3/3 | 1/3 | +0.0032 | +0.0034 | 0.7761 | [-0.0116, +0.0181] | False | no |
+| 12.5 | 2.5min | volatile | 3/3 | 1/3 | +0.0126 | +0.0112 | 0.7186 | [-0.0662, +0.0914] | False | no |
+| 25.0 | 2.5min | calm | 2/3 | 1/2 | +0.0029 | +0.0029 | 0.5919 | [-0.1214, +0.1272] | False | no |
+| 25.0 | 2.5min | volatile | 3/3 | 3/3 | -0.0134 | -0.0125 | 0.0273 | [-0.0275, +0.0007] | False | no |
+| 50.0 | 2.5min | calm | 2/3 | 0/2 | +0.0060 | +0.0062 | 0.9525 | [-0.0055, +0.0175] | False | no |
+| 50.0 | 2.5min | volatile | 3/3 | 0/3 | +0.0301 | +0.0300 | 0.9740 | [-0.0007, +0.0608] | False | no |
+| 5.0 | 20min | calm | 3/3 | 0/3 | +0.0338 | +0.0818 | 0.9991 | [+0.0276, +0.0400] | False | no |
+| 5.0 | 20min | volatile | 3/3 | 0/3 | +0.0648 | -0.0141 | 0.8996 | [-0.0835, +0.2131] | False | no |
+| 12.5 | 20min | calm | 3/3 | 1/3 | +0.0189 | +0.0155 | 0.8863 | [-0.0284, +0.0662] | False | no |
+| 12.5 | 20min | volatile | 3/3 | 0/3 | +0.1638 | +0.1633 | 0.9926 | [+0.0771, +0.2504] | False | no |
+| 25.0 | 20min | calm | 3/3 | 3/3 | -0.0629 | -0.0640 | 0.0003 | [-0.0691, -0.0567] | False | **YES** |
+| 25.0 | 20min | volatile | 3/3 | 2/3 | +0.0156 | +0.0188 | 0.6764 | [-0.1100, +0.1411] | False | no |
+| 50.0 | 20min | calm | 3/3 | 2/3 | -0.0169 | -0.0172 | 0.3466 | [-0.1768, +0.1429] | False | no |
+| 50.0 | 20min | volatile | 3/3 | 1/3 | +0.0150 | +0.0160 | 0.6099 | [-0.1873, +0.2173] | False | no |
+
+
+### §7.5a LADDER — STEP (i) ESCALATION RESULTS (official, 2026-07-15): BOTH GROUPS SURVIVE
+
+Executed as pre-registered in criteria §7.5a: seeds 3,4 trained per group (integrity ALL PASS),
+full dirs re-judged on the dev block (5e6, n=2000) into `$S/step5_esc_b50h600/` and
+`$S/step5_esc_b25h1200/` (SOURCE OF TRUTH; the original `step5_grid_*` trigger records untouched).
+DETERMINISM CHECK PASSED: every original seed's numbers byte-identical between the grid and
+escalation judgements.
+
+| group (calm) | seeds (vs adaptive) | pooled | across-seed p | cheaper | 95% CI | criterion (i) |
+|---|---|---|---|---|---|---|
+| 50 BTC / 10-min | -0.0453, -0.0723, -0.0441, **-0.0346**, **-0.0196** (bold = new) | -0.0432 | 0.0037 | 5/5 | [-0.0671, -0.0193] | **SURVIVES** |
+| 25 BTC / 20-min | -0.0601, -0.0640, -0.0647, **-0.0721**, **-0.0435** | -0.0609 | 0.0001 | 5/5 | [-0.0741, -0.0477] | **SURVIVES** |
+
+All 10 calm seeds valid; all 10 cheaper than BOTH benchmarks (vs-fixed within 0.001 of
+vs-adaptive throughout). Honest note: both new-seed pairs came in WEAKER than their group's
+original three (dilution consistent with mild winner's-curse on the trigger), but not weak
+enough to break either group. Step (ii) followed (below).
+
+### §7.5a LADDER — STEP (ii) CROSS-BLOCK RESULTS (official, 2026-07-15): **BOTH GROUPS FAIL.
+LADDER CLOSED. NO SEALED TEST SPENT. THE GRID IS A NULL ACROSS THE ENTIRE DESIGN SPACE.**
+
+Same 10 agents, NO retraining, judged at eval_seed0=6,000,000 (reserve block, FIRST USE —
+verified in each judgement.json), n=2000, audit-before-costs. SOURCE OF TRUTH:
+`$S/step5_xblock_b50h600/` + `$S/step5_xblock_b25h1200/` (judgement.json + behaviour_audit.json).
+
+| group (calm) | dev block (5 seeds) | RESERVE block (same 5 seeds) | criterion (ii) |
+|---|---|---|---|
+| 50 BTC / 10-min | -0.0432, p=0.0037, 5/5 cheaper | **-0.0095, p=0.17, 4/5 cheaper, CI [-0.034, +0.015]** | **FAILS** |
+| 25 BTC / 20-min | -0.0609, p=0.0001, 5/5 cheaper | **+0.0177, p=0.96, 1/5 cheaper, CI [-0.003, +0.038]** | **FAILS** |
+
+Per-seed collapse (vs adaptive, dev -> reserve):
+- 50/10min calm: s0 -0.045->-0.003; s1 -0.072->+0.012; s2 -0.044->-0.042; s3 -0.035->-0.006;
+  s4 -0.020->-0.010. (Volatile, informational: all three flipped POSITIVE, +0.061..+0.092.)
+- 25/20min calm: s0 -0.060->+0.012; s1 -0.064->+0.040; s2 -0.065->-0.006; s3 -0.072->+0.024;
+  s4 -0.044->+0.018. All 10 runs valid on the reserve block.
+
+**Interpretation (goes to writeup_arguments §L):** this is the THIRD and cleanest demonstrated
+evaluation-block illusion of the project — a 5-seed group at p=0.0001 with CI [-0.074,-0.048]
+on the dev block is WORSE than the benchmark on the very next untouched block. Seed agreement
+cannot detect block luck; only fresh data can. The §7.5 ladder did exactly its job: caught it
+for the cost of 4 training runs + 2 evaluations, without spending a third sealed test. The
+§6.8 boundary-null headline STANDS, now robust across the full 4x4 size x deadline grid, both
+regimes, and two evaluation blocks. Note the 10-min-column caveat logged before the outcome
+(cells in a column share episode draws) proved out: the reserve block reversed the whole
+pattern, calm and volatile alike.
+
+## CURRENT RESULTS (E) — §7.7 PART D DQN CROSS-SETTING PROBE (sealed judgements 2026-07-16): THE COLLAPSE IS SYSTEMATIC AND SIZE-DRIVEN; NO COST TRIGGER ANYWHERE
+
+Executed exactly as registered in criteria §7.7 Part D (finalised 2026-07-15 before the runs): 18 runs, DQN BASE config, 3 cells x 2 regimes x 3 seeds, integrity ALL PASS, judged on the dev block (5e6, n=2000), audit-before-costs.
+**SOURCE OF TRUTH (user path rule):** `$S/runs_dqnprobe_{b5h150,b25h150,b25h1200}/` (agents; run naming `dqn_{regime}_s{seed}_dqS{5|25}H{150|1200}`) and `$S/step5_dqnprobe_{b5h150,b25h150,b25h1200}/judgement.json` + `behaviour_audit.json` (`$S` = `/Users/fardeenidrus/Desktop/MSc Dissertation/scratch_hyperliquid/oxford_l4`).
+
+### FULL TABLE — all 18 probe runs (audit = primary endpoint; costs secondary)
+
+| cell | regime | seed | do-nothing % | forced-buy % | audit | vs fixed (bps) | p | vs adaptive (bps) | p |
+|---|---|---|---|---|---|---|---|---|---|
+| 5 BTC / 2.5-min | calm | 0 | 92.6 | 43.0 | **COLLAPSED** | -0.0221 | 0.583 | -0.0287 | 0.425 |
+| 5 BTC / 2.5-min | calm | 1 | 35.9 | 21.5 | **COLLAPSED** | -0.0184 | 0.343 | -0.0250 | 0.159 |
+| 5 BTC / 2.5-min | calm | 2 | 6.1 | 1.5 | valid | +0.0101 | 0.457 | +0.0036 | 0.824 |
+| 5 BTC / 2.5-min | volatile | 0 | 7.0 | 0.0 | valid | +0.0318 | 0.351 | +0.0316 | 0.309 |
+| 5 BTC / 2.5-min | volatile | 1 | 42.5 | 0.0 | valid | -0.0539 | 0.073 | -0.0540 | 0.176 |
+| 5 BTC / 2.5-min | volatile | 2 | 0.7 | 0.0 | valid | -0.0405 | 0.165 | -0.0406 | 0.041 |
+| 25 BTC / 2.5-min | calm | 0 | 82.2 | 100.0 | **COLLAPSED** | +0.0258 | 0.501 | +0.0258 | 0.500 |
+| 25 BTC / 2.5-min | calm | 1 | 57.3 | 18.0 | **COLLAPSED** | -0.0090 | 0.651 | -0.0089 | 0.646 |
+| 25 BTC / 2.5-min | calm | 2 | 12.6 | 67.0 | **COLLAPSED** | -0.0223 | 0.179 | -0.0223 | 0.179 |
+| 25 BTC / 2.5-min | volatile | 0 | 17.4 | 48.5 | **COLLAPSED** | -0.0400 | 0.555 | -0.0410 | 0.529 |
+| 25 BTC / 2.5-min | volatile | 1 | 46.5 | 12.5 | **COLLAPSED** | -0.0513 | 0.253 | -0.0523 | 0.247 |
+| 25 BTC / 2.5-min | volatile | 2 | 36.6 | 71.5 | **COLLAPSED** | -0.0097 | 0.847 | -0.0106 | 0.828 |
+| 25 BTC / 20-min | calm | 0 | 43.0 | 53.5 | **COLLAPSED** | -0.0529 | 0.083 | -0.0518 | 0.088 |
+| 25 BTC / 20-min | calm | 1 | 43.0 | 87.0 | **COLLAPSED** | -0.0030 | 0.864 | -0.0019 | 0.866 |
+| 25 BTC / 20-min | calm | 2 | 54.1 | 70.0 | **COLLAPSED** | -0.0473 | 0.341 | -0.0462 | 0.346 |
+| 25 BTC / 20-min | volatile | 0 | 15.8 | 8.5 | valid | -0.2256 | 0.027 | -0.2288 | 0.025 |
+| 25 BTC / 20-min | volatile | 1 | 30.0 | 0.0 | valid | -0.0507 | 0.436 | -0.0539 | 0.427 |
+| 25 BTC / 20-min | volatile | 2 | 24.6 | 77.5 | **COLLAPSED** | -0.0161 | 0.605 | -0.0193 | 0.570 |
+
+### VERDICTS + INTERPRETATION (argument bank §N)
+
+Collapse rates: **5 BTC/2.5-min: 4/6 valid; 25 BTC/2.5-min: 0/6; 25 BTC/20-min: 2/6**
+(reference: 25 BTC/5-min primary campaign = 3/10). Cost verdicts: no group triggers anything —
+the only fully-valid group (5 BTC/2.5-min volatile) pools -0.021 at p=0.26 (null); every
+25-BTC group lacks enough valid seeds for a verdict. Findings, stated before any write-up spin:
+1. **Systematic, not setting-specific**: at the primary size DQN collapses at EVERY deadline
+   tried (2.5/5/20 min). The "would DQN work elsewhere?" question now has a data answer.
+2. **Order size is the driver, not idle room**: the shortest deadline at 25 BTC is the WORST
+   cell (0/6), refuting the pre-stated idle-room hypothesis; at 5 BTC DQN mostly trades
+   properly. Points to the harder credit-assignment problem when trades carry real impact.
+3. **Calm-regime concentration**: 1/9 calm agents valid vs 5/9 volatile, consistent with the
+   primary campaign.
+No escalation, no trigger, nothing further owed; Part D CLOSED. Figure candidate F20 (collapse
+rate by setting) added to the manifest.
+
 ## REMAINING ROADMAP (consolidated 2026-07-09) — SINGLE SOURCE OF TRUTH for what is left
 
 Everything remaining, in order, with each step's pre-registration home. (Previously this was
@@ -479,13 +740,28 @@ scattered across criteria §1/§5/§6, the audit file, and R8/R9 here; consolida
 > **AUTHORITATIVE STEP-BY-STEP ORDER (updated 2026-07-14). No time-gating: ordered by dependency
 > and value only; every item is DONE regardless of schedule (see [[no-manufactured-timelines]]).**
 >
-> CURRENT STATE: grid (Part A+B, 66 runs) TRAINING at ~49/66, 0 fail (20-min cells last). Figures
-> F1-F8 BUILT (F7 v2 fixed). Tables T1/T2/T3/T8 BUILT + pdflatex-verified. Figures folder refactored
-> to qrm/ + l2/. L2 data mapped. L2 SEALED TEST confirmed NEVER RUN (only validation exists).
+> CURRENT STATE (2026-07-15): grid 66/66 trained AND JUDGED (integrity check all-pass first; see
+> CURRENT RESULTS (D)): null in 20/22 groups, strict ESCALATE false everywhere, but TWO CALM
+> groups fire the §7.5 trigger (50 BTC/10-min: pooled -0.0539, p=0.014; 25 BTC/20-min: pooled
+> -0.0629, p=0.0003; both 3/3 cheaper). §7.5 LADDER EXECUTED + CLOSED (2026-07-15, §7.5a/§7.5b):
+> both groups SURVIVED escalation to 5 seeds (p=0.0037 / p=0.0001) then BOTH FAILED the
+> reserve block 6e6 first use (-0.0095 p=0.17; +0.0177 p=0.96 SIGN-FLIPPED). NO sealed test
+> spent. GRID VERDICT FINAL: null across the whole 4x4 design space; the triggers were
+> block luck (third demonstrated illusion; argument bank §L5; F19 planned).
+> Argument bank updated (§K benchmark justification, §L+L5 grid findings). Figures F1-F8
+> BUILT (2/4/5 at v5, F7 at v3 two-panel). Tables T1/T2/T3/T8 BUILT; T9/T10 planned. L2: fill-in
+> plan + sealed-test protocol pre-registered (`l2_test_protocol.md`); L2 sealed test never run.
 >
 > NEXT, IN ORDER:
 > 1. Grid finishes → JUDGE the 11 cells (one judge per `runs_grid_*` dir with that cell's
->    --order-btc/--env-steps, criteria §7.7) → F9 heatmap + T4 table. (This is the "test the 66".)
+>    --order-btc/--env-steps, criteria §7.7) → verify all 11 judgement.json PARSE → log the FULL
+>    66-row per-seed table here → apply §7.5 MECHANICALLY (no trigger → null across the design
+>    space, grid closed; any trigger → escalate → reserve block 6e6 → at most ONE new sealed test;
+>    apparent edges always reported with status either way) → F9 heatmap + T4 table.
+> 1b. DQN cross-setting probe DECISION (criteria §7.7 Part D, added 2026-07-15): after the grid
+>    verdict, user decides Option A (scope the DQN claim to the primary setting) vs Option B
+>    (small pre-registered DQN probe; recommendation on record = B). Exact cells finalised in
+>    Part D before any probe run.
 > 2. L2 step (protocol pre-registered 2026-07-14 in `reports/l2_test_protocol.md`), in order:
 >    (a) TRAIN THE 19 FILL-IN RUNS (user decision 2026-07-14: no half-complete panels in the
 >    report) — ppo 96.57 @ 1-min (5 seeds), dqn 96.57 @ 1-min (4 seeds), dqn 193.13 @ 10-s
@@ -508,6 +784,10 @@ scattered across criteria §1/§5/§6, the audit file, and R8/R9 here; consolida
 > FIGURE/TABLE TRACKER: `reports/figures/FIGURES_TABLES_MANIFEST.md`. GRID SELF-CHECK if this reads
 > stale: look for `$S/step5_grid_*/judgement.json`; else count meta.json in `$S/runs_grid_*` (6 per
 > dir × 11 dirs = training done).
+
+*(The numbered list below is the 2026-07-09 consolidation, kept as the record of each completed
+step. Where its sequencing notes differ from the AUTHORITATIVE block above, the block above
+governs — stamped 2026-07-15.)*
 
 1. **R8a tuning + selection. COMPLETE (2026-07-10, sealed in `$S/step5_selection_v3/`).** 60-run
    screen + 38-run selection batch (escalations to 5 seeds, V6/V6b 10M arms, Wave-3 combos), 98

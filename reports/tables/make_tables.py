@@ -174,9 +174,74 @@ def t8_hyperparams():
     write("t8_hyperparameters.tex", "\n".join(lines))
 
 
+# ---------------------------------------------------------------- T4
+def t4_grid():
+    """Robustness grid: all 16 size x deadline cells per regime (11 judged 2026-07-15
+    + 5 previously tested), pooled vs adaptive, across-seed p, §7.5 trigger flag."""
+    from scipy.stats import ttest_1samp
+    sources = [
+        (5.0, 2.5, "step5_grid_b5h150", "_gS5H150"),
+        (12.5, 2.5, "step5_grid_b12h150", "_gS12H150"),
+        (25.0, 2.5, "step5_grid_b25h150", "_gS25H150"),
+        (50.0, 2.5, "step5_grid_b50h150", "_gS50H150"),
+        (5.0, 5.0, "step5_sweep_b5", "_v3aB5"),
+        (12.5, 5.0, "step5_sweep_b12", "_v3aB12"),
+        (25.0, 5.0, "step5_selection_v3", "_v3a"),
+        (50.0, 5.0, "step5_sweep_b50", "_v3aB50"),
+        (5.0, 10.0, "step5_grid_b5h600", "_gS5H600"),
+        (12.5, 10.0, "step5_grid_b12h600", "_gS12H600"),
+        (25.0, 10.0, "step5_sweep_h600", "_v3aH600"),
+        (50.0, 10.0, "step5_grid_b50h600", "_gS50H600"),
+        (5.0, 20.0, "step5_grid_b5h1200", "_gS5H1200"),
+        (12.5, 20.0, "step5_grid_b12h1200", "_gS12H1200"),
+        (25.0, 20.0, "step5_grid_b25h1200", "_gS25H1200"),
+        (50.0, 20.0, "step5_grid_b50h1200", "_gS50H1200"),
+    ]
+    lines = [
+        r"% Auto-generated from step5_grid_* + step5_sweep_* + step5_selection_v3. Do not edit.",
+        r"\begin{tabular}{llrrrrrc}",
+        r"\toprule",
+        r"regime & deadline & size & valid/ & cheaper & pooled vs & across-seed & \S 7.5 \\",
+        r" & (min) & (BTC) & total & & adaptive (bps) & $p$ & trigger \\",
+        r"\midrule",
+    ]
+    for regime in ["calm", "volatile"]:
+        for size, hz, dirname, tag in sorted(sources, key=lambda x: (x[1], x[0])):
+            j, a = _load(dirname)
+            vals, n_total = [], 0
+            for r in j["per_run"]:
+                if r["algo"] != "ppo" or r["regime"] != regime:
+                    continue
+                if _tag_of(r["run"], r["seed"]) != tag:
+                    continue
+                n_total += 1
+                if a[r["run"]]["valid"]:
+                    vals.append(r["mean_vs_adaptive_bps"])
+            vals = np.array(vals)
+            pooled = vals.mean()
+            p = ttest_1samp(vals, 0.0, alternative="less").pvalue if len(vals) >= 2 else np.nan
+            trig = (len(vals) == n_total and pooled <= -0.02 and p < 0.05)
+            # centre volatile cell: numeric condition met, but its dev signal already
+            # FAILED both sealed confirmations (criteria 6.8/6.11) -> resolved, not live
+            if (size, hz) == (25.0, 5.0) and regime == "volatile":
+                trig_s = r"closed (\S 6 FAIL)"
+            else:
+                trig_s = r"\textbf{YES}" if trig else "no"
+            reg = regime if (hz, size) == (2.5, 5.0) else ""
+            lines.append(
+                f"{reg} & {hz:g} & {size:g} & {len(vals)}/{n_total} & "
+                f"{int((vals < 0).sum())}/{len(vals)} & {pooled:+.4f} & {p:.4f} & "
+                f"{trig_s} \\\\")
+        lines.append(r"\midrule")
+    lines[-1] = r"\bottomrule"
+    lines.append(r"\end{tabular}")
+    write("t4_robustness_grid.tex", "\n".join(lines))
+
+
 if __name__ == "__main__":
     t1_primary()
     t2_tuning()
     t3_confirmations()
+    t4_grid()
     t8_hyperparams()
     print("READY-NOW TABLES DONE ->", OUT)
