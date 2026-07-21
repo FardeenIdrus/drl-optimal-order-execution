@@ -1,0 +1,61 @@
+{
+  "regime": "calm",
+  "n_drift": 8000,
+  "n_grad": 3000,
+  "seed0": 5000000,
+  "background_drift_ticks_per_ep": 0.118,
+  "background_drift_t": 0.27,
+  "drift_pass": true,
+  "pace_gradient": [
+    {
+      "mult": 0.5,
+      "cost_vs_twap_bps": 0.0215,
+      "t": 1.01,
+      "deadline_resid_frac": 0.0302,
+      "completing": false,
+      "material_sig_advantage": false
+    },
+    {
+      "mult": 0.8,
+      "cost_vs_twap_bps": 0.0035,
+      "t": 0.21,
+      "deadline_resid_frac": 0.0062,
+      "completing": true,
+      "material_sig_advantage": false
+    },
+    {
+      "mult": 1.0,
+      "cost_vs_twap_bps": 0.0,
+      "t": 0.0,
+      "deadline_resid_frac": 0.0056,
+      "completing": true,
+      "material_sig_advantage": false
+    },
+    {
+      "mult": 1.2,
+      "cost_vs_twap_bps": -0.0125,
+      "t": -0.82,
+      "deadline_resid_frac": 0.0057,
+      "completing": true,
+      "material_sig_advantage": false
+    },
+    {
+      "mult": 1.5,
+      "cost_vs_twap_bps": -0.0037,
+      "t": -0.22,
+      "deadline_resid_frac": 0.0064,
+      "completing": true,
+      "material_sig_advantage": false
+    },
+    {
+      "mult": 2.0,
+      "cost_vs_twap_bps": -0.0272,
+      "t": -1.42,
+      "deadline_resid_frac": 0.0068,
+      "completing": true,
+      "material_sig_advantage": false
+    }
+  ],
+  "gradient_pass": true,
+  "fairness_pass": true
+}

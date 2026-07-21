@@ -1,0 +1,107 @@
+{
+  "criteria": "qrm_step4_criteria.md \u00a73 (frozen 2026-07-06)",
+  "mode": "screen",
+  "n_eval_episodes": 2000,
+  "eval_seed0": 5000000,
+  "order_btc": 25.0,
+  "env_steps": 1200,
+  "per_run": [
+    {
+      "run": "dqn_calm_s0_dqS25H1200",
+      "algo": "dqn",
+      "regime": "calm",
+      "seed": 0,
+      "mean_vs_fixed_bps": -0.05292083272260815,
+      "mean_vs_adaptive_bps": -0.05184833820210788,
+      "p_fixed": 0.08330677480237778,
+      "p_adaptive": 0.08812526582151065
+    },
+    {
+      "run": "dqn_calm_s1_dqS25H1200",
+      "algo": "dqn",
+      "regime": "calm",
+      "seed": 1,
+      "mean_vs_fixed_bps": -0.0029551576877493205,
+      "mean_vs_adaptive_bps": -0.00188266316724906,
+      "p_fixed": 0.8637627957136518,
+      "p_adaptive": 0.8656808489105132
+    },
+    {
+      "run": "dqn_calm_s2_dqS25H1200",
+      "algo": "dqn",
+      "regime": "calm",
+      "seed": 2,
+      "mean_vs_fixed_bps": -0.047322282333633114,
+      "mean_vs_adaptive_bps": -0.04624978781313284,
+      "p_fixed": 0.34062109183701617,
+      "p_adaptive": 0.3460431298577771
+    },
+    {
+      "run": "dqn_volatile_s0_dqS25H1200",
+      "algo": "dqn",
+      "regime": "volatile",
+      "seed": 0,
+      "mean_vs_fixed_bps": -0.22557413858679104,
+      "mean_vs_adaptive_bps": -0.22877781993473326,
+      "p_fixed": 0.02666057452099962,
+      "p_adaptive": 0.024533947695042045
+    },
+    {
+      "run": "dqn_volatile_s1_dqS25H1200",
+      "algo": "dqn",
+      "regime": "volatile",
+      "seed": 1,
+      "mean_vs_fixed_bps": -0.05067354476627083,
+      "mean_vs_adaptive_bps": -0.05387722611421304,
+      "p_fixed": 0.4355519039249469,
+      "p_adaptive": 0.42689526974396186
+    },
+    {
+      "run": "dqn_volatile_s2_dqS25H1200",
+      "algo": "dqn",
+      "regime": "volatile",
+      "seed": 2,
+      "mean_vs_fixed_bps": -0.016065028973635022,
+      "mean_vs_adaptive_bps": -0.01926871032157723,
+      "p_fixed": 0.6052612488345579,
+      "p_adaptive": 0.5701715829128344
+    }
+  ],
+  "verdicts": {
+    "dqn_calm_dqS25H1200": {
+      "n_valid_seeds": 0,
+      "n_negative_both": 0,
+      "n_significant_both": 0,
+      "pooled_vs_adaptive_bps": NaN,
+      "ESCALATE": false,
+      "across_seed": {
+        "n_valid_seeds": 0,
+        "n_seeds_total": 3,
+        "trustworthy": false,
+        "note": "need >=2 valid seeds for an across-seed test"
+      }
+    },
+    "dqn_volatile_dqS25H1200": {
+      "n_valid_seeds": 2,
+      "n_negative_both": 2,
+      "n_significant_both": 0,
+      "pooled_vs_adaptive_bps": -0.14132752302447316,
+      "ESCALATE": false,
+      "across_seed": {
+        "n_valid_seeds": 2,
+        "n_seeds_total": 3,
+        "n_cheaper_vs_adaptive": 2,
+        "pooled_vs_adaptive_bps": -0.1413,
+        "pooled_vs_fixed_bps": -0.1381,
+        "across_seed_t_p_vs_adaptive_onesided": 0.1764,
+        "across_seed_t_p_vs_fixed_onesided": 0.1797,
+        "ci95_vs_adaptive_bps": [
+          -1.2525,
+          0.9698
+        ],
+        "trustworthy": false,
+        "warning": "1 of 3 seeds were audit-invalid and dropped; this p is on survivors only -> SURVIVORSHIP, not a clean edge"
+      }
+    }
+  }
+}

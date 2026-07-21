@@ -1,0 +1,105 @@
+{
+  "criteria": "reports/qrm_step4_criteria.md (frozen 2026-07-06; Revision 1 approved 2026-07-06)",
+  "G1_reaction_lever_rev1": {
+    "regimes": {
+      "calm": {
+        "self_impact_ratio_primary": 2.4148943993061063,
+        "second_dump_bps_by_size": [
+          0.2565981532417634,
+          0.6035361647365566,
+          0.876440530574629
+        ],
+        "spearman_rho": 1.0,
+        "probe_bps_t1": 0.34927056223290015,
+        "probe_bps_t30": -0.45716370289413905,
+        "pass": true
+      },
+      "volatile": {
+        "self_impact_ratio_primary": 2.3504848100386435,
+        "second_dump_bps_by_size": [
+          0.21099835616072632,
+          0.31475654838917894,
+          0.549737769758019
+        ],
+        "spearman_rho": 1.0,
+        "probe_bps_t1": 0.1350823589536869,
+        "probe_bps_t30": -0.2343316386283333,
+        "pass": true
+      }
+    },
+    "pass": true
+  },
+  "G2_cost_vs_size_rev1": {
+    "regimes": {
+      "calm": {
+        "growth_ratio_real": 2.4598324345201186,
+        "growth_ratio_sim": 2.4536362855942184,
+        "rel_gap": 0.0025189313056232366,
+        "level_gap_C6_realx": 2.720435727217543,
+        "real_bps": {
+          "1": 0.19066670752522538,
+          "2": 0.25052489536769645,
+          "5": 0.36091527181046035,
+          "10": 0.46900815135371055
+        },
+        "sim_bps": {
+          "1": 0.07486863451914264,
+          "2": 0.08876744755874867,
+          "5": 0.1219438479405717,
+          "10": 0.1837003983090602
+        },
+        "pass": true
+      },
+      "volatile": {
+        "growth_ratio_real": 1.9855789325949136,
+        "growth_ratio_sim": 2.440412102478642,
+        "rel_gap": 0.2290682895639489,
+        "level_gap_C6_realx": 2.3460436028641745,
+        "real_bps": {
+          "1": 0.25935035543462465,
+          "2": 0.31804004323992174,
+          "5": 0.41928806500654014,
+          "10": 0.5149606019119934
+        },
+        "sim_bps": {
+          "1": 0.10106408831526206,
+          "2": 0.12891628580741402,
+          "5": 0.18527735232013756,
+          "10": 0.24663802425053583
+        },
+        "pass": true
+      }
+    },
+    "pass": true
+  },
+  "G3_benchmark_sanity_rev1": {
+    "regimes": {
+      "calm": {
+        "twap_completion_rate": 1.0,
+        "driftfree_twap_mean_bps": 0.19605695966416373,
+        "driftfree_true_dump_mean_bps": 0.4038582824133182,
+        "driftfree_cost_by_size_bps": [
+          0.14015030666418843,
+          0.13341187574775584,
+          0.19605695966416373,
+          0.2826795449089554
+        ],
+        "pass": true
+      },
+      "volatile": {
+        "twap_completion_rate": 1.0,
+        "driftfree_twap_mean_bps": 0.05338418455753674,
+        "driftfree_true_dump_mean_bps": 0.24126198992929165,
+        "driftfree_cost_by_size_bps": [
+          0.05657186177429738,
+          0.04958717842637572,
+          0.05338418455753674,
+          0.0644904148172201
+        ],
+        "pass": true
+      }
+    },
+    "pass": true
+  },
+  "all_pass": true
+}

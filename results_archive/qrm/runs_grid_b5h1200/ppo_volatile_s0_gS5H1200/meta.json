@@ -1,0 +1,27 @@
+{
+  "algo": "ppo",
+  "regime": "volatile",
+  "seed": 0,
+  "order_btc": 5.0,
+  "env_steps": 1200,
+  "steps": 2000000,
+  "gamma": 0.9999164611258403,
+  "net_arch": [
+    30,
+    30,
+    30,
+    30,
+    30
+  ],
+  "reward_scale": 1.0,
+  "tag": "_gS5H1200",
+  "overrides": {
+    "lr": 0.001,
+    "ent_coef": null,
+    "ppo_n_steps": null,
+    "dqn_final_eps": null,
+    "dqn_anneal_frac": null
+  },
+  "wall_s": 17714.06034037494,
+  "criteria": "reports/qrm_step4_criteria.md"
+}

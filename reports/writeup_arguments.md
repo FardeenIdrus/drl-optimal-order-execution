@@ -569,3 +569,28 @@ DQN with the library-default rhythm (train_freq=4, gradient_steps=1, batch=32), 
 base, at {25/5min, 25/2.5min, 5/2.5min} x 2 regimes x 3 seeds. d3 still collapsing ->
 the failure mode is robust to the rhythm objection; d3 healthy -> the cause is located
 (update granularity), a sharper finding. Either way the report's DQN section cites d3.
+
+---
+
+## O. PRESENTATION PRINCIPLE (2026-07-18, user directive): the report is the ONLY evidence
+
+Markers grade what is on the page, not what happened in the project; assume the reader has
+zero background context (the second marker may come from any discipline). Applied from the
+results pack onward:
+
+- **Self-contained captions.** Every figure/table caption must explain what is shown AND why
+  it looks the way it does. Worked example: the three-block sign-flip figure's caption must
+  itself say why only two of the four configurations have sealed points (sealed blocks are
+  single-use; the pre-registered confirmation budget allowed exactly two tests; both went to
+  the selection winners). A reader who has not absorbed the methodology section must still
+  be able to read the figure correctly.
+- **No internal shorthand in report-facing prose.** "Track 1"/"Track 2" are banned (name the
+  tracks descriptively: the frozen-replay track / the reactive-simulator track); no internal
+  document names ("frozen rules files" -> "registered in advance" / "pre-registered");
+  evaluation-block names (development / reserve / sealed) carry their meaning at first use.
+- **Justify in place.** Any methodological choice a marker could question (why only champions
+  were sealed-tested, why two benchmarks, why a materiality floor) is justified where it
+  first appears or explicitly cross-referenced, never left implicit in working documents.
+
+Internal working documents keep the L2/L4 shorthand (they are unmarked audit trail); this
+principle governs everything a reader or marker sees.

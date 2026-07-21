@@ -1,0 +1,422 @@
+% ======================================================================
+% MEETING PACK: every figure, table and diagram from results_pack.pdf,
+% each followed by concise bullet points. Built to be presented live.
+% Self-contained with the same figures/ folder; tables are \input from
+% the same directory (an inlined single-file copy is generated alongside
+% for Overleaf: meeting_pack_overleaf.tex).
+% ======================================================================
+\documentclass[11pt]{article}
+\usepackage[margin=2.1cm]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage[colorlinks=true, linkcolor=blue]{hyperref}
+\graphicspath{{figures/}}
+\setlist[itemize]{itemsep=1pt, topsep=2pt, leftmargin=1.4em}
+\setlength{\parskip}{3pt}
+
+\title{Results Overview\\
+\large Deep RL for Optimal Order Execution on Hyperliquid Order-Book Data}
+\author{Fardeen Idrus}
+\date{17 July 2026}
+
+\begin{document}
+\maketitle
+
+\noindent\textbf{One-paragraph summary.} Across two market models, a full hyperparameter
+search, and a $4\times4$ size-by-deadline grid, no DRL agent beats TWAP out of sample. The
+strongest in-sample signals (up to $p=0.0001$) were shown to be evaluation-set artifacts by
+one-shot sealed tests and a replication block. DQN fails for a diagnosed, systematic reason.
+The methodology that caught all of this is itself a central contribution.
+
+\section*{1. Setup and validation}
+
+\subsection*{Evaluation architecture}
+\begin{center}\includegraphics[width=0.9\textwidth]{fig22_pipeline_schematic.pdf}\end{center}
+\begin{itemize}
+\item Disjoint episode blocks by construction: training ranges (private per seed), a monitor
+block (learning curves only), the development block (all screening and selection), a reserve
+block (replication), and sealed blocks (one-shot confirmations).
+\item Three layers: screen on development data, replicate survivors at five seeds on the
+reserve block, confirm once on sealed data.
+\item Rationale: roughly 200 configurations were screened on the same development episodes;
+under that selection pressure a single validation set is partially used up (winner's curse),
+so a replication layer is inserted, as in discovery and replication cohorts.
+\item Outcome so far: two champions reached sealed tests and both failed; two grid triggers
+died on the reserve block; no sealed test was wasted on them.
+\item The replication layer was added mid-project, dated and documented, after the first two
+sealed failures; its first use justified it immediately.
+\end{itemize}
+
+\subsection*{Environment validation gates (table)}
+\begin{center}\resizebox{0.98\textwidth}{!}{\input{t5_env_validation.tex}}\end{center}
+\begin{itemize}
+\item All gates pass in both regimes, after the drift correction.
+\item Self-impact is real and persistent: executing the 25 BTC order makes an identical
+immediate follow-on roughly $2.4\times$ more expensive; dump costs are monotone in size.
+\item The book demonstrably refills: a probe order is cheaper 30 seconds after the dump than
+1 second after.
+\item Simulated cost-versus-size growth matches the real books (calm: 2.45 vs 2.46).
+\item Fairness gate: residual background drift statistically zero; no constant-pace policy is
+significantly cheaper than TWAP (max $|t| = 1.77$), so the benchmark race is fair by
+construction.
+\end{itemize}
+
+\subsection*{The drift confound, found and fixed}
+\begin{center}\includegraphics[width=0.62\textwidth]{fig6_drift_confound.pdf}\end{center}
+\begin{itemize}
+\item December 2025 was a rising month; naive replay of its statistics made prices drift
+upward in almost every episode, mechanically rewarding fast buying.
+\item Caught by an adversarial pre-launch audit before any conclusion was drawn.
+\item Fix: drift-neutralised background moves with volatility, spread and impact preserved.
+\item The figure shows an identical 20-run design before and after (agents retrained
+under each background process): the calm-regime ``edge'' shrinks from $-0.019$\,bps to an
+immaterial $-0.006$\,bps, statistically indistinguishable from zero and an order of
+magnitude below the $0.05$\,bps materiality floor.
+\item A permanent fairness gate now guards this class of bug.
+\end{itemize}
+
+\section*{2. Can DRL beat TWAP? The headline}
+
+\subsection*{Primary campaign, all 20 runs (table)}
+\begin{center}\resizebox{0.8\textwidth}{!}{\input{t1_primary_campaign.tex}}\end{center}
+\begin{itemize}
+\item PPO and DQN, calm and volatile, five seeds each, 25 BTC over five minutes, one
+decision per second.
+\item No cell meets the frozen edge definition. That definition was fixed before any run
+and has four parts: the agent must be cheaper than both versions of TWAP; each individual
+run must be statistically strong on its own (under one-in-a-hundred odds of chance); the
+direction must agree in at least four of the five runs; and the average saving must be at
+least 0.05 basis points.
+\item All ten PPO runs pass the behaviour audit; seven of ten DQN runs are invalid
+(collapse; Section 4).
+\item The interesting sub-threshold structure: volatile PPO is cheaper in five of five
+seeds.
+\item Why that is still not a headline edge: five agreeing directions alone happen by chance
+about one time in 32; the average saving (0.047) sits below the 0.05 floor; no single run is
+individually significant; and, decisively, the same signal later returned zero on both
+sealed tests (Section 2 below).
+\end{itemize}
+
+\subsection*{Regime split of the development signal}
+\begin{center}\includegraphics[width=0.6\textwidth]{fig8_regime_comparison.pdf}\end{center}
+\begin{itemize}
+\item After the drift fix, calm is a tie; the volatile PPO group pools $-0.047$\,bps with
+across-seed $p=0.006$.
+\item This volatile signal is the candidate edge that everything below chased.
+\item Research question 2 note: the signal is regime-specific from the very first campaign.
+\end{itemize}
+
+\subsection*{Tuning screen, volatile regime}
+\begin{center}\includegraphics[width=0.66\textwidth]{fig3_forest_tuning_volatile.pdf}\end{center}
+\begin{itemize}
+\item Twelve pre-registered variants, escalations to five seeds for the leaders.
+\item Seven of eight healthy variants reproduce a small consistent advantage: at the time,
+strong-looking corroboration; in hindsight, shared evaluation-block luck.
+\item Winner: learning rate $10^{-3}$, pooled $-0.063$\,bps, $p=0.0043$ on five seeds.
+\item No variant reaches the materiality floor ($-0.05$) with per-seed significance.
+\end{itemize}
+
+\subsection*{Tuning screen, calm regime}
+\begin{center}\includegraphics[width=0.66\textwidth]{fig14_forest_tuning_calm.pdf}\end{center}
+\begin{itemize}
+\item The calm companion: no variant shows a consistent advantage.
+\item Confirms the regime asymmetry of the development signal.
+\end{itemize}
+
+\subsection*{Tuning and selection summary, all 28 groups (table)}
+\begin{center}\resizebox{0.85\textwidth}{!}{\input{t2_tuning_selection.tex}}\end{center}
+\begin{itemize}
+\item 98 runs in total; every group's pooled result and across-seed consistency.
+\item The ten-million-step arms reject the ``it just needed longer training'' explanation.
+\item The two DQN remediation variants (d1, d2) do not reliably cure the collapse.
+\end{itemize}
+
+\subsection*{Agent configurations (table)}
+\begin{center}\resizebox{0.85\textwidth}{!}{\input{t8_hyperparameters.tex}}\end{center}
+\begin{itemize}
+\item Base PPO and DQN share the same $30\times5$ network, discount factor and observation
+set, and matched gradient sample throughput (${\sim}20$M sample-passes per run): the
+algorithm comparison is compute-fair.
+\item Each variant changes exactly one named thing (two for the combination arms).
+\end{itemize}
+
+\clearpage
+\subsection*{Full tuning campaign, all 98 runs (appendix table)}
+\begin{itemize}
+\item The complete run-level record behind the group summary: every seed, both benchmarks,
+audit outcome. The table flows over the following pages.
+\item Included so no result is summarised away; the source files are listed in the
+provenance table at the end.
+\end{itemize}
+\begin{center}\scriptsize\input{t10_tuning_perrun.tex}\end{center}
+\clearpage
+
+\subsection*{Training curves}
+\begin{center}\includegraphics[width=0.6\textwidth]{fig5_learning_curves_volatile.pdf}\end{center}
+\begin{itemize}
+\item Base and selected configurations plateau; training ran to completion at 2M steps.
+\item Measured on the monitor block, which is never used for decisions.
+\item No sign that the null is under-training in disguise.
+\end{itemize}
+
+\subsection*{Both sealed confirmations (table)}
+\begin{center}\resizebox{0.85\textwidth}{!}{\input{t3_sealed_confirmations.tex}}\end{center}
+\begin{itemize}
+\item Two champions (one chosen on volatile-regime performance, one chosen by the
+pre-registered selection rule applied exactly as written), five fresh seeds each, evaluated
+once on separate never-used sealed blocks.
+\item Results: $-0.0023$\,bps ($p=0.379$, 3/5 cheaper) and $-0.0022$\,bps ($p=0.394$, 2/5
+cheaper); both confidence intervals bracket zero.
+\item Testing the second candidate also resolved a disclosed selection-metric ambiguity
+empirically: both picks are approximately zero out of sample.
+\item The confirmation family was capped at two tests in advance; no re-runs.
+\end{itemize}
+
+\subsection*{The headline figure}
+\begin{center}\includegraphics[width=0.62\textwidth]{fig1_dev_vs_sealed.pdf}\end{center}
+\begin{itemize}
+\item Development-block advantage versus sealed reality, both champions side by side.
+\item The signal that was consistent across five seeds and twelve variants does not exist on
+fresh data.
+\item Headline of the dissertation: a boundary null, established twice under pre-committed
+rules.
+\end{itemize}
+
+\subsection*{Why the illusion is visible in hindsight}
+\begin{center}\includegraphics[width=0.62\textwidth]{fig4_three_block_signflip.pdf}\end{center}
+\begin{itemize}
+\item The same configurations on three disjoint blocks: worse than TWAP on the monitor
+block, better on the development block, zero on sealed blocks.
+\item Seed agreement cannot detect shared evaluation-set luck: every seed is graded on the
+same episodes.
+\item This is demonstration number two of the spurious-edge anatomy (the drift was number
+one; the grid triggers below are number three).
+\end{itemize}
+
+\subsection*{Absolute cost distributions}
+\begin{center}\includegraphics[width=0.9\textwidth]{fig10a_cost_distributions.pdf}\end{center}
+\begin{itemize}
+\item What each shape is: one violin summarises the 2{,}000 individual episode costs of one
+policy; the wider the shape at a given height, the more episodes cost that amount.
+\item How to read the axis: the vertical axis is the cost of executing the 25 BTC order in
+basis points relative to the price at the start of the episode; positive means the policy
+paid more than the arrival price, negative means it paid less.
+\item The black bar inside each violin is that policy's average cost; all four averages sit
+essentially at zero in both panels.
+\item The key comparison: within each panel the four shapes (fixed TWAP, adaptive TWAP,
+PPO, DQN) are nearly identical, so the choice of policy barely changes what execution
+costs; the market decides, not the policy.
+\item Regime effect: the volatile panel's shapes span roughly $-20$ to $+20$ basis points
+versus roughly $-8$ to $+8$ in calm, so volatility widens the cost distribution by about a
+factor of 2.5 for every policy equally (sd 2.35 to 5.88 bps).
+\item Trust in the data: this replay provably describes the same evaluations as the sealed
+verdicts, because every recomputed average matches the sealed record exactly (20 of 20
+runs).
+\end{itemize}
+
+\subsection*{Paired per-episode differences}
+\begin{center}\includegraphics[width=0.9\textwidth]{fig10b_paired_distributions.pdf}\end{center}
+\begin{itemize}
+\item The paired agent-minus-benchmark differences, pooled over audit-valid seeds.
+\item The paired mean ($-0.047$ at best) is three orders of magnitude smaller than the
+episode-level spread.
+\item This is the visual justification for 2{,}000 paired episodes and strict statistical
+discipline: anything less and noise decides.
+\end{itemize}
+
+\subsection*{Descriptive statistics (table)}
+\begin{center}\resizebox{0.9\textwidth}{!}{\input{t6_descriptive_stats.tex}}\end{center}
+\begin{itemize}
+\item Mean, spread, median and 5/95 percentiles per policy and regime.
+\item Medians sit near zero everywhere; tails are wide and symmetric; no policy shifts the
+distribution visibly.
+\end{itemize}
+
+\section*{3. Robustness: the null holds everywhere}
+
+\subsection*{Size response}
+\begin{center}\includegraphics[width=0.58\textwidth]{fig2_size_response.pdf}\end{center}
+\begin{itemize}
+\item A genuine impact-management edge should grow with order size.
+\item Instead the signal exists only at the 25 BTC development size and is absent at 5,
+12.5 and 50 BTC: non-monotone, the signature of selection on noise.
+\item This was the fourth independent line of evidence against the development edge, before
+the grid.
+\end{itemize}
+
+\subsection*{The full grid}
+\begin{center}\includegraphics[width=0.92\textwidth]{fig9_grid_heatmap.pdf}\end{center}
+\begin{itemize}
+\item 66 new runs completing sizes $\{5,12.5,25,50\}$ BTC by deadlines $\{2.5,5,10,20\}$
+minutes, both regimes; integrity-checked before judging.
+\item Null in 20 of 22 new groups; several groups significantly worse than TWAP (e.g.
+12.5 BTC at 20 minutes, volatile: $+0.164$\,bps).
+\item Two calm cells (solid outline) met the pre-registered follow-up trigger; the centre
+volatile cell (dashed) is the already-falsified original signal.
+\end{itemize}
+
+\subsection*{Grid summary (table)}
+\begin{center}\resizebox{0.8\textwidth}{!}{\input{t4_robustness_grid.tex}}\end{center}
+\begin{itemize}
+\item All 16 cells per regime with pooled results, consistency, and trigger status.
+\item Roughly one false trigger was expected among 22 groups by chance; two were observed,
+hence follow-up rather than claims.
+\end{itemize}
+
+\subsection*{The replication ladder kills both triggers}
+\begin{center}\includegraphics[width=0.62\textwidth]{fig19_ladder_collapse.pdf}\end{center}
+\begin{itemize}
+\item The triggers: $p=0.014$, and $p=0.0003$ with three seeds within $0.005$\,bps of one
+another.
+\item Both survived escalation to five seeds on the development block ($p=0.0037$ and
+$p=0.0001$).
+\item Both then died on the first-ever use of the reserve block: $-0.0095$ ($p=0.17$) and
+$+0.0177$ ($p=0.96$), the second reversing sign entirely.
+\item Cost of catching it: four training runs. Sealed tests spent: zero.
+\item Third demonstrated evaluation-set illusion, and the cleanest.
+\end{itemize}
+
+\subsection*{Ladder detail (table)}
+\begin{center}\input{t12_ladder.tex}\end{center}
+\begin{itemize}
+\item Every escalated seed's development and reserve result side by side.
+\item Note the tight development agreement dissolving into scatter around zero on fresh
+episodes.
+\end{itemize}
+
+\section*{4. Why DQN fails}
+
+\subsection*{The collapse at the primary setting}
+\begin{center}\includegraphics[width=0.9\textwidth]{fig7_dqn_collapse.pdf}\end{center}
+\begin{itemize}
+\item The behaviour audit runs before any cost comparison: an agent whose forced deadline
+purchase completes more than $10\%$ of episodes, or that is more than $90\%$ inactive, is
+invalid.
+\item Seven of ten DQN agents collapse into inaction followed by the forced purchase; all
+ten PPO agents trade properly.
+\item Collapsed agents' cost numbers are excluded from verdicts but always reported.
+\end{itemize}
+
+\subsection*{Systematic, size-driven, and not a configuration artifact}
+\begin{center}\includegraphics[width=0.66\textwidth]{fig20_dqn_collapse_by_setting.pdf}\end{center}
+\begin{itemize}
+\item Pre-registered probe across settings: mostly healthy at 5 BTC (4/6 valid), total
+collapse at 25 BTC even at the shortest deadline (0/6), majority collapse at every 25 BTC
+deadline.
+\item So the driver is order size (reward dominated by the agent's own impact), not idle
+time; the going-in idle-room hypothesis was refuted by the probe's own design.
+\item The collapse concentrates in the calm regime (1 of 9 calm probe agents valid versus
+5 of 9 volatile).
+\item Grey bars: retraining with the library-default update rhythm (18 runs, pre-registered)
+leaves the primary setting unchanged; the rhythm objection is closed with data.
+\end{itemize}
+
+\subsection*{DQN probe detail (table)}
+\begin{center}\resizebox{0.85\textwidth}{!}{\input{t11_dqn_probe.tex}}\end{center}
+\begin{itemize}
+\item All 18 probe runs: inaction share, forced-purchase share, costs, audit outcome.
+\item Even where DQN survives the audit, no cost advantage exists anywhere.
+\end{itemize}
+
+\subsection*{The mechanism, read from the networks}
+\begin{center}\includegraphics[width=0.66\textwidth]{fig21_q_tilt.pdf}\end{center}
+\begin{itemize}
+\item Direct inspection of the trained networks over evaluation states.
+\item Across all agents, learned action-value separations ($0.006$ to $0.012$) sit an order
+of magnitude below per-step reward noise (sd $0.025$ to $0.057$): the value signal is at
+the edge of resolvability for everyone.
+\item What distinguishes collapse is where the near-flat surface tips: collapsed agents rank
+``trade nothing'' first in $48\%$ of states versus $14\%$ for healthy agents.
+\item Interpretation (labelled as such): PPO's batch-normalised advantages amplify
+microscopic differences; DQN regresses raw-scale values.
+\item Scoped claim: this configuration on impact-dominated rewards; Double-DQN and
+prioritised replay are named future work.
+\end{itemize}
+
+\section*{5. The frozen-replay track (validation results; sealed exam pending)}
+
+\subsection*{Three-lever null}
+\begin{center}\includegraphics[width=0.95\textwidth]{l1_three_lever_null.pdf}\end{center}
+\begin{itemize}
+\item All 70 agents across bar resolution (1-minute, 10-second), order size (0.5\%, 1\%,
+2\% of daily volume) and deadline (30, 10 minutes).
+\item No arm beats TWAP consistently; on 10-second bars at 30 minutes the agents are
+consistently worse.
+\item The best-looking arm (PPO, 96.57 BTC, 1-minute bars: $-0.089$, 4/5 cheaper) is within
+chance expectation for 14 screened arms and receives no special treatment: every arm sits
+the same one-shot sealed exam.
+\item Six DQN runs show the same deadline-leaning failure as the reactive track (filled markers).
+\item Integrity notes: four legacy stub runs were exposed by a census, retracted and
+retrained (the arm's true figure is three times weaker than the stub-based one); fill-in
+comparability was proven by a bit-exact sibling retrain.
+\end{itemize}
+
+\subsection*{Frozen-replay arm summary (table)}
+\begin{center}\resizebox{0.8\textwidth}{!}{\input{t7_l2_summary.tex}}\end{center}
+\begin{itemize}
+\item Pooled result, seeds cheaper, flagged seeds and consistency for all 14 arms.
+\item Validation data by design; test columns are added by the sealed exam.
+\end{itemize}
+
+\subsection*{The size lever}
+\begin{center}\includegraphics[width=0.95\textwidth]{l2_size_sweep.pdf}\end{center}
+\begin{itemize}
+\item Benchmark execution cost grows steeply with order size (to ${\sim}13$\,bps at $5\%$
+of daily volume): the execution problem gets genuinely harder.
+\item No exploitable agent advantage opens at any trained size; one collapsed DQN seed is
+marked off scale.
+\end{itemize}
+
+\clearpage
+\subsection*{Frozen-replay per-run detail (appendix table)}
+\begin{itemize}
+\item Every one of the 70 agents: validation result and deadline-leaning share. The table
+flows over the following pages.
+\item DL marks the forced deadline purchase completing more than $10\%$ of episodes.
+\end{itemize}
+\begin{center}\scriptsize\input{t9_l2_perrun.tex}\end{center}
+\clearpage
+
+\section*{6. Committed next steps}
+\begin{itemize}
+\item Frozen-replay sealed exam: the evaluator must first reproduce known validation numbers
+exactly; then one shot over all 70 agents, all arms reported, multiplicity stated; gated.
+\item Measured-signal extension: measure the order-flow to future-return relationship from
+the L4 data and inject exactly that into the reactive simulator; the one experiment that can
+change the headline; pre-registered before running.
+\item Liquidity and volume profiles (feeds a VWAP benchmark); Almgren-Chriss and VWAP added
+to the benchmark set; attribution (research question 3) after the extension verdict;
+decision-frequency check (12 runs at 0.5\,s and 2\,s).
+\end{itemize}
+
+\section*{7. Provenance (source of truth for every number)}
+\begin{center}\small
+\begin{tabular}{ll}
+\toprule
+result & source of truth \\
+\midrule
+Primary campaign & \texttt{oxford\_l4/step5\_v3/} \\
+Tuning + selection & \texttt{oxford\_l4/step5\_selection\_v3/} \\
+Sealed confirmations & \texttt{oxford\_l4/step5\_confirm\_\{v3a,v1b\}/} \\
+Sweeps + grid & \texttt{oxford\_l4/step5\_sweep\_*, step5\_grid\_*/} \\
+Replication ladder & \texttt{oxford\_l4/step5\_esc\_*, step5\_xblock\_*/} \\
+DQN probe + d3 & \texttt{oxford\_l4/step5\_dqnprobe\_*, step5\_d3\_*/} \\
+Q-value diagnostic & \texttt{reports/diagnostics/dqn\_q\_flatness.json} \\
+Per-episode distributions & \texttt{oxford\_l4/per\_episode\_v3/} \\
+Environment gates & \texttt{oxford\_l4/step4\_gates\_v3.json, step3g/fairness\_*.json} \\
+Frozen-replay agents & \texttt{runs/, runs\_10s/, runs\_10s\_10min/ meta.json} \\
+Frozen-replay benchmark sweep & \texttt{size\_sweep\_results.json} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{itemize}
+\item Every number in this document is generated by script from these archived files;
+nothing is transcribed by hand.
+\item Markdown summaries in the project documentation are convenience copies; these
+artifacts are authoritative.
+\end{itemize}
+
+\end{document}

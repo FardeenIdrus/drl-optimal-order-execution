@@ -1,0 +1,154 @@
+[
+  {
+    "run": "ppo_calm_s0_gS50H600",
+    "algo": "ppo",
+    "regime": "calm",
+    "seed": 0,
+    "action_shares": [
+      0.1984,
+      0.2065,
+      0.2057,
+      0.0027,
+      0.0009,
+      0.0088,
+      0.377
+    ],
+    "top_action": 2.0,
+    "top_share": 0.37700833333333333,
+    "deadline_residual_frac": 0.025,
+    "valid": true
+  },
+  {
+    "run": "ppo_calm_s1_gS50H600",
+    "algo": "ppo",
+    "regime": "calm",
+    "seed": 1,
+    "action_shares": [
+      0.0426,
+      0.0562,
+      0.0271,
+      0.3395,
+      0.2975,
+      0.1575,
+      0.0796
+    ],
+    "top_action": 1.0,
+    "top_share": 0.3395166666666667,
+    "deadline_residual_frac": 0.0,
+    "valid": true
+  },
+  {
+    "run": "ppo_calm_s2_gS50H600",
+    "algo": "ppo",
+    "regime": "calm",
+    "seed": 2,
+    "action_shares": [
+      0.2265,
+      0.1437,
+      0.106,
+      0.0759,
+      0.0644,
+      0.2134,
+      0.1702
+    ],
+    "top_action": 0.0,
+    "top_share": 0.22649166666666667,
+    "deadline_residual_frac": 0.0,
+    "valid": true
+  },
+  {
+    "run": "ppo_calm_s3_gS50H600",
+    "algo": "ppo",
+    "regime": "calm",
+    "seed": 3,
+    "action_shares": [
+      0.0934,
+      0.3506,
+      0.0054,
+      0.0795,
+      0.1113,
+      0.3238,
+      0.036
+    ],
+    "top_action": 0.5,
+    "top_share": 0.35063333333333335,
+    "deadline_residual_frac": 0.0,
+    "valid": true
+  },
+  {
+    "run": "ppo_calm_s4_gS50H600",
+    "algo": "ppo",
+    "regime": "calm",
+    "seed": 4,
+    "action_shares": [
+      0.1872,
+      0.2323,
+      0.0343,
+      0.1997,
+      0.2689,
+      0.0143,
+      0.0634
+    ],
+    "top_action": 1.2,
+    "top_share": 0.268925,
+    "deadline_residual_frac": 0.03,
+    "valid": true
+  },
+  {
+    "run": "ppo_volatile_s0_gS50H600",
+    "algo": "ppo",
+    "regime": "volatile",
+    "seed": 0,
+    "action_shares": [
+      0.0175,
+      0.2852,
+      0.0483,
+      0.3266,
+      0.0777,
+      0.0914,
+      0.1534
+    ],
+    "top_action": 1.0,
+    "top_share": 0.32655833333333334,
+    "deadline_residual_frac": 0.0,
+    "valid": true
+  },
+  {
+    "run": "ppo_volatile_s1_gS50H600",
+    "algo": "ppo",
+    "regime": "volatile",
+    "seed": 1,
+    "action_shares": [
+      0.2786,
+      0.1699,
+      0.1094,
+      0.1902,
+      0.0768,
+      0.08,
+      0.0951
+    ],
+    "top_action": 0.0,
+    "top_share": 0.27855833333333335,
+    "deadline_residual_frac": 0.07,
+    "valid": true
+  },
+  {
+    "run": "ppo_volatile_s2_gS50H600",
+    "algo": "ppo",
+    "regime": "volatile",
+    "seed": 2,
+    "action_shares": [
+      0.2047,
+      0.2278,
+      0.1077,
+      0.0281,
+      0.0445,
+      0.1928,
+      0.1945
+    ],
+    "top_action": 0.5,
+    "top_share": 0.227775,
+    "deadline_residual_frac": 0.02,
+    "valid": true
+  }
+]

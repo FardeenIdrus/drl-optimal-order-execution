@@ -19,3 +19,19 @@ __pycache__/
 .vscode/
 .idea/
 .DS_Store
+criteria/MSc_Project_Guidelines_2025-2026.md
+.gitignore
+
+# Results archive: primary evidence — always tracked (overrides *.csv above)
+!results_archive/**
+
+# LaTeX build artifacts (regenerable)
+*.aux
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# University-provided course documents (not project work)
+criteria/MSc_Project_Marking_Criteria_201920.md

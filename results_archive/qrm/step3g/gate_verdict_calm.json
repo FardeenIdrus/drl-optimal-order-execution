@@ -1,0 +1,178 @@
+{
+  "regime": "calm",
+  "protocol": "3f Revision-1 fidelity design, per regime",
+  "n_calibration_hours": 56,
+  "n_seeds": 8,
+  "checks": [
+    {
+      "metric": "M1_vol_1s",
+      "sim_mean": 2.3028997044905797,
+      "real": 2.5173360043985493,
+      "band": [
+        1.8967870401498435,
+        3.137884968647255
+      ],
+      "mean_pass": true,
+      "seeds_in_1p5x_band": 8,
+      "stability_pass": true
+    },
+    {
+      "metric": "M2_spread",
+      "sim_mean": 1.628955037468776,
+      "real": 1.3174181547619048,
+      "band": [
+        1.2735943521497697,
+        1.3612419573740397
+      ],
+      "mean_pass": false,
+      "seeds_in_1p5x_band": 0,
+      "stability_pass": false
+    },
+    {
+      "metric": "M3_inner_empty",
+      "sim_mean": 0.2390625,
+      "real": 0.1463802188098012,
+      "band": [
+        0.10442885896007058,
+        0.18833157865953185
+      ],
+      "mean_pass": false,
+      "seeds_in_1p5x_band": 1,
+      "stability_pass": false
+    },
+    {
+      "metric": "M4_limit_share",
+      "sim_mean": 0.5140159979037356,
+      "real": 0.4888180854800003,
+      "band": [
+        0.4388180854800003,
+        0.5388180854800003
+      ],
+      "mean_pass": true,
+      "seeds_in_1p5x_band": 8,
+      "stability_pass": true
+    },
+    {
+      "metric": "M4_cancel_share",
+      "sim_mean": 0.483130774442884,
+      "real": 0.48781376639435353,
+      "band": [
+        0.43781376639435354,
+        0.5378137663943535
+      ],
+      "mean_pass": true,
+      "seeds_in_1p5x_band": 8,
+      "stability_pass": true
+    },
+    {
+      "metric": "M5a_market_btc_per_s_vs_anchor",
+      "sim_mean": 0.09438820903189928,
+      "real": 0.10645024320763692,
+      "band": [
+        0.08516019456610954,
+        0.1277402918491643
+      ],
+      "mean_pass": true,
+      "seeds_in_1p5x_band": 8,
+      "stability_pass": true
+    }
+  ],
+  "transfer_report_holdout_not_gated": {
+    "n_holdout_hours_sampled": 47,
+    "vol_1s": {
+      "sim": 2.3028997044905797,
+      "real_holdout": 1.9432954507095548
+    },
+    "spread_ticks": {
+      "sim": 1.628955037468776,
+      "real_holdout": 1.0535639880732508
+    }
+  },
+  "reported_not_gated": {
+    "sampler_stall_frac_mean": 0.0,
+    "stall_validity_concern": false
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "vol_1s": 2.526591357716734,
+      "spread_ticks": 1.485428809325562,
+      "q1_zero": 0.17583333333333334,
+      "limit_share": 0.515275290957923,
+      "cancel_share": 0.48192703670546105,
+      "market_btc_per_s": 0.09462477095929751,
+      "stall_frac": 0.0
+    },
+    {
+      "seed": 1,
+      "vol_1s": 2.2614214740585914,
+      "spread_ticks": 1.79766860949209,
+      "q1_zero": 0.2783333333333333,
+      "limit_share": 0.51421717762696,
+      "cancel_share": 0.4828282237304002,
+      "market_btc_per_s": 0.09557101866889049,
+      "stall_frac": 0.0
+    },
+    {
+      "seed": 2,
+      "vol_1s": 2.4131439842845865,
+      "spread_ticks": 1.5961698584512907,
+      "q1_zero": 0.22666666666666666,
+      "limit_share": 0.5133650470041907,
+      "cancel_share": 0.4837184279080304,
+      "market_btc_per_s": 0.09746351408807644,
+      "stall_frac": 0.0
+    },
+    {
+      "seed": 3,
+      "vol_1s": 2.2648890088086486,
+      "spread_ticks": 1.6727726894254789,
+      "q1_zero": 0.25833333333333336,
+      "limit_share": 0.5149085588880761,
+      "cancel_share": 0.48275054864667155,
+      "market_btc_per_s": 0.07569981676743802,
+      "stall_frac": 0.0
+    },
+    {
+      "seed": 4,
+      "vol_1s": 2.1828243681575077,
+      "spread_ticks": 1.749375520399667,
+      "q1_zero": 0.2825,
+      "limit_share": 0.5156508369353949,
+      "cancel_share": 0.4819993617823678,
+      "market_btc_per_s": 0.076646064477031,
+      "stall_frac": 0.0
+    },
+    {
+      "seed": 5,
+      "vol_1s": 3.049109045643042,
+      "spread_ticks": 1.6203164029975021,
+      "q1_zero": 0.255,
+      "limit_share": 0.5132368917605352,
+      "cancel_share": 0.4837326319400766,
+      "market_btc_per_s": 0.10030225721685537,
+      "stall_frac": 0.0
+    },
+    {
+      "seed": 6,
+      "vol_1s": 2.0176634933066073,
+      "spread_ticks": 1.5828476269775187,
+      "q1_zero": 0.22,
+      "limit_share": 0.5121704424082298,
+      "cancel_share": 0.4843723649446287,
+      "market_btc_per_s": 0.11638846827993594,
+      "stall_frac": 0.0
+    },
+    {
+      "seed": 7,
+      "vol_1s": 1.7075549039489184,
+      "spread_ticks": 1.5270607826810991,
+      "q1_zero": 0.21583333333333332,
+      "limit_share": 0.5133037376485751,
+      "cancel_share": 0.48371759988543606,
+      "market_btc_per_s": 0.09840976179766943,
+      "stall_frac": 0.0
+    }
+  ],
+  "all_pass": false
+}

@@ -1,0 +1,76 @@
+{
+  "criteria": "qrm_step4_criteria.md \u00a76 + \u00a76.7 (out-of-sample confirmation)",
+  "mode": "confirm",
+  "n_eval_episodes": 2000,
+  "eval_seed0": 13000000,
+  "order_btc": 25.0,
+  "env_steps": 300,
+  "per_run": [
+    {
+      "run": "ppo_volatile_s10_v1b",
+      "algo": "ppo",
+      "regime": "volatile",
+      "seed": 10,
+      "mean_vs_fixed_bps": -0.0010321937384861854,
+      "mean_vs_adaptive_bps": -0.001899816735123835,
+      "p_fixed": 0.6647111571463338,
+      "p_adaptive": 0.6502364201412769
+    },
+    {
+      "run": "ppo_volatile_s11_v1b",
+      "algo": "ppo",
+      "regime": "volatile",
+      "seed": 11,
+      "mean_vs_fixed_bps": 0.004210433851118437,
+      "mean_vs_adaptive_bps": 0.003342810854480786,
+      "p_fixed": 0.9704755639486659,
+      "p_adaptive": 0.9527345482427833
+    },
+    {
+      "run": "ppo_volatile_s12_v1b",
+      "algo": "ppo",
+      "regime": "volatile",
+      "seed": 12,
+      "mean_vs_fixed_bps": -0.029717650772644967,
+      "mean_vs_adaptive_bps": -0.030585273769282627,
+      "p_fixed": 0.3050766669078028,
+      "p_adaptive": 0.29393265062622975
+    },
+    {
+      "run": "ppo_volatile_s13_v1b",
+      "algo": "ppo",
+      "regime": "volatile",
+      "seed": 13,
+      "mean_vs_fixed_bps": 0.015254454043565954,
+      "mean_vs_adaptive_bps": 0.014386831046928294,
+      "p_fixed": 0.47196111824188147,
+      "p_adaptive": 0.4914709449843281
+    },
+    {
+      "run": "ppo_volatile_s14_v1b",
+      "algo": "ppo",
+      "regime": "volatile",
+      "seed": 14,
+      "mean_vs_fixed_bps": 0.004689801515805714,
+      "mean_vs_adaptive_bps": 0.003822178519168061,
+      "p_fixed": 0.9498362704113322,
+      "p_adaptive": 0.9611244404658668
+    }
+  ],
+  "verdicts": {
+    "ppo_volatile": {
+      "n_valid_seeds": 5,
+      "n_cheaper_of_valid": 2,
+      "pooled_vs_adaptive_bps": -0.0022,
+      "pooled_vs_fixed_bps": -0.0013,
+      "across_seed_t_p_onesided": 0.3936,
+      "across_seed_wilcoxon_p_onesided": 0.6875,
+      "ci95_vs_adaptive_bps": [
+        -0.0232,
+        0.0188
+      ],
+      "is_primary_regime": true,
+      "PASS": false
+    }
+  }
+}

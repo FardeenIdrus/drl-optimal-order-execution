@@ -1,0 +1,61 @@
+{
+  "regime": "volatile",
+  "n_drift": 8000,
+  "n_grad": 3000,
+  "seed0": 5000000,
+  "background_drift_ticks_per_ep": 0.068,
+  "background_drift_t": 0.06,
+  "drift_pass": true,
+  "pace_gradient": [
+    {
+      "mult": 0.5,
+      "cost_vs_twap_bps": 0.0066,
+      "t": 0.15,
+      "deadline_resid_frac": 0.0325,
+      "completing": false,
+      "material_sig_advantage": false
+    },
+    {
+      "mult": 0.8,
+      "cost_vs_twap_bps": -0.053,
+      "t": -1.77,
+      "deadline_resid_frac": 0.0119,
+      "completing": true,
+      "material_sig_advantage": false
+    },
+    {
+      "mult": 1.0,
+      "cost_vs_twap_bps": 0.0,
+      "t": 0.0,
+      "deadline_resid_frac": 0.0119,
+      "completing": true,
+      "material_sig_advantage": false
+    },
+    {
+      "mult": 1.2,
+      "cost_vs_twap_bps": -0.0217,
+      "t": -0.75,
+      "deadline_resid_frac": 0.0118,
+      "completing": true,
+      "material_sig_advantage": false
+    },
+    {
+      "mult": 1.5,
+      "cost_vs_twap_bps": -0.0397,
+      "t": -1.22,
+      "deadline_resid_frac": 0.0117,
+      "completing": true,
+      "material_sig_advantage": false
+    },
+    {
+      "mult": 2.0,
+      "cost_vs_twap_bps": -0.0676,
+      "t": -1.62,
+      "deadline_resid_frac": 0.0118,
+      "completing": true,
+      "material_sig_advantage": false
+    }
+  ],
+  "gradient_pass": true,
+  "fairness_pass": true
+}

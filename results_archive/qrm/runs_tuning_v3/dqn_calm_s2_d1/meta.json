@@ -1,0 +1,26 @@
+{
+  "algo": "dqn",
+  "regime": "calm",
+  "seed": 2,
+  "order_btc": 25.0,
+  "steps": 2000000,
+  "gamma": 0.9999164611258403,
+  "net_arch": [
+    30,
+    30,
+    30,
+    30,
+    30
+  ],
+  "reward_scale": 1.0,
+  "tag": "_d1",
+  "overrides": {
+    "lr": null,
+    "ent_coef": null,
+    "ppo_n_steps": null,
+    "dqn_final_eps": 0.05,
+    "dqn_anneal_frac": 0.5
+  },
+  "wall_s": 1530.2613052499946,
+  "criteria": "reports/qrm_step4_criteria.md"
+}

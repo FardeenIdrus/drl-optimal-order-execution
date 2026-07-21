@@ -1,0 +1,115 @@
+{
+  "criteria": "qrm_step4_criteria.md \u00a73 (frozen 2026-07-06)",
+  "mode": "screen",
+  "n_eval_episodes": 2000,
+  "eval_seed0": 5000000,
+  "order_btc": 25.0,
+  "env_steps": 150,
+  "per_run": [
+    {
+      "run": "ppo_calm_s0_gS25H150",
+      "algo": "ppo",
+      "regime": "calm",
+      "seed": 0,
+      "mean_vs_fixed_bps": -0.0069069629825298995,
+      "mean_vs_adaptive_bps": -0.006876379320131708,
+      "p_fixed": 0.5620230055921809,
+      "p_adaptive": 0.5639829389959911
+    },
+    {
+      "run": "ppo_calm_s1_gS25H150",
+      "algo": "ppo",
+      "regime": "calm",
+      "seed": 1,
+      "mean_vs_fixed_bps": 0.012659193870636354,
+      "mean_vs_adaptive_bps": 0.012689777533034534,
+      "p_fixed": 0.30789672924562406,
+      "p_adaptive": 0.3044016810684296
+    },
+    {
+      "run": "ppo_calm_s2_gS25H150",
+      "algo": "ppo",
+      "regime": "calm",
+      "seed": 2,
+      "mean_vs_fixed_bps": -0.01954335748351334,
+      "mean_vs_adaptive_bps": -0.019512773821115145,
+      "p_fixed": 0.26321100509041984,
+      "p_adaptive": 0.2691709332014871
+    },
+    {
+      "run": "ppo_volatile_s0_gS25H150",
+      "algo": "ppo",
+      "regime": "volatile",
+      "seed": 0,
+      "mean_vs_fixed_bps": -0.005914401278262734,
+      "mean_vs_adaptive_bps": -0.006875891462711148,
+      "p_fixed": 0.900391646658421,
+      "p_adaptive": 0.8696717029321794
+    },
+    {
+      "run": "ppo_volatile_s1_gS25H150",
+      "algo": "ppo",
+      "regime": "volatile",
+      "seed": 1,
+      "mean_vs_fixed_bps": -0.015864413697282365,
+      "mean_vs_adaptive_bps": -0.016825903881730796,
+      "p_fixed": 0.5051016870796996,
+      "p_adaptive": 0.4841860434187677
+    },
+    {
+      "run": "ppo_volatile_s2_gS25H150",
+      "algo": "ppo",
+      "regime": "volatile",
+      "seed": 2,
+      "mean_vs_fixed_bps": -0.015611261162615837,
+      "mean_vs_adaptive_bps": -0.016572751347064256,
+      "p_fixed": 0.758274059546641,
+      "p_adaptive": 0.7193001576919087
+    }
+  ],
+  "verdicts": {
+    "ppo_calm_gS25H150": {
+      "n_valid_seeds": 2,
+      "n_negative_both": 1,
+      "n_significant_both": 0,
+      "pooled_vs_adaptive_bps": 0.0029066991064514132,
+      "ESCALATE": false,
+      "across_seed": {
+        "n_valid_seeds": 2,
+        "n_seeds_total": 3,
+        "n_cheaper_vs_adaptive": 1,
+        "pooled_vs_adaptive_bps": 0.0029,
+        "pooled_vs_fixed_bps": 0.0029,
+        "across_seed_t_p_vs_adaptive_onesided": 0.5919,
+        "across_seed_t_p_vs_fixed_onesided": 0.591,
+        "ci95_vs_adaptive_bps": [
+          -0.1214,
+          0.1272
+        ],
+        "trustworthy": false,
+        "warning": "1 of 3 seeds were audit-invalid and dropped; this p is on survivors only -> SURVIVORSHIP, not a clean edge"
+      }
+    },
+    "ppo_volatile_gS25H150": {
+      "n_valid_seeds": 3,
+      "n_negative_both": 3,
+      "n_significant_both": 0,
+      "pooled_vs_adaptive_bps": -0.013424848897168733,
+      "ESCALATE": false,
+      "across_seed": {
+        "n_valid_seeds": 3,
+        "n_seeds_total": 3,
+        "n_cheaper_vs_adaptive": 3,
+        "pooled_vs_adaptive_bps": -0.0134,
+        "pooled_vs_fixed_bps": -0.0125,
+        "across_seed_t_p_vs_adaptive_onesided": 0.0273,
+        "across_seed_t_p_vs_fixed_onesided": 0.0313,
+        "ci95_vs_adaptive_bps": [
+          -0.0275,
+          0.0007
+        ],
+        "trustworthy": true
+      }
+    }
+  }
+}

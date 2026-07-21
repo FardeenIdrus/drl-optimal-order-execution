@@ -1,0 +1,23 @@
+{
+  "threshold_vol_1s": 3.5314281706441446,
+  "median_vol": {
+    "calm": 2.3663763516338703,
+    "volatile": 5.441144016911401
+  },
+  "separation_ratio": 2.2993569949913293,
+  "volatile_mass_below_calm_p75": 0.0,
+  "hours": {
+    "calm/calibrate": 278,
+    "calm/holdout": 93,
+    "volatile/calibrate": 279,
+    "volatile/holdout": 93
+  },
+  "calm_p05_p95": [
+    0.9915657109116266,
+    3.3809361333581958
+  ],
+  "volatile_p05_p95": [
+    3.622349079219953,
+    11.825146852560922
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "criteria": "qrm_step4_criteria.md \u00a73 (frozen 2026-07-06)",
+  "mode": "screen",
+  "n_eval_episodes": 2000,
+  "eval_seed0": 5000000,
+  "order_btc": 25.0,
+  "env_steps": 300,
+  "per_run": [
+    {
+      "run": "dqn_calm_s0_d3S25H300",
+      "algo": "dqn",
+      "regime": "calm",
+      "seed": 0,
+      "mean_vs_fixed_bps": 0.044341177717470134,
+      "mean_vs_adaptive_bps": 0.04442725968711723,
+      "p_fixed": 0.13492665821519698,
+      "p_adaptive": 0.1347448682074189
+    },
+    {
+      "run": "dqn_calm_s1_d3S25H300",
+      "algo": "dqn",
+      "regime": "calm",
+      "seed": 1,
+      "mean_vs_fixed_bps": -0.007517987299612209,
+      "mean_vs_adaptive_bps": -0.007431905329965105,
+      "p_fixed": 0.6035325590599758,
+      "p_adaptive": 0.6122795813189417
+    },
+    {
+      "run": "dqn_calm_s2_d3S25H300",
+      "algo": "dqn",
+      "regime": "calm",
+      "seed": 2,
+      "mean_vs_fixed_bps": 0.04844045918067589,
+      "mean_vs_adaptive_bps": 0.04852654115032298,
+      "p_fixed": 0.12916368605470027,
+      "p_adaptive": 0.12812171968402244
+    },
+    {
+      "run": "dqn_volatile_s0_d3S25H300",
+      "algo": "dqn",
+      "regime": "volatile",
+      "seed": 0,
+      "mean_vs_fixed_bps": -0.05671737709131257,
+      "mean_vs_adaptive_bps": -0.05735569650485153,
+      "p_fixed": 0.23307683729278128,
+      "p_adaptive": 0.2325916921450213
+    },
+    {
+      "run": "dqn_volatile_s1_d3S25H300",
+      "algo": "dqn",
+      "regime": "volatile",
+      "seed": 1,
+      "mean_vs_fixed_bps": -0.0487351948681865,
+      "mean_vs_adaptive_bps": -0.04937351428172545,
+      "p_fixed": 0.2626167621089197,
+      "p_adaptive": 0.2614310570863567
+    },
+    {
+      "run": "dqn_volatile_s2_d3S25H300",
+      "algo": "dqn",
+      "regime": "volatile",
+      "seed": 2,
+      "mean_vs_fixed_bps": 0.13441058231725822,
+      "mean_vs_adaptive_bps": 0.13377226290371924,
+      "p_fixed": 0.008427096560683514,
+      "p_adaptive": 0.008430941468748905
+    }
+  ],
+  "verdicts": {
+    "dqn_calm_d3S25H300": {
+      "n_valid_seeds": 1,
+      "n_negative_both": 0,
+      "n_significant_both": 0,
+      "pooled_vs_adaptive_bps": 0.04852654115032298,
+      "ESCALATE": false,
+      "across_seed": {
+        "n_valid_seeds": 1,
+        "n_seeds_total": 3,
+        "trustworthy": false,
+        "note": "need >=2 valid seeds for an across-seed test"
+      }
+    },
+    "dqn_volatile_d3S25H300": {
+      "n_valid_seeds": 1,
+      "n_negative_both": 1,
+      "n_significant_both": 0,
+      "pooled_vs_adaptive_bps": -0.04937351428172545,
+      "ESCALATE": false,
+      "across_seed": {
+        "n_valid_seeds": 1,
+        "n_seeds_total": 3,
+        "trustworthy": false,
+        "note": "need >=2 valid seeds for an across-seed test"
+      }
+    }
+  }
+}

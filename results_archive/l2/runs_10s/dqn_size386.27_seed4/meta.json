@@ -1,0 +1,50 @@
+{
+  "algo": "dqn",
+  "size_btc": 386.27,
+  "seed": 4,
+  "total_timesteps": 12000000,
+  "train_time_s": 2374.7,
+  "device": "cpu",
+  "reward_bps": true,
+  "leftover_penalty_bps": 100.0,
+  "n_val_eval": 400,
+  "eval_freq": 100000,
+  "adv_btc": 19313.4,
+  "residual_coef": {
+    "calm": 0.004382026604597067,
+    "volatile": 0.005774989920008942
+  },
+  "dqn_hp": {
+    "net_arch": [
+      30,
+      30,
+      30,
+      30,
+      30
+    ],
+    "activation": "LeakyReLU",
+    "learning_rate": 0.0001,
+    "buffer_size": 1000000,
+    "batch_size": 1024,
+    "learning_starts": 40000,
+    "gamma": 0.9992,
+    "train_freq": 100,
+    "gradient_steps": 1,
+    "target_update_interval": 1000,
+    "n_steps": 1,
+    "exploration_initial_eps": 1.0,
+    "exploration_final_eps": 0.01,
+    "exploration_anneal_frac": 0.25
+  },
+  "obs_features": [
+    "spread_bps",
+    "imbalance",
+    "recent_return",
+    "rolling_vol",
+    "ask_depth"
+  ],
+  "val_vs_twap_final": 0.25369019831322526,
+  "val_full_exec_final": 1.0,
+  "val_residual_freq_final": 0.0,
+  "exploration_fraction": 0.2525
+}

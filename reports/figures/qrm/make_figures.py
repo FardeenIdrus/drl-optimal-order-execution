@@ -568,6 +568,277 @@ def fig_grid_heatmap():
     save(fig, "fig9_grid_heatmap")
 
 
+# ---------------------------------------------------------------- figure 14
+def fig_forest_calm():
+    """F14: the calm-regime companion to fig3 (same variants, same layout)."""
+    sel, sa = _load("step5_selection_v3")
+    NAMES = [("_v3a", "faster learning (lr 1e-3)"), ("_w3a", "combo: net 128 + reward x100"),
+             ("_v3b", "slower learning (lr 1e-4)"), ("_v1b", "bigger network 128"),
+             ("_v6", "reward x100 @ 10M steps"), ("_v5", "longer rollout"),
+             ("_v4a", "no exploration bonus"), ("_v2", "reward x100"),
+             ("_v6b", "slower-lr @ 10M steps"), ("_w3b", "combo: slow-lr + reward"),
+             ("_v4b", "more exploration"), ("_v1a", "bigger network 64")]
+    from matplotlib.transforms import blended_transform_factory
+    fig, ax = plt.subplots(figsize=(6.6, 4.8))
+    ys, ticklabels = [], []
+    for i, (tag, label) in enumerate(NAMES):
+        vals = _seed_means(sel, sa, "calm", tag)
+        if len(vals) == 0:
+            continue
+        y = len(NAMES) - i
+        ax.plot([vals.min(), vals.max()], [y, y], color="grey", lw=1.2, alpha=0.7, zorder=1)
+        ax.scatter(vals, np.full(len(vals), y), s=20, facecolors="white",
+                   edgecolors="grey", linewidths=1.0, zorder=2)
+        ax.plot(vals.mean(), y, "D", ms=6.5, color=BLUE, zorder=3)
+        ys.append(y); ticklabels.append(f"{label}  (n={len(vals)})")
+    ax.axvline(0, color="k", lw=0.9)
+    ax.axvline(-0.05, color="grey", lw=1.0, ls="--")
+    tr = blended_transform_factory(ax.transData, ax.transAxes)
+    ax.text(-0.05, 1.015, "materiality floor (-0.05)", transform=tr,
+            ha="center", va="bottom", fontsize=8, color="grey")
+    ax.text(0.0, 1.015, "adaptive-TWAP benchmark", transform=tr,
+            ha="center", va="bottom", fontsize=8, color="k")
+    ax.set_yticks(ys); ax.set_yticklabels(ticklabels, fontsize=8.5)
+    ax.set_ylim(min(ys) - 0.7, max(ys) + 0.7)
+    ax.set_xlabel(BPS + "  —  development block")
+    ax.set_title("Tuning screen, CALM regime: no variant shows a consistent advantage\n"
+                 "(companion to the volatile-regime panel)", pad=18)
+    handles = [
+        Line2D([], [], marker="D", ls="", color=BLUE, ms=6.5, label="mean over seeds"),
+        Line2D([], [], marker="o", ls="-", color="grey", markerfacecolor="white",
+               markeredgecolor="grey", ms=6, lw=1.2,
+               label="individual seeds (whisker = seed range)"),
+    ]
+    fig.legend(handles=handles, loc="upper center", bbox_to_anchor=(0.5, -0.02),
+               ncol=2, frameon=False, fontsize=8.5)
+    save(fig, "fig14_forest_tuning_calm")
+
+
+# ---------------------------------------------------------------- figure 19
+def fig_ladder_collapse():
+    """F19: the §7.5a ladder outcome — each escalated agent's development-block result
+    vs its result on the first-use reserve block. The p=0.0001 group sign-flips."""
+    groups = [("b50h600", "50 BTC / 10-min", BLUE),
+              ("b25h1200", "25 BTC / 20-min", RED)]
+    fig, ax = plt.subplots(figsize=(6.6, 4.2))
+    for cell, label, color in groups:
+        dev = {r["run"]: r["mean_vs_adaptive_bps"]
+               for r in json.load(open(S / f"step5_esc_{cell}" / "judgement.json"))["per_run"]
+               if r["regime"] == "calm"}
+        res = {r["run"]: r["mean_vs_adaptive_bps"]
+               for r in json.load(open(S / f"step5_xblock_{cell}" / "judgement.json"))["per_run"]
+               if r["regime"] == "calm"}
+        for run in dev:
+            ax.plot([0, 1], [dev[run], res[run]], "-o", color=color, ms=4,
+                    lw=1.0, alpha=0.55, zorder=2)
+        dm = np.mean(list(dev.values())); rm = np.mean(list(res.values()))
+        ax.plot([0, 1], [dm, rm], "-D", color=color, ms=8, lw=2.6, zorder=3, label=label)
+    _benchmark_hline(ax, x_frac=1.02, ha="left", va="center")
+    ax.set_xticks([0, 1])
+    ax.set_xticklabels(["development block\n(where the triggers fired;\n5-seed escalation survived)",
+                        "reserve block\n(first ever use;\nsame 10 agents, no retraining)"])
+    ax.set_xlim(-0.25, 1.25)
+    ax.set_ylabel(BPS)
+    ax.set_title("Cross-block replication kills both triggered groups\n"
+                 "(thin lines = individual seeds; thick = group mean)")
+    fig.legend(loc="upper center", bbox_to_anchor=(0.5, -0.02), ncol=2,
+               frameon=False, fontsize=9)
+    save(fig, "fig19_ladder_collapse")
+
+
+# ---------------------------------------------------------------- figure 20
+def fig_dqn_collapse_by_setting():
+    """F20: DQN behaviour-audit pass rate across every tested setting, base config vs
+    the library-default update rhythm (d3)."""
+    def rate(audit_path, algo="dqn"):
+        a = [e for e in json.load(open(audit_path)) if e["algo"] == algo]
+        return sum(e["valid"] for e in a), len(a)
+
+    settings = ["5 BTC\n2.5-min", "25 BTC\n2.5-min", "25 BTC\n5-min\n(primary)", "25 BTC\n20-min"]
+    base = [rate(S / "step5_dqnprobe_b5h150" / "behaviour_audit.json"),
+            rate(S / "step5_dqnprobe_b25h150" / "behaviour_audit.json"),
+            rate(S / "step5_v3" / "behaviour_audit.json"),
+            rate(S / "step5_dqnprobe_b25h1200" / "behaviour_audit.json")]
+    d3 = [rate(S / "step5_d3_b5h150" / "behaviour_audit.json"),
+          rate(S / "step5_d3_b25h150" / "behaviour_audit.json"),
+          rate(S / "step5_d3_b25h300" / "behaviour_audit.json"),
+          None]
+    fig, ax = plt.subplots(figsize=(6.8, 3.9))
+    x = np.arange(len(settings))
+    w = 0.36
+    for vals, off, color, label in [
+            (base, -w / 2, RED, "base configuration"),
+            (d3, w / 2, "#7f7f7f", "library-default update rhythm (d3)")]:
+        for j, v in enumerate(vals):
+            if v is None:
+                ax.text(x[j] + off, 0.03, "not\nrun", ha="center", fontsize=7.5, color="grey")
+                continue
+            k, n = v
+            ax.bar(x[j] + off, k / n, width=w, color=color, alpha=0.85,
+                   label=label if j == 0 else None)
+            ax.text(x[j] + off, k / n + 0.02, f"{k}/{n}", ha="center", fontsize=8.5)
+    ax.set_xticks(x); ax.set_xticklabels(settings, fontsize=9)
+    ax.set_xlim(-0.6, 3.75)
+    ax.set_ylim(0, 1.12)
+    ax.set_ylabel("share of seeds passing the behaviour audit")
+    ax.set_title("DQN collapse across settings: size-driven, and not cured by the\n"
+                 "library-default update rhythm at the primary setting")
+    fig.legend(loc="upper center", bbox_to_anchor=(0.5, -0.02), ncol=2,
+               frameon=False, fontsize=9)
+    save(fig, "fig20_dqn_collapse_by_setting")
+
+
+# ---------------------------------------------------------------- figure 21
+def fig_q_tilt():
+    """F21: per-agent share of states where the learned Q-values rank 'trade nothing'
+    first, collapsed vs valid agents (diagnostic artifact of record)."""
+    data = json.load(open(Path(__file__).resolve().parents[2]
+                          / "diagnostics" / "dqn_q_flatness.json"))
+    rows = sorted(data["rows"], key=lambda r: r["argmax0_share"])
+    fig, ax = plt.subplots(figsize=(6.6, 4.4))
+    ypos = np.arange(len(rows))
+    for y, r in zip(ypos, rows):
+        color = BLUE if r["valid"] else RED
+        ax.barh(y, 100 * r["argmax0_share"], color=color, alpha=0.85)
+    def label_of(run):
+        parts = run.split("_")           # dqn, calm, s0, dqS5H150 / dqS25H150
+        btc = "5 BTC" if "S5H" in parts[3] else "25 BTC"
+        return f"{btc}  {parts[1]}  {parts[2]}"
+    ax.set_yticks(ypos)
+    ax.set_yticklabels([label_of(r["run"]) for r in rows], fontsize=8)
+    coll = [r["argmax0_share"] for r in rows if not r["valid"]]
+    val = [r["argmax0_share"] for r in rows if r["valid"]]
+    ax.axvline(100 * np.mean(coll), color=RED, ls="--", lw=1.2)
+    ax.axvline(100 * np.mean(val), color=BLUE, ls="--", lw=1.2)
+    from matplotlib.transforms import blended_transform_factory
+    tr = blended_transform_factory(ax.transData, ax.transAxes)
+    ax.text(100 * np.mean(coll), 1.01, f"collapsed mean {100*np.mean(coll):.0f}%",
+            transform=tr, color=RED, fontsize=8, ha="center", va="bottom")
+    ax.text(100 * np.mean(val), 1.01, f"valid mean {100*np.mean(val):.0f}%",
+            transform=tr, color=BLUE, fontsize=8, ha="center", va="bottom")
+    ax.set_xlabel('share of states where the network ranks "trade nothing" first (%)')
+    ax.set_title("Inside the collapsed networks: near-flat action values tipping toward\n"
+                 "inaction (both 2.5-min probe cells, 5 evaluation episodes per agent)",
+                 pad=24)
+    handles = [Patch(facecolor=RED, alpha=0.85, label="collapsed (failed behaviour audit)"),
+               Patch(facecolor=BLUE, alpha=0.85, label="valid")]
+    fig.legend(handles=handles, loc="upper center", bbox_to_anchor=(0.5, -0.02),
+               ncol=2, frameon=False, fontsize=9)
+    save(fig, "fig21_q_tilt")
+
+
+# ---------------------------------------------------------------- figure 22
+def fig_pipeline_schematic():
+    """F22: the evaluation architecture — episode-seed blocks and the
+    screen -> replicate -> confirm ladder, with what actually happened at each layer."""
+    from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
+    fig, ax = plt.subplots(figsize=(9.6, 5.2))
+    ax.set_xlim(0, 10); ax.set_ylim(0, 10); ax.axis("off")
+
+    def box(x, y, w, h, text, fc, fontsize=8.4):
+        ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.12",
+                                    facecolor=fc, edgecolor="k", lw=0.9))
+        ax.text(x + w / 2, y + h / 2, text, ha="center", va="center",
+                fontsize=fontsize, linespacing=1.35)
+
+    def arrow(x1, y1, x2, y2, text="", color="k"):
+        ax.add_patch(FancyArrowPatch((x1, y1), (x2, y2), arrowstyle="-|>",
+                                     mutation_scale=14, color=color, lw=1.3))
+        if text:
+            ax.text((x1 + x2) / 2 + 0.12, (y1 + y2) / 2, text, fontsize=7.8,
+                    ha="left", va="center", color=color)
+
+    ax.text(2.1, 9.6, "EPISODE-SEED BLOCKS (disjoint by construction)",
+            fontsize=9.5, weight="bold", ha="center")
+    box(0.3, 8.3, 3.6, 0.85, "TRAINING episodes\nper-seed private ranges (seed x 10M+)", "#f0f0f0")
+    box(0.3, 7.15, 3.6, 0.85, "MONITOR block @ 1.0M (n=200)\nlearning curves only, never decisions", "#f0f0f0")
+    box(0.3, 6.0, 3.6, 0.85, "DEVELOPMENT block @ 5.0M (n=2000)\nALL screening, tuning, selection", "#dbe9f6")
+    box(0.3, 4.85, 3.6, 0.85, "RESERVE block @ 6.0M (n=2000)\nreplication; first use = grid ladder", "#dff0d8")
+    box(0.3, 3.7, 3.6, 0.85, "SEALED blocks @ 9.0M / 13.0M (n=2000)\none-shot confirmations, both SPENT", "#f6dbdb")
+
+    ax.text(7.0, 9.6, "THE THREE-LAYER LADDER (pre-registered)",
+            fontsize=9.5, weight="bold", ha="center")
+    box(5.3, 7.9, 3.4, 1.15, "LAYER 1: SCREEN (development block)\n98 tuning runs, 22 grid groups,\nfrozen rules + across-seed check", "#dbe9f6")
+    box(5.3, 5.8, 3.4, 1.15, "LAYER 2: REPLICATE\nescalate to 5 seeds, then re-test on the\nnever-used reserve block", "#dff0d8")
+    box(5.3, 3.7, 3.4, 1.15, "LAYER 3: CONFIRM (sealed, one-shot)\nat most one test per candidate family,\nregistered before running", "#f6dbdb")
+    arrow(7.0, 7.9, 7.0, 6.95, " candidates only")
+    arrow(7.0, 5.8, 7.0, 4.85, " survivors only")
+
+    box(0.3, 0.9, 9.3, 2.1,
+        "WHAT HAPPENED: 2 tuning champions passed layer 1 and went to sealed tests:\n"
+        "BOTH FAILED (pooled -0.002, p=0.38 / p=0.39). 2 grid triggers passed layer 1\n"
+        "(p=0.014, p=0.0003), survived 5-seed escalation, then BOTH DIED on the reserve\n"
+        "block (one sign-flipped to +0.018); no third sealed test was spent.\n"
+        "Headline: the agent does not beat TWAP out-of-sample.", "#fffbe6", fontsize=8.4)
+    ax.set_title("Evaluation architecture: disjoint episode blocks and the screen / replicate / confirm ladder",
+                 fontsize=11)
+    save(fig, "fig22_pipeline_schematic")
+
+
+# ---------------------------------------------------------------- figures 10a/10b
+def _per_episode(regime: str):
+    """Load the per-episode re-eval arrays + pool agents by algo over AUDIT-VALID seeds."""
+    d = np.load(S / "per_episode_v3" / f"{regime}.npz")
+    audit = {e["run"]: e["valid"] for e in
+             json.load(open(S / "step5_v3" / "behaviour_audit.json"))}
+    pooled = {"fixed TWAP": d["fixed"], "adaptive TWAP": d["adaptive"]}
+    for algo in ("ppo", "dqn"):
+        arrs = [d[k] for k in d.files if k.startswith(f"{algo}_") and audit[k]]
+        pooled[f"{algo.upper()} (valid seeds, n={len(arrs)})"] = np.concatenate(arrs)
+    return d, pooled
+
+
+def fig_cost_distributions():
+    """F10a: absolute per-episode execution costs per policy and regime (violin)."""
+    fig, axes = plt.subplots(1, 2, figsize=(10.6, 4.2), sharey=True)
+    for ax, regime in zip(axes, ("calm", "volatile")):
+        _, pooled = _per_episode(regime)
+        labels, data = list(pooled.keys()), list(pooled.values())
+        parts = ax.violinplot(data, showmeans=True, showextrema=False, widths=0.8)
+        for pc, c in zip(parts["bodies"], ["#7f7f7f", "k", BLUE, RED]):
+            pc.set_facecolor(c); pc.set_alpha(0.45)
+        parts["cmeans"].set_color("k")
+        ax.axhline(0, color="k", lw=0.6, alpha=0.5)
+        ax.set_xticks(range(1, len(labels) + 1))
+        ax.set_xticklabels(labels, fontsize=8, rotation=12)
+        ax.set_title(f"{regime} regime", fontsize=10)
+    axes[0].set_ylabel("implementation shortfall per episode (bps)")
+    fig.suptitle("Absolute per-episode execution costs (25 BTC / 5-min, development block,\n"
+                 "2,000 episodes per policy; agents pooled over audit-valid seeds)", y=1.06)
+    save(fig, "fig10a_cost_distributions")
+
+
+def fig_paired_distributions():
+    """F10b: distribution of PAIRED per-episode differences (agent minus adaptive TWAP)."""
+    fig, axes = plt.subplots(1, 2, figsize=(10.6, 4.0), sharey=False)
+    for ax, regime in zip(axes, ("calm", "volatile")):
+        d, _ = _per_episode(regime)
+        audit = {e["run"]: e["valid"] for e in
+                 json.load(open(S / "step5_v3" / "behaviour_audit.json"))}
+        diffs, labels = [], []
+        for algo, color in (("ppo", BLUE), ("dqn", RED)):
+            arrs = [d[k] - d["adaptive"] for k in d.files
+                    if k.startswith(f"{algo}_") and audit[k]]
+            diffs.append(np.concatenate(arrs))
+            labels.append(f"{algo.upper()} - adaptive TWAP")
+        parts = ax.violinplot(diffs, showmeans=True, showextrema=False, widths=0.8)
+        for pc, c in zip(parts["bodies"], [BLUE, RED]):
+            pc.set_facecolor(c); pc.set_alpha(0.45)
+        parts["cmeans"].set_color("k")
+        ax.axhline(0, color="k", lw=0.9)
+        span = max(a.max() for a in diffs) - min(a.min() for a in diffs)
+        for i, arr in enumerate(diffs):
+            ax.text(i + 1, arr.mean() - 0.05 * span, f"mean {arr.mean():+.3f}",
+                    fontsize=8, va="top", ha="center")
+        ax.set_xticks(range(1, len(labels) + 1))
+        ax.set_xticklabels(labels, fontsize=8.5)
+        ax.set_title(f"{regime} regime", fontsize=10)
+    axes[0].set_ylabel("paired per-episode difference (bps)\nnegative = agent cheaper")
+    fig.suptitle("Paired per-episode cost differences vs adaptive TWAP (development block;\n"
+                 "the paired mean is tiny relative to the episode-level spread)", y=1.06)
+    save(fig, "fig10b_paired_distributions")
+
+
 if __name__ == "__main__":
     fig_dev_vs_sealed()
     fig_size_response()
@@ -578,4 +849,9 @@ if __name__ == "__main__":
     fig_dqn_collapse()
     fig_regime_comparison()
     fig_grid_heatmap()
+    fig_forest_calm()
+    fig_ladder_collapse()
+    fig_dqn_collapse_by_setting()
+    fig_q_tilt()
+    fig_pipeline_schematic()
     print("ALL FIGURES DONE ->", OUT)

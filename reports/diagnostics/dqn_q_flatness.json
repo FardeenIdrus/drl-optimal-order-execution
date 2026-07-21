@@ -1,0 +1,95 @@
+{
+  "seeds": [
+    5000000,
+    5000001,
+    5000002,
+    5000003,
+    5000004
+  ],
+  "rows": [
+    {
+      "run": "dqn_calm_s0_dqS25H150",
+      "n_states": 750,
+      "mean_q_spread": 0.005692711099982262,
+      "argmax0_share": 0.8386666666666667,
+      "valid": false
+    },
+    {
+      "run": "dqn_calm_s1_dqS25H150",
+      "n_states": 750,
+      "mean_q_spread": 0.00760873407125473,
+      "argmax0_share": 0.572,
+      "valid": false
+    },
+    {
+      "run": "dqn_calm_s2_dqS25H150",
+      "n_states": 750,
+      "mean_q_spread": 0.009628602303564548,
+      "argmax0_share": 0.12,
+      "valid": false
+    },
+    {
+      "run": "dqn_volatile_s0_dqS25H150",
+      "n_states": 750,
+      "mean_q_spread": 0.00854309182614088,
+      "argmax0_share": 0.17333333333333334,
+      "valid": false
+    },
+    {
+      "run": "dqn_volatile_s1_dqS25H150",
+      "n_states": 750,
+      "mean_q_spread": 0.011003664694726467,
+      "argmax0_share": 0.5253333333333333,
+      "valid": false
+    },
+    {
+      "run": "dqn_volatile_s2_dqS25H150",
+      "n_states": 750,
+      "mean_q_spread": 0.009203668683767319,
+      "argmax0_share": 0.3586666666666667,
+      "valid": false
+    },
+    {
+      "run": "dqn_calm_s0_dqS5H150",
+      "n_states": 750,
+      "mean_q_spread": 0.007229904644191265,
+      "argmax0_share": 0.9453333333333334,
+      "valid": false
+    },
+    {
+      "run": "dqn_calm_s1_dqS5H150",
+      "n_states": 750,
+      "mean_q_spread": 0.00673814257606864,
+      "argmax0_share": 0.288,
+      "valid": false
+    },
+    {
+      "run": "dqn_calm_s2_dqS5H150",
+      "n_states": 750,
+      "mean_q_spread": 0.005575547460466623,
+      "argmax0_share": 0.068,
+      "valid": true
+    },
+    {
+      "run": "dqn_volatile_s0_dqS5H150",
+      "n_states": 750,
+      "mean_q_spread": 0.011585671454668045,
+      "argmax0_share": 0.06533333333333333,
+      "valid": true
+    },
+    {
+      "run": "dqn_volatile_s1_dqS5H150",
+      "n_states": 750,
+      "mean_q_spread": 0.009306816384196281,
+      "argmax0_share": 0.43333333333333335,
+      "valid": true
+    },
+    {
+      "run": "dqn_volatile_s2_dqS5H150",
+      "n_states": 750,
+      "mean_q_spread": 0.011683657765388489,
+      "argmax0_share": 0.004,
+      "valid": true
+    }
+  ]
+}

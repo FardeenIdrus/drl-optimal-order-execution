@@ -637,3 +637,11 @@ volatile-only metric (-> v3a) or the literal across-both-regimes rule (-> v1b), 
 agent does not beat TWAP out-of-sample. The disclosed deviation is therefore immaterial to the
 conclusion; both candidate champions return ~zero on fresh sealed data. No further sealed
 confirmations (§6.5/§6.7 terminality + §7.5 for any future sweep trigger).
+
+**PART E OUTCOME (recorded 2026-07-17 — executed exactly as registered).** 18/18 trained,
+integrity ALL PASS (both named overrides present, nothing else changed), judged 2026-07-17.
+Audit: 25 BTC/5-min **2/6 valid** (base ref ~3/10 -> UNCHANGED at the primary setting);
+25 BTC/2.5-min 4/6 (base 0/6 -> severity reduced at the extreme deadline); 5 BTC/2.5-min 4/6
+(base 4/6 -> control healthy, variant interpretable). No cost trigger in any group. Pre-stated
+interpretation applied: the collapse is NOT an update-rhythm artifact; the rhythm objection is
+closed. Raw: `$S/runs_d3_*` + `$S/step5_d3_*`. Part E CLOSED.

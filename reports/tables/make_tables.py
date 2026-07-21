@@ -201,7 +201,7 @@ def t4_grid():
         r"% Auto-generated from step5_grid_* + step5_sweep_* + step5_selection_v3. Do not edit.",
         r"\begin{tabular}{llrrrrrc}",
         r"\toprule",
-        r"regime & deadline & size & valid/ & cheaper & pooled vs & across-seed & \S 7.5 \\",
+        r"regime & deadline & size & valid/ & cheaper & pooled vs & across-seed & follow-up \\",
         r" & (min) & (BTC) & total & & adaptive (bps) & $p$ & trigger \\",
         r"\midrule",
     ]
@@ -224,7 +224,7 @@ def t4_grid():
             # centre volatile cell: numeric condition met, but its dev signal already
             # FAILED both sealed confirmations (criteria 6.8/6.11) -> resolved, not live
             if (size, hz) == (25.0, 5.0) and regime == "volatile":
-                trig_s = r"closed (\S 6 FAIL)"
+                trig_s = "closed (failed both sealed tests)"
             else:
                 trig_s = r"\textbf{YES}" if trig else "no"
             reg = regime if (hz, size) == (2.5, 5.0) else ""
@@ -238,10 +238,225 @@ def t4_grid():
     write("t4_robustness_grid.tex", "\n".join(lines))
 
 
+L2DIR = Path("/Users/fardeenidrus/Desktop/MSc Dissertation/scratch_hyperliquid")
+L2_PANELS = [
+    ("1-min bars, 30-min", "runs",
+     [("ppo", "96.57"), ("ppo", "193.13"), ("dqn", "96.57"), ("dqn", "193.13")]),
+    ("10-s bars, 30-min", "runs_10s",
+     [("ppo", "96.57"), ("ppo", "193.13"), ("ppo", "386.27"),
+      ("dqn", "96.57"), ("dqn", "193.13"), ("dqn", "386.27")]),
+    ("10-s bars, 10-min", "runs_10s_10min",
+     [("ppo", "96.57"), ("ppo", "193.13"), ("dqn", "96.57"), ("dqn", "193.13")]),
+]
+
+
+def _l2_arm(dirname, algo, size):
+    vals, resid = [], []
+    for s in range(5):
+        m = json.load(open(L2DIR / dirname / f"{algo}_size{size}_seed{s}" / "meta.json"))
+        vals.append(m["val_vs_twap_final"]); resid.append(m["val_residual_freq_final"])
+    return np.array(vals), np.array(resid)
+
+
+# ---------------------------------------------------------------- T5
+def t5_env_validation():
+    g = json.load(open(S / "step4_gates_v3.json"))
+    fair = {r: json.load(open(S / "step3g" / f"fairness_verdict_{r}.json"))
+            for r in ("calm", "volatile")}
+    rows = []
+    for reg in ("calm", "volatile"):
+        g1 = g["G1_reaction_lever_rev1"]["regimes"][reg]
+        g2 = g["G2_cost_vs_size_rev1"]["regimes"][reg]
+        g3 = g["G3_benchmark_sanity_rev1"]["regimes"][reg]
+        f = fair[reg]
+        grad_max_t = max(abs(p["t"]) for p in f["pace_gradient"])
+        rows += [
+            (reg, "own impact is real and persists (2nd immediate dump / 1st, cost ratio)", f"{g1['self_impact_ratio_primary']:.2f}",
+             r"$\geq 1.25$", g1["pass"]),
+            (reg, "dump cost increases with order size (Spearman $\\rho$)", f"{g1['spearman_rho']:.2f}",
+             r"$> 0$", g1["pass"]),
+            (reg, "book refills after impact (probe cost $+30$s vs $+1$s, bps)",
+             f"{g1['probe_bps_t30']:.2f} vs {g1['probe_bps_t1']:.2f}", "lower at $+30$s", g1["pass"]),
+            (reg, "cost-vs-size growth matches the real book (sim vs real ratio)",
+             f"{g2['growth_ratio_sim']:.2f} vs {g2['growth_ratio_real']:.2f}",
+             "within band", g2["pass"]),
+            (reg, "fixed-TWAP completes every episode",
+             f"{g3['twap_completion_rate']:.0%}".replace("%", r"\%"),
+             r"$\geq 99\%$", g3["pass"]),
+            (reg, "dumping costs more than scheduling (dump / TWAP, drift-free, bps)",
+             f"{g3['driftfree_true_dump_mean_bps']:.2f} / {g3['driftfree_twap_mean_bps']:.2f}",
+             "dump $\\geq$ TWAP", g3["pass"]),
+            (reg, "no residual background drift (ticks/episode; $t$)",
+             f"{f['background_drift_ticks_per_ep']:.2f} ($t$={f['background_drift_t']:.2f})",
+             "$t$ n.s.", f["drift_pass"]),
+            (reg, "no constant-pace policy beats TWAP (max $|t|$ across paces)",
+             f"{grad_max_t:.2f}", "none significant", f["gradient_pass"]),
+        ]
+    lines = [
+        r"% Auto-generated from step4_gates_v3.json + step3g/fairness_verdict_*.json.",
+        r"\begin{tabular}{llllc}", r"\toprule",
+        r"regime & check & measured & pass band & verdict \\", r"\midrule",
+    ]
+    for reg, check, meas, band, ok in rows:
+        lines.append(f"{reg} & {check} & {meas} & {band} & "
+                     f"{'PASS' if ok else r'\textbf{FAIL}'} \\\\")
+    lines += [r"\bottomrule", r"\end{tabular}"]
+    write("t5_env_validation.tex", "\n".join(lines))
+
+
+# ---------------------------------------------------------------- T7
+def t7_l2_summary():
+    from scipy.stats import ttest_1samp
+    lines = [
+        r"% Auto-generated from the 70 L2 agents' meta.json files (VALIDATION data).",
+        r"\begin{tabular}{llrrrr}", r"\toprule",
+        r"panel & arm & pooled vs TWAP & cheaper & flagged & across-seed \\",
+        r" & & (bps) & seeds & seeds & $p$ \\", r"\midrule",
+    ]
+    for label, dirname, arms in L2_PANELS:
+        for algo, size in arms:
+            vals, resid = _l2_arm(dirname, algo, size)
+            p = ttest_1samp(vals, 0.0, alternative="less").pvalue
+            lines.append(f"{esc(label)} & {algo.upper()} {size} & {vals.mean():+.4f} & "
+                         f"{int((vals < 0).sum())}/5 & {int((resid > 0.10).sum())}/5 & {p:.3f} \\\\")
+        lines.append(r"\midrule")
+    lines[-1] = r"\bottomrule"
+    lines.append(r"\end{tabular}")
+    write("t7_l2_summary.tex", "\n".join(lines))
+
+
+# ---------------------------------------------------------------- T9
+def t9_l2_perrun():
+    lines = [
+        r"% Auto-generated: all 70 L2 agents, per seed (VALIDATION data; test columns follow",
+        r"% the sealed exam). resid = share of episodes finished by the forced deadline buy.",
+        r"% LONGTABLE: flows across pages; include directly (no float, no resizebox).",
+        r"\begin{longtable}{llrrr}", r"\toprule",
+        r"panel & arm & seed & vs TWAP (bps) & resid \\", r"\midrule", r"\endhead",
+    ]
+    for label, dirname, arms in L2_PANELS:
+        for algo, size in arms:
+            vals, resid = _l2_arm(dirname, algo, size)
+            for s in range(5):
+                flag = r" \textbf{DL}" if resid[s] > 0.10 else ""
+                lines.append(f"{esc(label)} & {algo.upper()} {size} & {s} & "
+                             f"{vals[s]:+.4f} & {resid[s]:.1%}{flag} \\\\".replace("%", r"\%"))
+        lines.append(r"\midrule")
+    lines[-1] = r"\bottomrule"
+    lines.append(r"\end{longtable}")
+    write("t9_l2_perrun.tex", "\n".join(lines))
+
+
+# ---------------------------------------------------------------- T10
+def t10_tuning_perrun():
+    j, a = _load("step5_selection_v3")
+    rows = sorted(j["per_run"], key=lambda r: (r["algo"], r["regime"],
+                                               _tag_of(r["run"], r["seed"]), r["seed"]))
+    lines = [
+        r"% Auto-generated from step5_selection_v3 (all 98 tuning-campaign runs, per seed).",
+        r"% LONGTABLE: flows across pages; include directly (no float, no resizebox).",
+        r"\begin{longtable}{lllrrrrc}", r"\toprule",
+        r"algo & regime & variant & seed & vs fixed & $p$ & vs adaptive & valid \\", r"\midrule", r"\endhead",
+    ]
+    for r in rows:
+        tag = _tag_of(r["run"], r["seed"]) or "base"
+        valid = "yes" if a[r["run"]]["valid"] else r"\textbf{NO}"
+        lines.append(f"{r['algo']} & {r['regime']} & {esc(tag)} & {r['seed']} & "
+                     f"{r['mean_vs_fixed_bps']:+.4f} & {r['p_fixed']:.3f} & "
+                     f"{r['mean_vs_adaptive_bps']:+.4f} & {valid} \\\\")
+    lines += [r"\bottomrule", r"\end{longtable}"]
+    write("t10_tuning_perrun.tex", "\n".join(lines))
+
+
+# ---------------------------------------------------------------- T11
+def t11_dqn_probe():
+    lines = [
+        r"% Auto-generated from step5_dqnprobe_* (criteria Part D, 18 runs).",
+        r"\begin{tabular}{llrrrrrc}", r"\toprule",
+        r"cell & regime & seed & do-nothing & forced-buy & vs adaptive & $p$ & audit \\",
+        r" & & & share & share & (bps) & & \\", r"\midrule",
+    ]
+    for cell, label in [("b5h150", "5 BTC / 2.5-min"), ("b25h150", "25 BTC / 2.5-min"),
+                        ("b25h1200", "25 BTC / 20-min")]:
+        j = json.load(open(S / f"step5_dqnprobe_{cell}" / "judgement.json"))
+        aud = {e["run"]: e for e in json.load(open(S / f"step5_dqnprobe_{cell}" / "behaviour_audit.json"))}
+        for r in sorted(j["per_run"], key=lambda r: (r["regime"], r["seed"])):
+            e = aud[r["run"]]
+            verdict = "valid" if e["valid"] else r"\textbf{COLL.}"
+            lines.append(f"{label} & {r['regime']} & {r['seed']} & "
+                         f"{e['action_shares'][0]:.0%} & {e['deadline_residual_frac']:.0%} & "
+                         f"{r['mean_vs_adaptive_bps']:+.4f} & {r['p_adaptive']:.3f} & {verdict} \\\\"
+                         .replace("%", r"\%"))
+        lines.append(r"\midrule")
+    lines[-1] = r"\bottomrule"
+    lines.append(r"\end{tabular}")
+    write("t11_dqn_probe.tex", "\n".join(lines))
+
+
+# ---------------------------------------------------------------- T6
+def t6_descriptive():
+    audit = {e["run"]: e["valid"] for e in
+             json.load(open(S / "step5_v3" / "behaviour_audit.json"))}
+    lines = [
+        r"% Auto-generated from per_episode_v3/*.npz (deterministic replay; integrity",
+        r"% exact vs step5_v3/judgement.json for all 20 runs).",
+        r"\begin{tabular}{llrrrrrr}", r"\toprule",
+        r"regime & policy & mean & sd & median & 5\% & 95\% & $n$ episodes \\", r"\midrule",
+    ]
+    for regime in ("calm", "volatile"):
+        d = np.load(S / "per_episode_v3" / f"{regime}.npz")
+        entries = [("fixed TWAP", d["fixed"]), ("adaptive TWAP", d["adaptive"])]
+        for algo in ("ppo", "dqn"):
+            arrs = [d[k] for k in d.files if k.startswith(f"{algo}_") and audit[k]]
+            entries.append((f"{algo.upper()} (valid seeds)", np.concatenate(arrs)))
+        for name, a in entries:
+            lines.append(f"{regime} & {name} & {a.mean():+.4f} & {a.std():.4f} & "
+                         f"{np.median(a):+.4f} & {np.percentile(a,5):+.4f} & "
+                         f"{np.percentile(a,95):+.4f} & {len(a):,} \\\\".replace(",", "{,}"))
+        lines.append(r"\midrule")
+    lines[-1] = r"\bottomrule"
+    lines.append(r"\end{tabular}")
+    write("t6_descriptive_stats.tex", "\n".join(lines))
+
+
+# ---------------------------------------------------------------- T12
+def t12_ladder():
+    lines = [
+        r"% Auto-generated from step5_esc_* (development block, 5 seeds) and step5_xblock_*",
+        r"% (reserve block, first use). The two grid trigger groups, calm regime.",
+        r"\begin{tabular}{llrrr}", r"\toprule",
+        r"group & seed & development (bps) & reserve (bps) & change \\", r"\midrule",
+    ]
+    for cell, label in [("b50h600", "50 BTC / 10-min"), ("b25h1200", "25 BTC / 20-min")]:
+        dev = {r["run"]: r["mean_vs_adaptive_bps"]
+               for r in json.load(open(S / f"step5_esc_{cell}" / "judgement.json"))["per_run"]
+               if r["regime"] == "calm"}
+        res = {r["run"]: r["mean_vs_adaptive_bps"]
+               for r in json.load(open(S / f"step5_xblock_{cell}" / "judgement.json"))["per_run"]
+               if r["regime"] == "calm"}
+        for i, run in enumerate(sorted(dev)):
+            seed = run.split("_s")[1][0]
+            lines.append(f"{label if i == 0 else ''} & {seed} & {dev[run]:+.4f} & "
+                         f"{res[run]:+.4f} & {res[run] - dev[run]:+.4f} \\\\")
+        dm, rm = np.mean(list(dev.values())), np.mean(list(res.values()))
+        lines.append(f" & pooled & {dm:+.4f} & {rm:+.4f} & {rm - dm:+.4f} \\\\")
+        lines.append(r"\midrule")
+    lines[-1] = r"\bottomrule"
+    lines.append(r"\end{tabular}")
+    write("t12_ladder.tex", "\n".join(lines))
+
+
 if __name__ == "__main__":
     t1_primary()
     t2_tuning()
     t3_confirmations()
     t4_grid()
+    t5_env_validation()
+    t6_descriptive()
+    t7_l2_summary()
     t8_hyperparams()
-    print("READY-NOW TABLES DONE ->", OUT)
+    t9_l2_perrun()
+    t10_tuning_perrun()
+    t11_dqn_probe()
+    t12_ladder()
+    print("ALL TABLES DONE ->", OUT)

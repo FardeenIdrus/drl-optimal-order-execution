@@ -1,0 +1,74 @@
+{
+  "criteria": "qrm_step4_criteria.md \u00a76 + \u00a76.7 (out-of-sample confirmation)",
+  "mode": "confirm",
+  "n_eval_episodes": 2000,
+  "eval_seed0": 9000000,
+  "per_run": [
+    {
+      "run": "ppo_volatile_s5_v3a",
+      "algo": "ppo",
+      "regime": "volatile",
+      "seed": 5,
+      "mean_vs_fixed_bps": 0.022087703745342083,
+      "mean_vs_adaptive_bps": 0.02216494223115786,
+      "p_fixed": 0.7510372133217567,
+      "p_adaptive": 0.7486297542334096
+    },
+    {
+      "run": "ppo_volatile_s6_v3a",
+      "algo": "ppo",
+      "regime": "volatile",
+      "seed": 6,
+      "mean_vs_fixed_bps": -0.010424724424554695,
+      "mean_vs_adaptive_bps": -0.010347485938738927,
+      "p_fixed": 0.8168826508876489,
+      "p_adaptive": 0.8132457786070415
+    },
+    {
+      "run": "ppo_volatile_s7_v3a",
+      "algo": "ppo",
+      "regime": "volatile",
+      "seed": 7,
+      "mean_vs_fixed_bps": 0.0027696312980945237,
+      "mean_vs_adaptive_bps": 0.002846869783910295,
+      "p_fixed": 0.8011024688861126,
+      "p_adaptive": 0.8037969434760687
+    },
+    {
+      "run": "ppo_volatile_s8_v3a",
+      "algo": "ppo",
+      "regime": "volatile",
+      "seed": 8,
+      "mean_vs_fixed_bps": -0.00798038994763868,
+      "mean_vs_adaptive_bps": -0.007903151461822909,
+      "p_fixed": 0.925600613435103,
+      "p_adaptive": 0.9356327016496575
+    },
+    {
+      "run": "ppo_volatile_s9_v3a",
+      "algo": "ppo",
+      "regime": "volatile",
+      "seed": 9,
+      "mean_vs_fixed_bps": -0.01842884848375635,
+      "mean_vs_adaptive_bps": -0.018351609997940593,
+      "p_fixed": 0.7350829790128348,
+      "p_adaptive": 0.7584508357764049
+    }
+  ],
+  "verdicts": {
+    "ppo_volatile": {
+      "n_valid_seeds": 5,
+      "n_cheaper_of_valid": 3,
+      "pooled_vs_adaptive_bps": -0.0023,
+      "pooled_vs_fixed_bps": -0.0024,
+      "across_seed_t_p_onesided": 0.3785,
+      "across_seed_wilcoxon_p_onesided": 0.4062,
+      "ci95_vs_adaptive_bps": [
+        -0.0217,
+        0.0171
+      ],
+      "is_primary_regime": true,
+      "PASS": false
+    }
+  }
+}

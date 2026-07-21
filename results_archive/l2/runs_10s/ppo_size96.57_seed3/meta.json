@@ -1,0 +1,47 @@
+{
+  "algo": "ppo",
+  "size_btc": 96.57,
+  "seed": 3,
+  "total_timesteps": 12000000,
+  "train_time_s": 6401.3,
+  "device": "cpu",
+  "reward_bps": true,
+  "leftover_penalty_bps": 100.0,
+  "n_val_eval": 400,
+  "eval_freq": 100000,
+  "adv_btc": 19313.4,
+  "residual_coef": {
+    "calm": 0.004382026604597067,
+    "volatile": 0.005774989920008942
+  },
+  "ppo_hp": {
+    "net_arch": [
+      30,
+      30,
+      30,
+      30,
+      30
+    ],
+    "activation": "LeakyReLU",
+    "learning_rate": 0.0003,
+    "n_steps": 2048,
+    "batch_size": 64,
+    "n_epochs": 10,
+    "gamma": 0.9992,
+    "gae_lambda": 0.95,
+    "clip_range": 0.2,
+    "ent_coef": 0.01,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.5
+  },
+  "obs_features": [
+    "spread_bps",
+    "imbalance",
+    "recent_return",
+    "rolling_vol",
+    "ask_depth"
+  ],
+  "val_vs_twap_final": 0.1918696640133635,
+  "val_full_exec_final": 1.0,
+  "val_residual_freq_final": 0.0
+}

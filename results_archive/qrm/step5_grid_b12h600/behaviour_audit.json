@@ -1,0 +1,116 @@
+[
+  {
+    "run": "ppo_calm_s0_gS12H600",
+    "algo": "ppo",
+    "regime": "calm",
+    "seed": 0,
+    "action_shares": [
+      0.2125,
+      0.1516,
+      0.1647,
+      0.1792,
+      0.1834,
+      0.0172,
+      0.0914
+    ],
+    "top_action": 0.0,
+    "top_share": 0.2125,
+    "deadline_residual_frac": 0.0,
+    "valid": true
+  },
+  {
+    "run": "ppo_calm_s1_gS12H600",
+    "algo": "ppo",
+    "regime": "calm",
+    "seed": 1,
+    "action_shares": [
+      0.0349,
+      0.1743,
+      0.2274,
+      0.1223,
+      0.0275,
+      0.1444,
+      0.2692
+    ],
+    "top_action": 2.0,
+    "top_share": 0.26919166666666666,
+    "deadline_residual_frac": 0.0,
+    "valid": true
+  },
+  {
+    "run": "ppo_calm_s2_gS12H600",
+    "algo": "ppo",
+    "regime": "calm",
+    "seed": 2,
+    "action_shares": [
+      0.0906,
+      0.0841,
+      0.2419,
+      0.1743,
+      0.0487,
+      0.2952,
+      0.0651
+    ],
+    "top_action": 1.5,
+    "top_share": 0.295225,
+    "deadline_residual_frac": 0.0,
+    "valid": true
+  },
+  {
+    "run": "ppo_volatile_s0_gS12H600",
+    "algo": "ppo",
+    "regime": "volatile",
+    "seed": 0,
+    "action_shares": [
+      0.1371,
+      0.0441,
+      0.2668,
+      0.08,
+      0.2464,
+      0.0125,
+      0.2132
+    ],
+    "top_action": 0.8,
+    "top_share": 0.266775,
+    "deadline_residual_frac": 0.0,
+    "valid": true
+  },
+  {
+    "run": "ppo_volatile_s1_gS12H600",
+    "algo": "ppo",
+    "regime": "volatile",
+    "seed": 1,
+    "action_shares": [
+      0.0312,
+      0.2379,
+      0.1068,
+      0.099,
+      0.3898,
+      0.0577,
+      0.0776
+    ],
+    "top_action": 1.2,
+    "top_share": 0.38981666666666664,
+    "deadline_residual_frac": 0.0,
+    "valid": true
+  },
+  {
+    "run": "ppo_volatile_s2_gS12H600",
+    "algo": "ppo",
+    "regime": "volatile",
+    "seed": 2,
+    "action_shares": [
+      0.1785,
+      0.083,
+      0.1033,
+      0.2115,
+      0.3085,
+      0.092,
+      0.0233
+    ],
+    "top_action": 1.2,
+    "top_share": 0.30845,
+    "deadline_residual_frac": 0.0,
+    "valid": true
+  }
+]

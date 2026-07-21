@@ -471,7 +471,7 @@ deviation from even pacing only adds noise cost.
 **Verdict: the boundary null HOLDS across order sizes 5-50 BTC and at the 10-minute horizon, in
 both regimes.** The §1 multi-axis design is complete (cadence sweep pre-registered out).
 
-## CURRENT RESULTS (D) — §7.7 GRID, Parts A+B (sealed judgements 2026-07-15, `step5_grid_*`): NULL IN 20/22 GROUPS; TWO CALM GROUPS TRIGGER THE §7.5 LADDER (escalation NOT yet launched — user decision pending)
+## CURRENT RESULTS (D) — §7.7 GRID, Parts A+B (sealed judgements 2026-07-15, `step5_grid_*`): NULL IN 20/22 GROUPS; TWO CALM GROUPS TRIGGERED THE §7.5 LADDER — LADDER SINCE EXECUTED: both survived 5-seed escalation, both DIED on the reserve block (§7.5a steps (i)+(ii) below; header updated 2026-07-18, was "escalation not yet launched")
 
 Provenance: 66 runs (11 new cells x 2 regimes x 3 seeds), integrity-checked before judging
 (all metas parsed: order size / deadline / config / seed / regime / gamma correct; curves
@@ -732,58 +732,128 @@ the only fully-valid group (5 BTC/2.5-min volatile) pools -0.021 at p=0.26 (null
 No escalation, no trigger, nothing further owed; Part D CLOSED. Figure candidate F20 (collapse
 rate by setting) added to the manifest.
 
+## CURRENT RESULTS (F) — §7.7 PART E "d3" UPDATE-RHYTHM VARIANT (judged 2026-07-17):
+## THE COLLAPSE IS NOT CURED BY THE LIBRARY-DEFAULT RHYTHM AT THE PRIMARY SETTING
+
+Executed exactly as registered (Part E, 2026-07-16): DQN base + ONE named change
+(--dqn-train-freq 4 --dqn-batch-size 32), 3 cells x 2 regimes x 3 seeds = 18 runs, integrity
+ALL PASS (both overrides verified in every meta; nothing else changed), judged with matching
+flags on the dev block (5e6, n=2000), audit-before-costs.
+**SOURCE OF TRUTH:** `$S/runs_d3_{b25h300,b25h150,b5h150}/` +
+`$S/step5_d3_{b25h300,b25h150,b5h150}/{judgement,behaviour_audit}.json`.
+
+| cell | d3 valid/6 | base-config reference | reading |
+|---|---|---|---|
+| 25 BTC / 5-min (PRIMARY) | **2/6** | 3/10 (~30%) primary campaign | **unchanged — still mostly collapses** |
+| 25 BTC / 2.5-min | 4/6 | 0/6 (Part D probe) | improved but only to coin-flip |
+| 5 BTC / 2.5-min (control) | 4/6 | 4/6 (Part D probe) | control healthy -> variant interpretable |
+
+Full per-run table (audit % + both benchmarks) in `step5_d3_*/`; highlights: primary-cell
+collapses include a wrong-direction significant run (volatile s2 +0.134, p=0.008); no group
+triggers anything on costs (best: volatile 5BTC 2/3 valid pooled -0.0396 p=0.087 = null;
+25/2.5min volatile 3/3 valid pooled -0.0114 p=0.27 = null). ESCALATE false everywhere.
+
+**PART E CONCLUSION (pre-stated interpretation applied):** at the primary setting the collapse
+persists under BOTH the chosen and the library-default update rhythms -> the configuration
+objection is CLOSED with data; the failure mode is not an update-rhythm artifact. Honest
+nuance (reported, not buried): the default rhythm DOES reduce collapse severity at the tightest
+deadline (0/6 -> 4/6 at 25 BTC/2.5-min), so granularity modulates severity at extremes without
+rescuing the primary setting. Write-up: argument bank §N/§N5 + this section; F20 planned.
+
 ## REMAINING ROADMAP (consolidated 2026-07-09) — SINGLE SOURCE OF TRUTH for what is left
 
 Everything remaining, in order, with each step's pre-registration home. (Previously this was
 scattered across criteria §1/§5/§6, the audit file, and R8/R9 here; consolidated now.)
 
-> **AUTHORITATIVE STEP-BY-STEP ORDER (updated 2026-07-14). No time-gating: ordered by dependency
+> **AUTHORITATIVE STEP-BY-STEP ORDER (updated 2026-07-16). No time-gating: ordered by dependency
 > and value only; every item is DONE regardless of schedule (see [[no-manufactured-timelines]]).**
 >
-> CURRENT STATE (2026-07-15): grid 66/66 trained AND JUDGED (integrity check all-pass first; see
-> CURRENT RESULTS (D)): null in 20/22 groups, strict ESCALATE false everywhere, but TWO CALM
-> groups fire the §7.5 trigger (50 BTC/10-min: pooled -0.0539, p=0.014; 25 BTC/20-min: pooled
-> -0.0629, p=0.0003; both 3/3 cheaper). §7.5 LADDER EXECUTED + CLOSED (2026-07-15, §7.5a/§7.5b):
-> both groups SURVIVED escalation to 5 seeds (p=0.0037 / p=0.0001) then BOTH FAILED the
-> reserve block 6e6 first use (-0.0095 p=0.17; +0.0177 p=0.96 SIGN-FLIPPED). NO sealed test
-> spent. GRID VERDICT FINAL: null across the whole 4x4 design space; the triggers were
-> block luck (third demonstrated illusion; argument bank §L5; F19 planned).
-> Argument bank updated (§K benchmark justification, §L+L5 grid findings). Figures F1-F8
-> BUILT (2/4/5 at v5, F7 at v3 two-panel). Tables T1/T2/T3/T8 BUILT; T9/T10 planned. L2: fill-in
-> plan + sealed-test protocol pre-registered (`l2_test_protocol.md`); L2 sealed test never run.
+> CURRENT STATE (2026-07-16). The L4 experiment campaigns through the grid are CLOSED:
+> - HEADLINE: BOUNDARY NULL, final. Both sealed confirmations FAILED (§6.8 v3a; §6.11 v1b).
+> - GRID (§7.7 A+B): 66/66 trained + judged -> null in 20/22 groups; the two calm §7.5 triggers
+>   survived 5-seed escalation on the dev block (p=0.0037 / p=0.0001) then BOTH FAILED the
+>   reserve block 6e6 first use (-0.0095 p=0.17; +0.0177 p=0.96 SIGN-FLIPPED). No sealed test
+>   spent. Third demonstrated block-luck illusion. Full record: CURRENT RESULTS (D) + criteria
+>   §7.5a/§7.5b. NULL HOLDS ACROSS THE WHOLE 4x4 SIZE x DEADLINE SPACE.
+> - DQN PROBE (§7.7 Part D): EXECUTED + CLOSED 2026-07-16 — collapse is SYSTEMATIC and
+>   SIZE-DRIVEN (valid 4/6 at 5BTC/2.5min, 0/6 at 25BTC/2.5min, 2/6 at 25BTC/20min vs 3/10
+>   primary), calm-concentrated; no cost trigger. Full record: CURRENT RESULTS (E) + Part D
+>   outcome in criteria. Q-value diagnostic logged (argument bank §N5 + correction).
+> - Figures F1-F9 BUILT; tables T1/T2/T3/T4/T8 BUILT (compile-verified); F19/F20 planned,
+>   F21 candidate; T9/T10 planned. Argument bank current through §N5.
+>
+> STATUS UPDATE (2026-07-17): d3 is COMPLETE + JUDGED (CURRENT RESULTS (F) below; Part E outcome
+> in the criteria file: collapse NOT cured at the primary setting -> rhythm objection closed).
+> L2 fill-ins are COMPLETE (19/19; launcher path-splitting incident + recovery logged in
+> l2_test_protocol.md). A full 70-agent census then found 4 STUBS (runs/ppo_size193.13 seeds
+> 1-4: 200k-step curve-only relics, no models — the old "ppo193@1-min -0.090 n=5" figure is
+> RETRACTED, stub-based) -> stubs quarantined to SUPERSEDED_stubs_ppo193_1min/ and the 4 seeds
+> are RETRAINING properly now (user-approved 2026-07-17).
+>
+> STATE AT 2026-07-17 EOD (pre-compaction refresh): NOTHING RUNNING. Completed today, in order:
+> (a) d3 judged + Part E closed (CURRENT RESULTS (F)); (b) L2 fill-ins 19/19 + stub discovery ->
+> 4 ppo193@1-min retrains COMPLETE + verified; (c) definitive 70-agent VALIDATION TABLE logged
+> (l2_test_protocol.md, end of file); (d) per-episode re-eval COMPLETE (integrity exact 20/20;
+> F10a/F10b + T6 built); (e) RESULTS PACK built + iterated with the user: reports/results_pack/
+> (results_pack.pdf full draft, meeting_pack.pdf every-figure-every-table walkthrough, both with
+> single-file *_overleaf.tex copies + figures/ folder, talking_points.md v3 with the run ledger).
+> NEXT WORK ITEM: build the L2 test evaluator + reproduction proof (must reproduce validation
+> numbers exactly BEFORE touching any test file) -> then ONE-SHOT sealed exam of all 70 ONLY on
+> explicit user go. Pending user decisions: sealed-exam go; L3 planted-signal artifact
+> (regenerate or drop).
+>
+> 2026-07-21: `results_archive/` CREATED in the repo (frozen citable snapshot of the full
+> evidence layer, both tracks, 1,165 files / 56 MB, checksum-verified; provenance appendix
+> repointed to it; .gitignore re-include added for its csv files). Post-meeting revision
+> passes on the results pack COMPLETE (accuracy: drift-figure claim re-anchored, impact-ratio
+> inversion fixed; clarity: Track-1/2 naming removed, T5 gate labels descriptive, arm defined,
+> all captions self-contained; §6 reframed census + bit-exact reproducibility, code-change
+> narration removed per academic convention). results_pack_overleaf.pdf = send-ready.
+>
+> CARLO MEETING STEER (18/07 meeting, logged post-meeting): (1) in the FINAL DISSERTATION the
+> L2 frozen-replay approach should be described briefly in the text, mainly to JUSTIFY the
+> switch to the QRM reactive track; full L2 results are NOT needed in the main body (keeps the
+> dissertation from ballooning) — keep the most important L2 results, rest to appendix at
+> assembly. (2) The dissertation's MAIN FOCUS is the L4/QRM reactive track. SCOPE NOTE: this is
+> a FINAL-ASSEMBLY curation rule, NOT a trimming instruction now — the results pack and all
+> working documents stay comprehensive (nothing removed) until report assembly; user directive:
+> "WE ARE NOT TRIMMING ANYTHING YET". The L2 sealed exam still runs as pre-registered (even a
+> brief L2 summary needs its final verdict to be honest).
 >
 > NEXT, IN ORDER:
-> 1. Grid finishes → JUDGE the 11 cells (one judge per `runs_grid_*` dir with that cell's
->    --order-btc/--env-steps, criteria §7.7) → verify all 11 judgement.json PARSE → log the FULL
->    66-row per-seed table here → apply §7.5 MECHANICALLY (no trigger → null across the design
->    space, grid closed; any trigger → escalate → reserve block 6e6 → at most ONE new sealed test;
->    apparent edges always reported with status either way) → F9 heatmap + T4 table.
-> 1b. DQN cross-setting probe DECISION (criteria §7.7 Part D, added 2026-07-15): after the grid
->    verdict, user decides Option A (scope the DQN claim to the primary setting) vs Option B
->    (small pre-registered DQN probe; recommendation on record = B). Exact cells finalised in
->    Part D before any probe run.
-> 2. L2 step (protocol pre-registered 2026-07-14 in `reports/l2_test_protocol.md`), in order:
->    (a) TRAIN THE 19 FILL-IN RUNS (user decision 2026-07-14: no half-complete panels in the
->    report) — ppo 96.57 @ 1-min (5 seeds), dqn 96.57 @ 1-min (4 seeds), dqn 193.13 @ 10-s
->    (5), dqn 386.27 @ 10-s (5); same configs as sibling runs. (b) Validate them. (c) ONE-SHOT
->    SEALED TEST of ALL 70 agents together, paired vs TWAP on each agent's own test split, all
->    arms reported with multiplicity stated. RAM caveat: L2 data loading has frozen this
->    machine before ([[ram-safe-chunked-processing]]) — single-agent footprint measured first,
->    sequential by default. → L2 test-set table (T9/T7 test columns) + figures L1-L5.
-> 3. Per-episode cost re-eval (deterministic) → F10 distributions + T6 descriptive-stats table.
-> 4. MEASURED-SIGNAL EXTENSION (writeup_arguments.md §J) — the only remaining experiment that can
->    change the headline; pre-register before running → F13.
-> 5. Liquidity study (independent, parallel) → F11; feeds VWAP.
-> 6. Almgren-Chriss + VWAP benchmarks → benchmark figure.
+> 2. L2 step (protocol: `reports/l2_test_protocol.md`), remaining sub-steps: (b) assemble +
+>    verify the full 70-agent VALIDATION table -> REPORT TO USER (gate); (c) build the test-set
+>    evaluator + PROVE it reproduces known validation numbers exactly BEFORE it touches any
+>    test file (gate); (d) ONE-SHOT SEALED TEST of all 70 agents together — ONLY on explicit
+>    user go — all 14 arms reported with multiplicity stated -> T9/T7 test columns + L1-L5.
+> 3. [COMPLETE 2026-07-17: integrity EXACT 20/20 vs the sealed judgement; F10a/F10b + T6 built
+>    and inserted into the results pack] Per-episode cost re-eval (L4 track): all 20
+>    primary-campaign agents (`runs_primary_v3`, PPO+DQN x calm+volatile x 5 seeds) replayed
+>    deterministically on the dev block (eval_seed0=5,000,000, n=2000, same CRN seeds as the
+>    sealed judgement), saving EVERY episode's cost for the agent AND both TWAP baselines ->
+>    `$S/per_episode_v3/{regime}.npz`. INTEGRITY RULE: recomputed per-run means must equal
+>    `step5_v3/judgement.json` exactly (determinism check); mismatch = stop and investigate.
+>    Script: `reports/diagnostics/per_episode_reeval.py`. -> F10a/F10b + T6.
+>    Original step text: Per-episode cost re-eval (L4 track; deterministic replay of key agents SAVING all 2,000
+>    per-episode costs — currently only per-agent means/p-values are stored) -> F10a/F10b
+>    distributions + T6 descriptive stats. Scope pinned in writing before running.
+> 4. MEASURED-SIGNAL EXTENSION (writeup_arguments.md §J) — the only remaining experiment that
+>    can change the headline; design + pre-register (fresh sealed block) before any run -> F13.
+> 5. Liquidity study (independent, parallel) -> F11; feeds VWAP.
+> 6. Almgren-Chriss + VWAP benchmarks -> benchmark figure.
 > 7. RQ3 attribution — AFTER the extension verdict (its labelling depends on the outcome).
-> 8. Part C CADENCE check — a real pending step, NOT to be discarded. Needs the env change first
->    (make decision-frequency a parameter, re-derive gamma, re-check baselines/audit, tests), then
->    12 runs at the primary cell {0.5s, 2s} (criteria §7.7 Part C).
-> Throughout: write-up; final figure/table curation + title/framing at report assembly.
+> 8. Part C CADENCE check (criteria §7.7 Part C) — real pending step, NOT discarded: env change
+>    (decision-frequency parameter, gamma re-derivation, baselines/audit re-check, tests), then
+>    12 runs at the primary cell {0.5s, 2s}.
+> Throughout: write-up; F19/F20 builds; final figure/table curation at report assembly.
 >
-> FIGURE/TABLE TRACKER: `reports/figures/FIGURES_TABLES_MANIFEST.md`. GRID SELF-CHECK if this reads
-> stale: look for `$S/step5_grid_*/judgement.json`; else count meta.json in `$S/runs_grid_*` (6 per
-> dir × 11 dirs = training done).
+> RESULTS PACK (2026-07-17): `reports/results_pack/` = the living proto results chapter
+> (results_pack_overleaf.tex = single-file for Overleaf + figures/ folder + compiled PDF +
+> talking_points.md). NOT frozen; revised as pending experiments land.
+> FIGURE/TABLE TRACKER: `reports/figures/FIGURES_TABLES_MANIFEST.md`. SELF-CHECK if this block
+> reads stale: d3 -> count meta.json in `$S/runs_d3_*` (18 = training done) and look for
+> `$S/step5_d3_*/judgement.json`; L2 fill-ins -> `l2_test_protocol.md` §3 status line + count
+> the four fill-in groups' meta.json files under `scratch_hyperliquid/runs{,_10s}`.
 
 *(The numbered list below is the 2026-07-09 consolidation, kept as the record of each completed
 step. Where its sequencing notes differ from the AUTHORITATIVE block above, the block above

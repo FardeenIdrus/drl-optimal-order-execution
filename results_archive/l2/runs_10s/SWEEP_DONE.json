@@ -1,0 +1,143 @@
+{
+  "seed0": {
+    "healthy": true,
+    "msg": "full_exec 1.00, val_vs_twap +2.943 bps",
+    "final": {
+      "timesteps": "12000000",
+      "train_ep_reward": "-17.18880874",
+      "val_is_mean": "2.5969608122888186",
+      "val_vs_twap_mean": "2.942554505712691",
+      "val_full_exec_frac": "1.0",
+      "val_residual_freq": "0.9775"
+    }
+  },
+  "decision": "PROCEEDED: seed0 healthy, full sweep launched",
+  "runs": [
+    {
+      "algo": "dqn",
+      "seed": 1,
+      "healthy": true,
+      "msg": "full_exec 1.00, val_vs_twap +0.173 bps",
+      "final": {
+        "timesteps": "12000000",
+        "train_ep_reward": "-10.722393000000002",
+        "val_is_mean": "-0.1728419179351353",
+        "val_vs_twap_mean": "0.17275177548873738",
+        "val_full_exec_frac": "1.0",
+        "val_residual_freq": "0.0775"
+      }
+    },
+    {
+      "algo": "dqn",
+      "seed": 2,
+      "healthy": true,
+      "msg": "full_exec 1.00, val_vs_twap +0.233 bps",
+      "final": {
+        "timesteps": "12000000",
+        "train_ep_reward": "5.1401055499999995",
+        "val_is_mean": "-0.11293936477100854",
+        "val_vs_twap_mean": "0.2326543286528642",
+        "val_full_exec_frac": "1.0",
+        "val_residual_freq": "0.0"
+      }
+    },
+    {
+      "algo": "dqn",
+      "seed": 3,
+      "healthy": true,
+      "msg": "full_exec 1.00, val_vs_twap +0.234 bps",
+      "final": {
+        "timesteps": "12000000",
+        "train_ep_reward": "1.2212759199999998",
+        "val_is_mean": "-0.11149155299623345",
+        "val_vs_twap_mean": "0.23410214042763924",
+        "val_full_exec_frac": "1.0",
+        "val_residual_freq": "0.005"
+      }
+    },
+    {
+      "algo": "dqn",
+      "seed": 4,
+      "healthy": true,
+      "msg": "full_exec 1.00, val_vs_twap +0.249 bps",
+      "final": {
+        "timesteps": "12000000",
+        "train_ep_reward": "1.0495458799999997",
+        "val_is_mean": "-0.09630232541293843",
+        "val_vs_twap_mean": "0.24929136801093432",
+        "val_full_exec_frac": "1.0",
+        "val_residual_freq": "0.0"
+      }
+    },
+    {
+      "algo": "ppo",
+      "seed": 0,
+      "healthy": true,
+      "msg": "full_exec 1.00, val_vs_twap +0.206 bps",
+      "final": {
+        "timesteps": "12001280",
+        "train_ep_reward": "-1.1592620200000001",
+        "val_is_mean": "-0.13994453545918617",
+        "val_vs_twap_mean": "0.2056491579646866",
+        "val_full_exec_frac": "1.0",
+        "val_residual_freq": "0.0"
+      }
+    },
+    {
+      "algo": "ppo",
+      "seed": 1,
+      "healthy": true,
+      "msg": "full_exec 1.00, val_vs_twap +0.159 bps",
+      "final": {
+        "timesteps": "12001280",
+        "train_ep_reward": "-2.1302175699999997",
+        "val_is_mean": "-0.18693630507428088",
+        "val_vs_twap_mean": "0.15865738834959173",
+        "val_full_exec_frac": "1.0",
+        "val_residual_freq": "0.0"
+      }
+    },
+    {
+      "algo": "ppo",
+      "seed": 2,
+      "healthy": true,
+      "msg": "full_exec 1.00, val_vs_twap +0.185 bps",
+      "final": {
+        "timesteps": "12001280",
+        "train_ep_reward": "1.59590115",
+        "val_is_mean": "-0.1610083697061052",
+        "val_vs_twap_mean": "0.1845853237177672",
+        "val_full_exec_frac": "1.0",
+        "val_residual_freq": "0.0025"
+      }
+    },
+    {
+      "algo": "ppo",
+      "seed": 3,
+      "healthy": true,
+      "msg": "full_exec 1.00, val_vs_twap +0.192 bps",
+      "final": {
+        "timesteps": "12001280",
+        "train_ep_reward": "-0.40997853",
+        "val_is_mean": "-0.1537240294105095",
+        "val_vs_twap_mean": "0.1918696640133635",
+        "val_full_exec_frac": "1.0",
+        "val_residual_freq": "0.0"
+      }
+    },
+    {
+      "algo": "ppo",
+      "seed": 4,
+      "healthy": true,
+      "msg": "full_exec 1.00, val_vs_twap +0.149 bps",
+      "final": {
+        "timesteps": "12001280",
+        "train_ep_reward": "-4.2284311500000005",
+        "val_is_mean": "-0.1968253181412558",
+        "val_vs_twap_mean": "0.1487683752826174",
+        "val_full_exec_frac": "1.0",
+        "val_residual_freq": "0.0025"
+      }
+    }
+  ]
+}

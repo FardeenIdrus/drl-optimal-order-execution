@@ -72,6 +72,9 @@ def main() -> None:
     print(f"VALID     (n={len(val)}): mean Q-spread {np.mean([r['mean_q_spread'] for r in val]):.5f}, "
           f"mean argmax=0 share {100 * np.mean([r['argmax0_share'] for r in val]):.1f}%")
     print("\nACTIONS:", ACTIONS)
+    out = Path(__file__).with_suffix(".json")
+    out.write_text(json.dumps({"seeds": [int(s) for s in SEEDS], "rows": rows}, indent=2))
+    print("wrote", out)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,26 @@
+{
+  "algo": "ppo",
+  "regime": "volatile",
+  "seed": 0,
+  "order_btc": 25.0,
+  "steps": 2000000,
+  "gamma": 0.9999164611258403,
+  "net_arch": [
+    30,
+    30,
+    30,
+    30,
+    30
+  ],
+  "reward_scale": 1.0,
+  "tag": "_v3b",
+  "overrides": {
+    "lr": 0.0001,
+    "ent_coef": null,
+    "ppo_n_steps": null,
+    "dqn_final_eps": null,
+    "dqn_anneal_frac": null
+  },
+  "wall_s": 1997.9606521249516,
+  "criteria": "reports/qrm_step4_criteria.md"
+}
