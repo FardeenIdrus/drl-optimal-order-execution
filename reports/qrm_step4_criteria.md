@@ -645,3 +645,343 @@ Audit: 25 BTC/5-min **2/6 valid** (base ref ~3/10 -> UNCHANGED at the primary se
 (base 4/6 -> control healthy, variant interpretable). No cost trigger in any group. Pre-stated
 interpretation applied: the collapse is NOT an update-rhythm artifact; the rhythm objection is
 closed. Raw: `$S/runs_d3_*` + `$S/step5_d3_*`. Part E CLOSED.
+
+## 8. MEASURED-SIGNAL EXTENSION — PHASE A MEASUREMENT PROTOCOL (registered 2026-07-22,
+## BEFORE any measurement run; full plan: PLANS/measured_signal_extension_plan.md)
+
+Design invariant (user directive 2026-07-22): the setup must give the agent a fair chance
+at a real edge; restrictions exist only to prevent FALSE edges, never to attenuate real
+ones. The confirmatory edge criterion for the eventual campaign is the UNCHANGED §3 rule.
+
+**Candidates** (both computed causally on the 0.5 s reconstructed book, background
+activity only):
+- S1 trade-flow imbalance: signed market-order volume (buy-aggressor positive) summed over
+  the trailing 1 s (two 0.5 s bins), normalised by its trailing rolling std (600-bin
+  window, 120-bin warm-up, prior values only — strictly causal).
+- S2 top-of-book depth imbalance: (bid1 − ask1)/(bid1 + ask1), same normalisation.
+
+**Measurement:** per candidate × regime × split: pooled regression of forward mid return
+(bps) on the signal, horizons {0.5, 1, 2, 5, 10, 30, 60} s. Split = the EXISTING step3g
+chronological calibrate/holdout hour labels (verified chronological per regime,
+calibrate max < holdout min; 278/93 calm, 279/93 volatile hours). DEVIATION NOTE vs the
+plan draft (which said a new 70/30 split): reusing the already-registered split removes a
+researcher degree of freedom; registered here before measuring.
+
+**Held-out confirmation** (per candidate/regime/horizon): holdout p < 0.01, same sign as
+calibrate, |holdout slope| ≥ 0.5 × |calibrate slope|.
+
+**Selection rule (fixed now):** the candidate with the higher holdout R² at the 1 s
+horizon in the volatile regime; ties within 10% relative go to S1 (the supervisor-named
+candidate). Both candidates' full tables reported regardless.
+
+**Stop/go bound:** clairvoyant schedule on holdout real mid paths — pace 2.0× when
+(calibrate 1 s slope × signal) predicts a rise, else 0×, forced completion by the
+300-decision (5-minute) deadline, impact ignored (both simplifications bias the bound UP,
+i.e. toward proceeding). PROCEED if mean advantage vs TWAP ≥ 0.05 bps (the registered
+materiality floor) in at least one regime AND that regime's 1 s held-out confirmation
+passed. Otherwise STOP and record the measurement as a result. [USER APPROVED at Gate A0,
+2026-07-22, verbatim "approve"; measurement launched immediately after.]
+
+**Implementation:** `src/execution/qrm/signal_measure.py` (constants frozen in-module; no
+command-line tunables); unit tests `tests/test_signal_measure.py` (14 tests: binning sign/
+alignment, causality/no-future-leakage, warm-up, planted-slope recovery, bound feasibility
++ sign convention, determinism). Output: `$S/signal/measurement.json` with full tables +
+provenance.
+
+### §8 AMENDMENT 1 (2026-07-22, registered BEFORE the rerun; user-approved). The first
+measurement run exposed two implementation defects, caught by internal cross-checks before
+any decision was taken on its output: (i) the trailing-std normalisation divides by ~0+eps
+on constant stretches, producing ~1e12 spikes that corrupt the statistics (the apparent
+S2 selection was this artifact); (ii) the foresight bound is drift-contaminated (its calm
++0.44 / volatile -0.63 bps mirror the holdout drift, not signal value). Amendments:
+(a) signal undefined (NaN) where the trailing std <= 1e-9, instead of dividing by epsilon;
+(b) S2 (depth imbalance) used RAW - it is bounded and scale-free by construction, needing
+no normalisation; (c) the bound is PLACEBO-CORRECTED: the identical rule is run with the
+signal circularly shifted by one episode window (same statistics, no price alignment) and
+the reported value is real minus placebo, per window; drift and deferral mechanics cancel.
+The PROCEED threshold (0.05 bps) applies to the corrected value. First run's output
+retained as measurement_v1_SUPERSEDED.json; never cite.
+
+### §8 AMENDMENT 1 CORRECTION (2026-07-22, recorded on the v2 run's completion). The
+amendment's diagnosis (ii) attributed the v1 bound's mirror-signed values to drift
+contamination. The v2 placebo run shows the drift contribution is in fact ~0 (placebo
+means +0.002 / -0.004 bps): the v1 pattern traced to defect (i) alone — the corrupted
+normalisation produced garbage slopes whose SIGN flipped between regimes, inverting the
+decision rule in volatile. The placebo correction is retained permanently as the
+robustness control that makes this attribution checkable; the v1 numbers remain
+superseded either way.
+
+### §8 PHASE A2 SPEC (registered 2026-07-22, BEFORE the run; user approved "Proceed with
+phase A2"). Measure the CURRENT simulator's endogenous S2-to-return relationship (the
+queue-empty channel), to compute the injection residual.
+- Environment: the unmodified current env per regime (`qrm_bundle_{regime}_b.npz` +
+  `move_process_{regime}_centered.npz`), background only — no agent, no benchmark trades.
+- Sim S2 (mirrors the real definition): at each 0.5 s interval, the first non-empty level
+  per side, sizes converted to BTC via the bundle's per-level unit sizes:
+  (BTC_bid − BTC_ask)/(BTC_bid + BTC_ask); undefined (NaN) while a side is swept.
+- Sampling: 1,200 episodes per regime × 600 intervals (post-warm-up) ≈ 720k points per
+  regime (≈ the real holdout n). Seeds 30,000,000+i — a DIAGNOSTIC-ONLY range, disjoint
+  from every evaluation block (monitor 1e6, dev 5e6, reserve 6e6, sealed 9e6/13e6, and the
+  campaign's reserved 17/18/19e6). Deterministic.
+- Statistic: identical regression (forward mid return, bps, on raw S2) at the same seven
+  horizons, per regime, within-episode only (no cross-episode returns).
+- RESIDUAL (the quantity Phase B injects) = real CALIBRATE-split slope − endogenous slope,
+  per horizon per regime. STOP RULE: if the endogenous slope exceeds the real slope at the
+  1 s horizon in either regime, stop and report (injection would need to be negative —
+  outside the registered design).
+- Output: `$S/signal/endogenous_baseline.json` (full tables + residuals + provenance).
+
+### §8 PHASE B REGISTRATION (2026-07-22, BEFORE any environment change; user approved
+"proceed" on the presented step plan). Implementation-level realisation of the registered
+design, fixed now:
+- SHADOW-BACKGROUND SIGNAL: at episode reset (injection ON), the environment first
+  simulates the background-only episode (same seed, no agent), with the injection applied
+  self-consistently to its own evolution, recording S2_bg per 0.5 s interval. The actual
+  episode then applies base + injected moves from that pre-computed path. Consequences:
+  the signal is policy-independent (identical for agent, both TWAPs, and the follower on a
+  shared seed — CRN preserved exactly) and the self-signal trap is closed by construction.
+  Cost ~2x per episode, accepted (rigor over runtime).
+- INJECTION TERM per 0.5 s interval: delta_bps = R_0.5s(regime) x (S2_bg − MEAN(regime)),
+  with the A2 residual slopes R_0.5s = +0.02846 (calm) / +0.16904 (volatile) bps per unit,
+  converted bps -> price ticks with a DETERMINISTIC fractional-carry accumulator (no new
+  randomness). Longer-horizon structure is carried by the signal's own persistence and
+  verified at the Phase C injection-matching gate (±20%, horizons 1–10 s); a decay kernel
+  is the pre-named fallback if the gate fails.
+- DEMEANING CONSTANTS (measured 2026-07-22, 300 background episodes x 600 intervals per
+  regime, seeds 30,100,000+, `$S/signal/demeaning_constants.json`):
+  MEAN(calm) = +0.110767, MEAN(volatile) = +0.069932. Fixed constants; guarantee the
+  injected term has ~zero unconditional mean (drift-trap defence; verified empirically at
+  Phase C fairness gate).
+- OBSERVATION: S2_bg of the current interval appended to the observation (flag-gated);
+  follower benchmark maps 1 + S2_bg to the nearest discrete action (slope sign positive
+  per Phase A; nothing tuned), same completion semantics as adaptive TWAP.
+- IDENTITY ORACLES: pre-change golden traces recorded (2 regimes x 2 seeds, 300 steps,
+  observation-stream SHA-256 + reward sums): `$S/signal/golden_prechange/*.json`. The
+  flag-OFF environment must reproduce them byte-exactly after the change.
+
+### §8 AMENDMENT 2 (2026-07-22, registered BEFORE execution; user approved "Amendment 2
+approved"). Phase C verdict: G1'/G2'/G3 PASS with injection ON; FAIRNESS FAIL (drift
++2.4/+7.4 ticks/ep, t=5.3/6.2; calm pace-1.2 material+significant −0.049 bps, t=−2.6) and
+INJECTION-MATCHING FAIL (sim total 27–65% below the real curve, gap growing with horizon).
+Diagnosis: (i) the demeaning constant was measured in the uninjected world; injection
+feedback shifts the imbalance distribution, leaving a positive remainder = drift (the
+drift trap firing, caught by the gate as designed); (ii) the simulator's book imbalance is
+far less persistent than the real book's (real slope curve compounds ~14x from 0.5 s to
+60 s; sim plateaus ~2.5x), so the instantaneous-residual injection cannot build the
+long-horizon effect; integer-tick quantisation adds attenuation. Amendment (the fallback
+pre-named in the Phase B registration):
+(a) PERSISTENCE-MATCHED DRIVER: the injection is driven by an exponentially-smoothed
+    background imbalance e_t = EMA_halflife(S2_bg) (initialised at the registered mean;
+    NaN intervals leave e unchanged). e_t becomes the stored signal path, the observation
+    feature, and the follower's input (it is the quantity that predicts future moves).
+(b) DETERMINISTIC CALIBRATION (no outcome tuning; target = the REAL measured curve):
+    half-life grid {1, 2, 5, 10, 20} s. Per regime per half-life: probe run (300
+    background episodes, seeds 30,200,000+) at probe gain = the Amendment-1 residual;
+    gain solved linearly so the 1 s total slope equals the real calibrate slope;
+    refinement run at the solved gain with the probe run's measured E[e] as the demeaning
+    constant (fixed-point iteration 1). Selection: the half-life minimising the maximum
+    relative gap over the gated horizons {1,2,5,10} s. Parameters then FROZEN and logged.
+(c) Re-run the FULL Phase C suite at unchanged bands; stop again on any failure.
+
+### §8 AMENDMENT 3 (2026-07-23, registered BEFORE execution; user approved after the
+Amendment-2 calibration outcome). Supersedes the Amendment-2 two-EMA proposal BEFORE any
+Phase C re-run. Outcome being amended: the single-EMA grid calibration fit calm within the
+band (max gated gap 19.3%) but volatile only to 24.6% (5 s horizon) — a single timescale
+cannot represent the volatile curve's fast-rise-then-plateau shape
+(`$S/signal/kernel_calibration.json`, superseded as a selection but retained).
+DERIVED MULTI-TIMESCALE KERNEL (no search; zero free choices once registered):
+(a) MEASURE the simulator's instantaneous-S2 autocorrelation rho(k), k = 0..120 intervals
+    (600 background episodes per regime, injection OFF, seeds 30,300,000+).
+(b) SOLVE, in closed form, the least-squares gains g_c over an exponential basis with
+    half-lives {0.5, 2, 8, 32} s such that the implied injected response matches the
+    RESIDUAL curve (real calibrate slope minus endogenous slope) at ALL SEVEN measured
+    horizons; the response matrix is built analytically from rho (linear-response model).
+(c) ONE empirical refinement iteration (registered max two): run 300 injected episodes,
+    measure the achieved total curve, correct the gains by solving the same linear system
+    on the achieved-vs-target residual; simultaneously fix-point the per-component
+    demeaning means and measure the composite driver's std (the observation/follower
+    normalisation constant). All constants then FROZEN.
+(d) The observation feature and the follower input become the COMPOSITE driver (the
+    injected-move predictor) in units of its own measured std; follower mapping unchanged
+    (nearest action to clip(1 + signal, 0, 2)).
+(e) Full Phase C suite at UNCHANGED bands. If the volatile 5 s horizon still cannot be
+    fit, the band is NOT widened: the best-achievable match is reported to the user as a
+    disclosed structural limitation for an explicit proceed/stop decision.
+
+### §8 AMENDMENT 3 CORRECTION 1 (2026-07-23, implementation defect, registered before the
+re-run). Phase C v2: G1'/G2'/G3 PASS; VOLATILE MATCHING PASS (gated gaps 11-19% — the
+derived kernel works); fairness CATASTROPHIC FAIL both regimes (drift −841/−662 ticks/ep).
+Root cause (evidenced by the refinement history): the driver statistics were read from the
+measurement helper's instantaneous-imbalance output instead of the composite driver, so the
+offset update absorbed E[imbalance] (~0.12, dimensionless) as though it were a bps bias,
+injecting a constant negative price trend. Slope measurements regress on the instantaneous
+imbalance BY DESIGN (mirroring the real-data measurement), so all gains and matching
+verdicts are unaffected; only offset and obs_norm were poisoned. Correction (implementation
+only, design unchanged): (i) driver statistics read from the environment's stored composite
+path; (ii) gains iterations run with offset fixed at zero (means-only demeaning; the
+Amendment-1 evidence bounds the resulting calibration-time drift at a few ticks/episode);
+(iii) after freezing gains, a dedicated two-round offset fixed point (150 episodes each);
+(iv) final verification run. Phase C v2 gates JSON quarantined as *_v2_FAILED.
+
+### §8 AMENDMENT 3 CORRECTION 2 (2026-07-23, registered BEFORE the re-run; user approved
+"ok proceed" on the presented five-step plan). Phase C v3 outcome being amended: G1'/G2'/G3
+PASS; fairness GRADIENT PASS both regimes (no constant-pace policy holds a material and
+significant advantage — the exploitability requirement); but (a) residual drift +3.3
+(t=6.56) / +4.3 (t=2.89) ticks/ep fails the |t|<2 clause while being economically small,
+and (b) matching fits 0.5–2 s (9–18%) but misses 5 s (22/23%) and 10 s (30/31%) — the
+registered MAX_REFINE_ITERS=2 cap stopped the gains fixed point before convergence (the
+iteration history shows monotone gap shrinkage), and the offset nulls the injected term's
+MEAN but not the second-order drift arising from the book's asymmetric response to
+zero-mean nudges. Corrections (each a calibration against an externally measured quantity;
+no experiment outcome enters any target; bands on the matching gate UNCHANGED):
+(a) GAINS ITERATIONS TO CONVERGENCE: cap raised 2 -> 5, each correction applied at half
+    strength (damping 0.5, guards the feedback loop against overshoot oscillation), early
+    stop once all gated horizons {1,2,5,10} s are within 15% relative. Seeds unchanged
+    (30,400,000+).
+(b) DRIFT-NULLING OFFSET: after freezing gains, the offset is initialised at the
+    mean-injected-term fixed point (two rounds, as in Correction 1) and then solved
+    against the MEASURED END-TO-END DRIFT itself: do-nothing episodes on the injected
+    environment, Newton iteration offset += mean_drift_bps / 600 (600 injected intervals
+    per episode, response slope ~= 1), max 4 rounds, n = 8,000 episodes per round,
+    calibration seeds 30,550,000+ (diagnostic range, DISJOINT from the fairness
+    certification block 3,000,000 — the nulling never sees the seeds it is later judged
+    on). Stopping rule IDENTICAL to the registered base-environment neutralisation
+    (step3g cmd_neutralise): |mean| < 0.5 ticks/ep OR |mean| < 1.5 x SE. This is the same
+    method, tolerance and acceptance the base move process was certified with.
+(c) FRESH-SEED FINAL VERIFICATION: the kernel-solution verification pass moves to seeds
+    30,500,000+ (never used during any calibration iteration), so the frozen kernel's
+    certified matching numbers cannot be flattered by tuning to the calibration episodes.
+(d) DRIFT CRITERION RESTATED (fairness gate, drift clause only; gradient clause
+    unchanged and always required): PASS iff |t| < 2 (statistical zero, the original
+    clause) OR |mean drift| <= 0.5 ticks/ep (the identical magnitude tolerance the base
+    environment's neutralisation was accepted at; ~0.05 bps of price over a full episode,
+    of which a constant-pace policy can capture only a fraction, bounded below the
+    0.02 bps gradient-materiality floor — and the gradient test verifies exploitability
+    directly and independently). Rationale, recorded before the re-run: with n = 8,000
+    episodes a t-test detects drift far below economic relevance; a pure significance
+    clause is an impossible bar in the infinite-power limit and would reward
+    under-powering. BOTH the t-statistic and the magnitude are computed and reported in
+    the gates JSON and the write-up regardless of which clause passes.
+(e) Full Phase C suite re-run (v4) with the frozen corrected kernel. If after CONVERGED
+    iterations the 5 s or 10 s horizon still cannot reach the ±20% band, the band is NOT
+    widened: the best-achievable curve goes to the user as a disclosed structural
+    limitation (the simulator's book decorrelates faster than the real book) for an
+    explicit proceed/stop decision. Phase C v3 gates JSON quarantined as *_v3_FAILED.
+
+### §8 AMENDMENT 3 CORRECTION 2a (2026-07-23, registered BEFORE the re-run; user approved
+"Proceed" on the presented halt report). Correction-2 solve outcome: DRIFT-NULLING WORKS
+(calm +1.60 -> +0.59 ticks/ep t=+1.1 after one Newton step; volatile -0.03 t=-0.02 at
+entry — both pass both drift clauses); but the damped gains iterations hit the 5-round cap
+while STILL DESCENDING (calm 50->44->41->32->34 in-loop, 27.7% verified; volatile
+50->42->37->36->30 in-loop, 27.8% verified; the undamped v3 run had reached 11-19% gated
+in volatile), so the fixed point was not reached and no structural conclusion is valid
+yet. The chained v4 gate suite was halted seconds after launch (no gates JSON written)
+rather than certify an under-converged kernel. Correction (one registered constant + one
+registered stopping rule; damping, bands, seeds, and all other Correction-2 machinery
+unchanged):
+(a) MAX_REFINE_ITERS raised 5 -> 12.
+(b) PLATEAU STOP (data-defined convergence): stop the gains iterations early when the
+    max gated gap improves by less than 1 percentage point over two consecutive
+    iterations (in addition to the existing 15% early stop).
+(c) Re-solve, then the full Phase C suite (v4). The structural-limit clause (e) above is
+    unchanged and applies to the converged outcome.
+
+### §8 AMENDMENT 3 CORRECTION 2b (2026-07-23, registered BEFORE the re-run; user approved
+"approve"). Correction-2a solve + Phase C v4 gate outcome: MATCHING PASS both regimes
+(calm 7/8/10/16%, volatile 10/1/6/12% at 1/2/5/10 s — the long-horizon "structural limit"
+fully dissolved, confirming it was under-iteration); G1'/G2'/G3 PASS; gradient PASS. But
+DRIFT FAILS both regimes on the certification block: calm 1.54 ticks/ep (t=2.71),
+volatile 4.88 ticks/ep (t=2.94) — failing BOTH the |t|<2 and |mean|<=0.5-tick clauses.
+Diagnosis (correcting a factor-of-ten error in the v3 note: 1 tick ~ 0.1 bps, so these are
+0.15 / 0.49 bps, NOT the "0.03-0.04 bps" claimed there — the drift is economically
+non-trivial, ~3x / ~10x the 0.05 bps materiality floor): the Correction-2 drift-nulling
+was NOISE-LIMITED. Absolute-drift measurement over 8,000 do-nothing episodes has
+SE ~ 0.5 (calm) / 1.66 (volatile) ticks — larger than the 0.5-tick tolerance — so the
+base-env stopping rule's noise clause (|mean| < 1.5 x SE) fired before the magnitude
+clause was met; neither regime was actually nulled to |mean| < 0.5 (calm stopped at
++0.69, volatile at +1.66, both on the noise clause). The certification block reveals the
+true residual drift. This drift is large enough that the volatile front-loading paces
+(pace 2.0 = -0.088 bps vs TWAP, t=-1.54) sit above the 0.05 bps materiality floor though
+below the -2.5 significance threshold — i.e. it could manufacture a FALSE front-loading
+edge, which the fairness invariant forbids. Correction (a measurement-variance fix; the
+estimand, the criterion, the bands, the gains and all seeds are UNCHANGED — no goalpost
+moves):
+(a) CRN-PAIRED DRIFT MEASUREMENT. Each seed runs the do-nothing episode twice sharing ALL
+    randomness (identical re-seed; same pre-drawn move path and engine RNG): once with the
+    injection applied, once with the injected price path zeroed (everything else, incl. the
+    shadow-computed observation signal, identical). The paired difference D_on - D_off
+    cancels the common background random walk and isolates the injection's drift
+    contribution. Because the base move process is separately drift-neutralised
+    (E[D_off] ~ 0, certified in step3g cmd_neutralise), the paired mean is a low-variance,
+    unbiased control-variate estimate of the total drift the agent faces. Applied in BOTH
+    the kernel drift-nulling (sigext_kernel.measure_drift) and the fairness gate
+    (sigext_gates._measure_bg_drift_paired). Raw unpaired on/off means also reported.
+(b) DRIFT_NULL_ITERS raised 4 -> 8 (the paired estimate converges for real rather than
+    stopping early on noise). Stopping rule and the |t|<2 OR |mean|<=0.5-tick certification
+    criterion UNCHANGED — the fix only makes the same quantity measurable precisely enough
+    that the magnitude clause governs. Gains (matching), bands, and all other machinery
+    frozen from the Correction-2a solve.
+(c) EARLY CHECKPOINT: after the re-solve the paired nulled drift is inspected before the
+    ~3 h gate suite; if pairing does not reduce the SE enough to null below 0.5 ticks, that
+    is reported to the user (a genuine limit of the injection method) rather than certified.
+(d) Full Phase C suite re-run (v4b). Correction-2a v4 gates JSON quarantined as
+    *_v4_FAILED; kernel_solution.json (2a) retained (gains unchanged; only the offset
+    re-solves).
+
+### §8 AMENDMENT 3 CORRECTION 2c (2026-07-24, registered BEFORE the re-run; user approved
+"yes proceed" on the presented decomposition + fix). Two empirical findings supersede the
+2b plan: (i) the CRN pairing gave only ~30% variance reduction (smoke test: correlation
+~0.70 — the engine RNG desyncs once the injection perturbs the book), so it cannot resolve
+the drift below the noise floor; (ii) a base-vs-injection DECOMPOSITION on the certification
+block (n=8000 each, 2026-07-24, `$S/signal/drift_decomp.log`) shows the drift is entirely
+the injection's, and it is LARGE and SYSTEMATIC, not lost in noise:
+  BASE (inj off):  calm -0.81 (t=-1.86), volatile -2.22 (t=-1.98) — both within the base
+    env's own |t|<2 certification; the base env is exonerated and the completed campaigns
+    are unaffected.
+  INJECTED:        calm +1.54 (t=+2.71), volatile +4.88 (t=+2.94).
+  INJECTION marginal: calm +2.35, volatile +7.10 ticks.
+Diagnosis: the offset-solve UNDER-SOLVED because its stopping rule quit early on the noise
+clause (|mean| < 1.5 SE), applying only a fraction of the correction. The cancellation
+mechanism is sound and EXACTLY linear with a known slope (1 bps of per-interval offset
+shifts p_ref by INTERVALS_PER_EP=600 intervals x price/tick), so it was simply fed a lazy
+stop. Correction (the estimand -- the TOTAL drift the agent faces -- and the |t|<2 OR
+|mean|<=0.5-tick criterion are UNCHANGED; gains/matching/bands frozen from 2a):
+(a) UNPAIRED TOTAL-DRIFT measure (2b's pairing reverted); precision from episode count.
+(b) Offset solved by the EXACT linear correction offset += mean_bps / INTERVALS_PER_EP over
+    a FIXED 2 rounds at DRIFT_NULL_EPS = 24,000 (volatile SE ~0.95 ticks), NO early-stop.
+    Solved on the calibration block (DRIFT_SEED_BASE = 30,550,000), INDEPENDENT of the
+    3,000,000 fairness certification block.
+(c) HONEST SCOPE NOTE (recorded before the run): the |mean| <= 0.5-tick magnitude clause is,
+    for volatile, below the resolution of any feasible episode count (noise floor ~1.6 ticks
+    at n=8000; ~0.5 needs ~350k episodes). Certification therefore rests on the OTHER
+    registered pass condition -- |t| < 2 (drift statistically indistinguishable from zero
+    after a properly-centred offset) AND the pace-gradient exploitability clause (the direct
+    test that no constant-pace timing strategy profits) -- exactly the standard the base env
+    and every completed campaign passed. The raw magnitude is reported regardless.
+(d) THE OPEN TEST: an offset solved on block 30.55M is certified on block 3e6. If it
+    transfers (drift within |t|<2 on 3e6) -> certified. If it does NOT (drift block-
+    dependent) -> reported to the user with the numbers for a proceed/stop decision; the
+    band and criterion are NOT weakened to force a pass.
+(e) Full Phase C suite re-run (v4c). Prior gates JSON already quarantined *_v4_FAILED.
+
+### §8 CORRECTION 2c REVISED (2026-07-25, registered BEFORE the re-run; user approved
+"ok proceed" then "proceed"). Two empirical refinements found during the 2c solve, both
+by verification catching the defect before certification:
+(i) THE SLOPE WAS WRONG. The fixed-step correction assumed 1 bps of offset shifts p_ref by
+    INTERVALS_PER_EP*price/tick (~6000 ticks/bps); the injected move is attenuated (carry
+    accumulator + book response) so the TRUE slope is ~-4115 (volatile) / ~-3520 (calm)
+    ticks/bps. The fixed step therefore under-cancelled ~40%/round and 2 rounds could not
+    null volatile (caught live: calm drift dropped only +3.99 -> +1.67 per round). FIX:
+    solve the offset by an EXACT 2-POINT slope fit (measure drift at offset 0 and at a probe
+    offset, fit the line, solve the zero-crossing) instead of a fixed step. The mean-offset
+    pre-phase is dropped (it introduced drift the drift-null then had to remove).
+(ii) SINGLE-BLOCK ANCHOR UNDER-CORRECTS. The raw creep varies block-to-block by a few ticks
+    (volatile ~24-28); an offset solved to null ONE block leaves ~+5 ticks on the others
+    (caught by the fresh-block verify: +4.86, t=2.02). FIX: anchor the offset to the POOLED
+    raw drift across independent blocks (ANCHOR_SEED_BASES = 30.55M, 31.0M; n=12000 each),
+    so per-block residuals scatter around zero. The blocks EXCLUDE the fairness cert block
+    (3e6) and the verify block (30.5M) -> no tuning on the judged seeds.
+Estimand (total drift the agent faces), criterion (|t|<2 OR |mean|<=0.5 tick + the
+exploitability gate), bands, gains and matching are ALL unchanged; only the offset-solving
+method improves. Full suite re-run (v4c). If the cert block still fails |t|<2 after a
+pooled-anchored offset, the registered proceed/stop decision goes to the user; no band moves.

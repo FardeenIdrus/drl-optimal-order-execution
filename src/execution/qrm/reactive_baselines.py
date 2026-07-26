@@ -32,6 +32,25 @@ def instant_dump(env: ReactiveQRMEnv, _obs: np.ndarray) -> int:
     return A_MAX
 
 
+def signal_follower(env: ReactiveQRMEnv, _obs: np.ndarray) -> int:
+    """Naive signal-follower (measured-signal extension, secondary benchmark; criteria
+    section 8 Phase B registration): each decision, the pace multiple nearest to
+    1 + S2_bg, where S2_bg is the pre-computed background signal at the current
+    interval. Nothing is tuned: the mapping is fixed, the sign follows the measured
+    (positive) slope — imbalance toward the bid predicts a rise, so trade faster
+    ahead of it. Same completion semantics as every other policy (the environment's
+    own deadline logic applies)."""
+    ep = env._ep
+    if ep is None or ep.s2_path is None:
+        return A_ONE                              # no signal available: adaptive TWAP
+    from execution.qrm.reactive_env import WARMUP_INTERVALS
+    k = min(max(ep.move_idx - WARMUP_INTERVALS, 0), len(ep.s2_path) - 1)
+    v = ep.s2_path[k]
+    s2 = float(v) if np.isfinite(v) else env.signal_mean
+    want = min(max(1.0 + s2, 0.0), 2.0)
+    return int(np.argmin([abs(a - want) for a in ACTIONS]))
+
+
 def make_fixed_twap(env: ReactiveQRMEnv) -> Callable[[ReactiveQRMEnv, np.ndarray], int]:
     """Fixed even slices: emulated via the pace-multiple action closest to the fixed
     slice each step (exact early on; when behind/ahead the multiple compensates so the
