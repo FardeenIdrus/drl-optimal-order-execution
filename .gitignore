@@ -46,3 +46,7 @@ reports/phase1_qa.md
 reports/phase1_qa.json
 reports/figures/FIGURES_TABLES_MANIFEST.md
 reports/results_pack/talking_points.md
+
+# One-off Overleaf transfer artifacts (duplicates of tracked content)
+reports/results_pack/overleaf_upload/
+reports/results_pack/overleaf_upload.zip

@@ -759,7 +759,7 @@ notably agent-favourable (PPO at 96.57 BTC on 1-minute bars, pooled $-0.089$\,bp
 seeds cheaper); with 14 arms screened, approximately one such arm is expected by chance,
 and it receives no special treatment: every arm sits the same sealed exam. On 10-second
 bars at the 30-minute deadline agents are consistently \emph{worse} than TWAP. The DQN
-deadline-leaning failure appears on this track too (six flagged runs; the L2 mirror of
+deadline-leaning failure appears on this track too (seven flagged runs; the L2 mirror of
 Section~\ref{sec:dqn}). The size lever (Figure~\ref{fig:l2sweep}) shows benchmark costs
 growing steeply with order size while no exploitable agent advantage opens at any trained
 size. Full per-run detail is Appendix Table~A.2.
@@ -776,10 +776,9 @@ across the entire training curve. The sealed-exam evaluator of Section~\ref{sec:
 held to the same standard.
 
 \begin{table}[h]\centering\small
-\caption{Frozen-replay track validation summary, all 14 arms. Source: the 70 agents'
-\texttt{meta.json} files.}
+\caption{Frozen-replay track validation summary, all 14 arms. Source: the saved agents' validation re-evaluation.}
 \label{tab:t7}
-\resizebox{0.85\textwidth}{!}{% Auto-generated from the 70 L2 agents' meta.json files (VALIDATION data).
+\resizebox{0.85\textwidth}{!}{% Auto-generated from the v2 saved-model validation re-evaluation (l2_test_prep).
 \begin{tabular}{llrrrr}
 \toprule
 panel & arm & pooled vs TWAP & cheaper & flagged & across-seed \\
@@ -787,20 +786,20 @@ panel & arm & pooled vs TWAP & cheaper & flagged & across-seed \\
 \midrule
 1-min bars, 30-min & PPO 96.57 & -0.0890 & 4/5 & 0/5 & 0.037 \\
 1-min bars, 30-min & PPO 193.13 & -0.0297 & 3/5 & 0/5 & 0.167 \\
-1-min bars, 30-min & DQN 96.57 & +0.5920 & 3/5 & 1/5 & 0.796 \\
-1-min bars, 30-min & DQN 193.13 & +0.0505 & 3/5 & 2/5 & 0.750 \\
+1-min bars, 30-min & DQN 96.57 & +0.0925 & 3/5 & 1/5 & 0.724 \\
+1-min bars, 30-min & DQN 193.13 & +0.0463 & 3/5 & 2/5 & 0.738 \\
 \midrule
 10-s bars, 30-min & PPO 96.57 & +0.1779 & 0/5 & 0/5 & 1.000 \\
 10-s bars, 30-min & PPO 193.13 & +0.0740 & 1/5 & 0/5 & 0.781 \\
 10-s bars, 30-min & PPO 386.27 & +0.2010 & 0/5 & 0/5 & 1.000 \\
-10-s bars, 30-min & DQN 96.57 & +0.7663 & 0/5 & 1/5 & 0.884 \\
-10-s bars, 30-min & DQN 193.13 & +0.1417 & 1/5 & 0/5 & 0.940 \\
-10-s bars, 30-min & DQN 386.27 & +0.2049 & 1/5 & 1/5 & 0.981 \\
+10-s bars, 30-min & DQN 96.57 & +0.7661 & 0/5 & 1/5 & 0.884 \\
+10-s bars, 30-min & DQN 193.13 & +0.1419 & 1/5 & 0/5 & 0.940 \\
+10-s bars, 30-min & DQN 386.27 & +0.2043 & 1/5 & 1/5 & 0.981 \\
 \midrule
 10-s bars, 10-min & PPO 96.57 & +0.0066 & 3/5 & 0/5 & 0.562 \\
 10-s bars, 10-min & PPO 193.13 & +0.0324 & 1/5 & 0/5 & 0.797 \\
-10-s bars, 10-min & DQN 96.57 & +0.0244 & 3/5 & 1/5 & 0.672 \\
-10-s bars, 10-min & DQN 193.13 & +0.1133 & 2/5 & 1/5 & 0.867 \\
+10-s bars, 10-min & DQN 96.57 & +0.0247 & 3/5 & 1/5 & 0.674 \\
+10-s bars, 10-min & DQN 193.13 & +0.1151 & 2/5 & 1/5 & 0.872 \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -1025,8 +1024,8 @@ ppo & volatile & \_w3b & 2 & -0.0257 & 0.647 & -0.0263 & yes \\
 \noindent\textbf{Table A.2: frozen-replay track, all 70 agents per seed}
 (validation data; DL marks the forced deadline purchase completing more than $10\%$ of
 episodes); the table flows over the following pages.
-\begin{center}\scriptsize% Auto-generated: all 70 L2 agents, per seed (VALIDATION data; test columns follow
-% the sealed exam). resid = share of episodes finished by the forced deadline buy.
+\begin{center}\scriptsize% Auto-generated: all 70 L2 agents, per seed (v2 saved-model validation
+% re-evaluation, l2_test_prep; test columns follow the sealed exam). resid = share of episodes finished by the forced deadline buy.
 % LONGTABLE: flows across pages; include directly (no float, no resizebox).
 \begin{longtable}{llrrr}
 \toprule
@@ -1043,16 +1042,16 @@ panel & arm & seed & vs TWAP (bps) & resid \\
 1-min bars, 30-min & PPO 193.13 & 2 & +0.0314 & 1.8\% \\
 1-min bars, 30-min & PPO 193.13 & 3 & -0.0562 & 1.2\% \\
 1-min bars, 30-min & PPO 193.13 & 4 & -0.1214 & 0.8\% \\
-1-min bars, 30-min & DQN 96.57 & 0 & -0.0764 & 0.0\% \\
-1-min bars, 30-min & DQN 96.57 & 1 & +0.0060 & 0.5\% \\
-1-min bars, 30-min & DQN 96.57 & 2 & -0.0512 & 0.8\% \\
-1-min bars, 30-min & DQN 96.57 & 3 & -0.0793 & 0.0\% \\
-1-min bars, 30-min & DQN 96.57 & 4 & +3.1610 & 97.8\% \textbf{DL} \\
-1-min bars, 30-min & DQN 193.13 & 0 & -0.0433 & 1.5\% \\
-1-min bars, 30-min & DQN 193.13 & 1 & +0.3100 & 36.8\% \textbf{DL} \\
+1-min bars, 30-min & DQN 96.57 & 0 & -0.0766 & 0.0\% \\
+1-min bars, 30-min & DQN 96.57 & 1 & +0.0095 & 0.5\% \\
+1-min bars, 30-min & DQN 96.57 & 2 & -0.0517 & 0.8\% \\
+1-min bars, 30-min & DQN 96.57 & 3 & -0.0781 & 0.0\% \\
+1-min bars, 30-min & DQN 96.57 & 4 & +0.6594 & 37.0\% \textbf{DL} \\
+1-min bars, 30-min & DQN 193.13 & 0 & -0.0407 & 1.2\% \\
+1-min bars, 30-min & DQN 193.13 & 1 & +0.3014 & 36.8\% \textbf{DL} \\
 1-min bars, 30-min & DQN 193.13 & 2 & -0.0553 & 0.2\% \\
-1-min bars, 30-min & DQN 193.13 & 3 & -0.0224 & 1.5\% \\
-1-min bars, 30-min & DQN 193.13 & 4 & +0.0632 & 11.8\% \textbf{DL} \\
+1-min bars, 30-min & DQN 193.13 & 3 & -0.0251 & 1.5\% \\
+1-min bars, 30-min & DQN 193.13 & 4 & +0.0513 & 12.0\% \textbf{DL} \\
 \midrule
 10-s bars, 30-min & PPO 96.57 & 0 & +0.2056 & 0.0\% \\
 10-s bars, 30-min & PPO 96.57 & 1 & +0.1587 & 0.0\% \\
@@ -1070,20 +1069,20 @@ panel & arm & seed & vs TWAP (bps) & resid \\
 10-s bars, 30-min & PPO 386.27 & 3 & +0.2174 & 0.0\% \\
 10-s bars, 30-min & PPO 386.27 & 4 & +0.2272 & 0.0\% \\
 10-s bars, 30-min & DQN 96.57 & 0 & +2.9426 & 97.8\% \textbf{DL} \\
-10-s bars, 30-min & DQN 96.57 & 1 & +0.1728 & 7.8\% \\
-10-s bars, 30-min & DQN 96.57 & 2 & +0.2327 & 0.0\% \\
-10-s bars, 30-min & DQN 96.57 & 3 & +0.2341 & 0.5\% \\
-10-s bars, 30-min & DQN 96.57 & 4 & +0.2493 & 0.0\% \\
+10-s bars, 30-min & DQN 96.57 & 1 & +0.1727 & 7.0\% \\
+10-s bars, 30-min & DQN 96.57 & 2 & +0.2329 & 0.0\% \\
+10-s bars, 30-min & DQN 96.57 & 3 & +0.2339 & 0.5\% \\
+10-s bars, 30-min & DQN 96.57 & 4 & +0.2485 & 0.0\% \\
 10-s bars, 30-min & DQN 193.13 & 0 & +0.2441 & 0.0\% \\
 10-s bars, 30-min & DQN 193.13 & 1 & -0.1025 & 10.0\% \\
 10-s bars, 30-min & DQN 193.13 & 2 & +0.0570 & 0.5\% \\
-10-s bars, 30-min & DQN 193.13 & 3 & +0.2537 & 0.2\% \\
-10-s bars, 30-min & DQN 193.13 & 4 & +0.2561 & 0.5\% \\
+10-s bars, 30-min & DQN 193.13 & 3 & +0.2547 & 0.2\% \\
+10-s bars, 30-min & DQN 193.13 & 4 & +0.2563 & 0.5\% \\
 10-s bars, 30-min & DQN 386.27 & 0 & -0.0569 & 27.0\% \textbf{DL} \\
-10-s bars, 30-min & DQN 386.27 & 1 & +0.3082 & 1.0\% \\
-10-s bars, 30-min & DQN 386.27 & 2 & +0.2214 & 1.0\% \\
-10-s bars, 30-min & DQN 386.27 & 3 & +0.2978 & 0.0\% \\
-10-s bars, 30-min & DQN 386.27 & 4 & +0.2537 & 0.0\% \\
+10-s bars, 30-min & DQN 386.27 & 1 & +0.3066 & 2.0\% \\
+10-s bars, 30-min & DQN 386.27 & 2 & +0.2209 & 1.0\% \\
+10-s bars, 30-min & DQN 386.27 & 3 & +0.3004 & 0.0\% \\
+10-s bars, 30-min & DQN 386.27 & 4 & +0.2507 & 0.0\% \\
 \midrule
 10-s bars, 10-min & PPO 96.57 & 0 & -0.0262 & 0.2\% \\
 10-s bars, 10-min & PPO 96.57 & 1 & -0.0946 & 0.2\% \\
@@ -1095,15 +1094,15 @@ panel & arm & seed & vs TWAP (bps) & resid \\
 10-s bars, 10-min & PPO 193.13 & 2 & +0.0985 & 1.5\% \\
 10-s bars, 10-min & PPO 193.13 & 3 & +0.0373 & 1.5\% \\
 10-s bars, 10-min & PPO 193.13 & 4 & +0.0529 & 0.5\% \\
-10-s bars, 10-min & DQN 96.57 & 0 & +0.2065 & 26.2\% \textbf{DL} \\
-10-s bars, 10-min & DQN 96.57 & 1 & -0.0264 & 0.0\% \\
-10-s bars, 10-min & DQN 96.57 & 2 & -0.0275 & 0.0\% \\
+10-s bars, 10-min & DQN 96.57 & 0 & +0.2071 & 26.0\% \textbf{DL} \\
+10-s bars, 10-min & DQN 96.57 & 1 & -0.0280 & 0.0\% \\
+10-s bars, 10-min & DQN 96.57 & 2 & -0.0231 & 0.0\% \\
 10-s bars, 10-min & DQN 96.57 & 3 & +0.0553 & 0.2\% \\
-10-s bars, 10-min & DQN 96.57 & 4 & -0.0861 & 1.8\% \\
-10-s bars, 10-min & DQN 193.13 & 0 & +0.4411 & 48.8\% \textbf{DL} \\
-10-s bars, 10-min & DQN 193.13 & 1 & -0.0312 & 3.0\% \\
+10-s bars, 10-min & DQN 96.57 & 4 & -0.0876 & 2.0\% \\
+10-s bars, 10-min & DQN 193.13 & 0 & +0.4414 & 48.8\% \textbf{DL} \\
+10-s bars, 10-min & DQN 193.13 & 1 & -0.0236 & 3.0\% \\
 10-s bars, 10-min & DQN 193.13 & 2 & +0.0772 & 0.0\% \\
-10-s bars, 10-min & DQN 193.13 & 3 & -0.0401 & 0.0\% \\
+10-s bars, 10-min & DQN 193.13 & 3 & -0.0389 & 0.0\% \\
 10-s bars, 10-min & DQN 193.13 & 4 & +0.1193 & 0.0\% \\
 \bottomrule
 \end{longtable}\end{center}
