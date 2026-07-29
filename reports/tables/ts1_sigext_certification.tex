@@ -1,0 +1,35 @@
+% Phase C certification of the injected environment (APPENDIX).
+% Source: signal/gates/sigext_gates_v4c_PASS.json  (all_pass = true)
+\begin{table}[htbp]\centering
+\caption{Certification of the injected environment. Upper panel: injected
+predictability matched against the venue measurement at every gated horizon
+(registered acceptance band $\pm$20\%). Lower panel: fairness, comprising background
+drift and the pace-gradient exploitability test that no constant-pace schedule can
+profit from residual drift.}
+\label{tab:sigext-certification}
+\small
+\begin{tabular}{llrrrl}
+\toprule
+regime & horizon (s) & measured slope & simulated slope & relative gap & verdict \\
+\midrule
+calm & 1 & 0.0904 & 0.0832 & 8.0\% & PASS \\
+calm & 2 & 0.1599 & 0.1452 & 9.2\% & PASS \\
+calm & 5 & 0.3088 & 0.2719 & 11.9\% & PASS \\
+calm & 10 & 0.4589 & 0.3783 & 17.6\% & PASS \\
+volatile & 1 & 0.3501 & 0.3128 & 10.6\% & PASS \\
+volatile & 2 & 0.5333 & 0.5249 & 1.6\% & PASS \\
+volatile & 5 & 0.7814 & 0.7247 & 7.3\% & PASS \\
+volatile & 10 & 0.9381 & 0.8269 & 11.9\% & PASS \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.6em}
+\begin{tabular}{lrrll}
+\toprule
+regime & drift (ticks/episode) & $t$ & drift verdict & exploitability \\
+\midrule
+calm & -0.32 & -0.55 & PASS & PASS \\
+volatile & -2.17 & -1.31 & PASS & PASS \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,36 @@
+% Amendment A2 Test 2: tuned attainable-edge ceiling (MAIN).
+% Sources: diagnostics_postnull/tune_follower_*.json, step5_signal_ceiling21e6/,
+% step5_signal_sealed/judgement.json. Registration: criteria section 8 Amendment A2.
+\begin{table}[htbp]\centering
+\caption{The attainable-edge ceiling. Upper panel: the registered seven-point tuning grid
+on the exploration block (mean paired saving vs adaptive TWAP; the calm optimum is an
+interior peak, the volatile optimum sits at the grid edge, so both ceilings are lower
+bounds). Lower panel: the tuned rule confirmed once on a virgin block registered for this
+purpose, against the agents' sealed-block results. The tuned coefficients were selected
+before the confirmation block was touched.}
+\label{tab:sigext-ceiling}
+\small
+\begin{tabular}{lrr}
+\toprule
+tilt coefficient $c$ & calm (bps) & volatile (bps) \\
+\midrule
+0.25 & -0.0473 & -0.1761 \\
+0.5 & -0.1466 & -0.3234 \\
+0.75 & -0.1849 & -0.4297 \\
+1 & -0.2303 & -0.4899 \\
+1.25 & -0.2502 & -0.5392 \\
+1.5 & -0.2301 & -0.5392 \\
+2 & -0.2058 & -0.5801 \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.6em}
+\begin{tabular}{llrrlrl}
+\toprule
+regime & $c^*$ & confirmed ceiling (bps) & s.e. & $p$ & agents (sealed) & captured \\
+\midrule
+calm & 1.25 & -0.3127 & 0.0282 & $<10^{-15}$ & +0.0047 & $\approx$0\% \\
+volatile & 2 & -0.6250 & 0.0396 & $<10^{-15}$ & +0.0252 & $\approx$0\% \\
+\bottomrule
+\end{tabular}
+\end{table}

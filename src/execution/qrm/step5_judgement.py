@@ -36,11 +36,18 @@ MATERIALITY_BPS = 0.05
 
 
 def _core(scratch: Path, regime: str, order_btc: float = 25.0,
-          env_steps: int = 300) -> ReactiveQRMEnv:
+          env_steps: int = 300, inject: bool = False) -> ReactiveQRMEnv:
+    # inject=True -> the CERTIFIED measured-signal env (Phase E judging); loads the
+    # regime's frozen kernel so agents are judged in the SAME market they trained in
+    # (their observation carries the signal feature, obs_dim +=1).
+    kw = {}
+    if inject:
+        sol = json.loads((scratch / "signal" / "kernel_solution.json").read_text())
+        kw = dict(signal_injection=True, signal_kernel=sol["regimes"][regime]["kernel"])
     return ReactiveQRMEnv(
         str(scratch / "step3g" / f"qrm_bundle_{regime}_b.npz"),
         str(scratch / "step3g" / f"move_process_{regime}_centered.npz"),
-        order_btc=order_btc, n_steps=env_steps)  # R2: drift-free; §7 sweep params
+        order_btc=order_btc, n_steps=env_steps, **kw)  # R2: drift-free; §7 sweep params
 
 
 def _model_policy(model):
@@ -51,13 +58,13 @@ def _model_policy(model):
 
 
 def audit_one(scratch: Path, run_dir: Path, eval_seed0: int = EVAL_SEED0,
-              order_btc: float = 25.0, env_steps: int = 300) -> dict:
+              order_btc: float = 25.0, env_steps: int = 300, inject: bool = False) -> dict:
     """Action histogram + deadline reliance over AUDIT_EPS episodes. No cost stats."""
     meta = json.loads((run_dir / "meta.json").read_text())
     algo, regime = meta["algo"], meta["regime"]
     from stable_baselines3 import DQN, PPO
     model = (DQN if algo == "dqn" else PPO).load(str(run_dir / "model.zip"))
-    env = _core(scratch, regime, order_btc, env_steps)
+    env = _core(scratch, regime, order_btc, env_steps, inject=inject)
     counts = np.zeros(len(ACTIONS))
     residual_eps = 0
     for seed in range(eval_seed0, eval_seed0 + AUDIT_EPS):
@@ -225,6 +232,9 @@ def main() -> None:
                     help="screen = frozen §3 verdict; confirm = §6 out-of-sample rule")
     ap.add_argument("--order-btc", type=float, default=25.0,
                     help="order size for env + baselines (criteria §7 size ladder)")
+    ap.add_argument("--inject", action="store_true",
+                    help="judge in the CERTIFIED injected env (Phase E); loads "
+                         "signal/kernel_solution.json per regime")
     ap.add_argument("--env-steps", type=int, default=300,
                     help="episode horizon in 1s decisions (criteria §7: 600 = 10-min)")
     args = ap.parse_args()
@@ -233,8 +243,8 @@ def main() -> None:
     run_dirs = sorted(d for d in runs.iterdir() if (d / "meta.json").exists())
 
     # ---- STAGE 1: audit, written to disk BEFORE any cost evaluation ----
-    audit = [audit_one(scratch, d, args.eval_seed0, args.order_btc, args.env_steps)
-             for d in run_dirs]
+    audit = [audit_one(scratch, d, args.eval_seed0, args.order_btc, args.env_steps,
+                       inject=args.inject) for d in run_dirs]
     (out / "behaviour_audit.json").write_text(json.dumps(audit, indent=2))
     for a in audit:
         logger.info("AUDIT %s: top %sx @%.0f%% | residual %.1f%% | %s",
@@ -246,7 +256,7 @@ def main() -> None:
     seeds = list(range(args.eval_seed0, args.eval_seed0 + args.n_eval))
     base = {}
     for regime in ("calm", "volatile"):
-        env = _core(scratch, regime, args.order_btc, args.env_steps)
+        env = _core(scratch, regime, args.order_btc, args.env_steps, inject=args.inject)
         base[regime] = {
             "fixed": run_episodes(env, make_fixed_twap(env), seeds)["cost_bps"],
             "adaptive": run_episodes(env, adaptive_twap, seeds)["cost_bps"],
@@ -261,7 +271,7 @@ def main() -> None:
         meta = json.loads((d / "meta.json").read_text())
         algo, regime = meta["algo"], meta["regime"]
         model = (DQN if algo == "dqn" else PPO).load(str(d / "model.zip"))
-        env = _core(scratch, regime, args.order_btc, args.env_steps)
+        env = _core(scratch, regime, args.order_btc, args.env_steps, inject=args.inject)
         agent = run_episodes(env, _model_policy(model), seeds)["cost_bps"]
         dfix = agent - base[regime]["fixed"]
         dada = agent - base[regime]["adaptive"]

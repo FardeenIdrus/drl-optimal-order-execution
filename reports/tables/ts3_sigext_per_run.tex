@@ -1,0 +1,53 @@
+% Per-run development-block results (APPENDIX).
+% Source: step5_signal_dev/judgement.json + behaviour_audit.json
+\begin{table}[htbp]\centering
+\caption{Every run in the injected-environment campaign, against both benchmarks
+($n=2000$ paired episodes each). Runs marked invalid failed the behavioural audit,
+which is applied before any cost comparison and independently of outcome.}
+\label{tab:sigext-per-run}
+\scriptsize
+\begin{tabular}{lrlrll}
+\toprule
+run & vs fixed TWAP (bps) & $p$ & vs adaptive TWAP (bps) & $p$ & audit \\
+\midrule
+dqn\_calm\_s0 & +0.1005 & $6.0\times 10^{-4}$ & +0.1004 & $6.1\times 10^{-4}$ & invalid \\
+dqn\_calm\_s1 & +0.1507 & $7.2\times 10^{-4}$ & +0.1505 & $7.3\times 10^{-4}$ & invalid \\
+dqn\_calm\_s2 & +0.2618 & $4.0\times 10^{-8}$ & +0.2617 & $4.2\times 10^{-8}$ & invalid \\
+dqn\_calm\_s3 & +0.1202 & 0.006 & +0.1201 & 0.006 & invalid \\
+dqn\_calm\_s4 & +0.0036 & 0.984 & +0.0035 & 0.992 & invalid \\
+dqn\_volatile\_s0 & +0.4237 & $1.2\times 10^{-4}$ & +0.4279 & $1.1\times 10^{-4}$ & invalid \\
+dqn\_volatile\_s1 & +0.2874 & 0.002 & +0.2917 & 0.002 & valid \\
+dqn\_volatile\_s2 & +0.1692 & 0.070 & +0.1735 & 0.064 & invalid \\
+dqn\_volatile\_s3 & +0.1956 & 0.088 & +0.1999 & 0.081 & valid \\
+dqn\_volatile\_s4 & +0.2185 & 0.002 & +0.2227 & 0.001 & invalid \\
+ppo\_calm\_s0 & -0.0142 & 0.411 & -0.0143 & 0.402 & valid \\
+ppo\_calm\_s0\_v1a & +0.0413 & 0.162 & +0.0412 & 0.160 & valid \\
+ppo\_calm\_s0\_v1b & +0.0381 & 0.149 & +0.0380 & 0.158 & valid \\
+ppo\_calm\_s0\_v2 & +0.0299 & 0.256 & +0.0297 & 0.261 & valid \\
+ppo\_calm\_s1 & +0.0115 & 0.890 & +0.0114 & 0.882 & valid \\
+ppo\_calm\_s1\_v1a & +0.0420 & 0.100 & +0.0419 & 0.098 & valid \\
+ppo\_calm\_s1\_v1b & +0.0190 & 0.698 & +0.0189 & 0.694 & valid \\
+ppo\_calm\_s1\_v2 & +0.0248 & 0.424 & +0.0247 & 0.445 & valid \\
+ppo\_calm\_s2 & +0.0005 & 0.676 & +0.0004 & 0.689 & valid \\
+ppo\_calm\_s2\_v1a & -0.0043 & 0.558 & -0.0044 & 0.547 & valid \\
+ppo\_calm\_s2\_v1b & -0.0065 & 0.772 & -0.0066 & 0.759 & valid \\
+ppo\_calm\_s2\_v2 & +0.0644 & 0.015 & +0.0643 & 0.015 & valid \\
+ppo\_calm\_s3 & +0.0199 & 0.354 & +0.0198 & 0.354 & valid \\
+ppo\_calm\_s4 & +0.0057 & 0.855 & +0.0056 & 0.858 & valid \\
+ppo\_volatile\_s0 & +0.1120 & 0.028 & +0.1163 & 0.023 & valid \\
+ppo\_volatile\_s0\_v1a & -0.0208 & 0.694 & -0.0166 & 0.749 & valid \\
+ppo\_volatile\_s0\_v1b & +0.1227 & 0.003 & +0.1270 & 0.002 & valid \\
+ppo\_volatile\_s0\_v2 & -0.0027 & 0.901 & +0.0015 & 0.813 & valid \\
+ppo\_volatile\_s1 & +0.0385 & 0.258 & +0.0428 & 0.239 & valid \\
+ppo\_volatile\_s1\_v1a & +0.0516 & 0.289 & +0.0558 & 0.265 & valid \\
+ppo\_volatile\_s1\_v1b & +0.0882 & 0.039 & +0.0924 & 0.030 & valid \\
+ppo\_volatile\_s1\_v2 & +0.1023 & 0.034 & +0.1066 & 0.029 & valid \\
+ppo\_volatile\_s2 & -0.0443 & 0.281 & -0.0400 & 0.356 & valid \\
+ppo\_volatile\_s2\_v1a & +0.0640 & 0.214 & +0.0682 & 0.196 & valid \\
+ppo\_volatile\_s2\_v1b & +0.0440 & 0.351 & +0.0483 & 0.308 & valid \\
+ppo\_volatile\_s2\_v2 & +0.0298 & 0.201 & +0.0341 & 0.189 & valid \\
+ppo\_volatile\_s3 & +0.0140 & 0.920 & +0.0183 & 0.859 & valid \\
+ppo\_volatile\_s4 & +0.0723 & 0.054 & +0.0766 & 0.044 & valid \\
+\bottomrule
+\end{tabular}
+\end{table}

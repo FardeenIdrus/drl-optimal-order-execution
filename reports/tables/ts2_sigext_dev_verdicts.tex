@@ -1,0 +1,27 @@
+% Development-block verdicts, injected environment (MAIN).
+% Source: step5_signal_dev/judgement.json (frozen rule; n=2000/agent; block 18e6)
+\begin{table}[htbp]\centering
+\caption{Development-block outcome for every agent configuration in the injected
+environment. The decision rule, fixed before training, required a negative mean
+against both benchmarks, significance at $p<0.01$, agreement across seeds, and at
+least 0.05\,bps of materiality. No configuration met it; every pooled mean is on the
+costlier side of adaptive TWAP.}
+\label{tab:sigext-dev-verdicts}
+\small
+\begin{tabular}{llrrrrl}
+\toprule
+regime & configuration & valid seeds & pooled vs TWAP (bps) & seeds cheaper & seeds significant & edge \\
+\midrule
+calm & DQN base & 0 & --- & 0 & 0 & no \\
+calm & PPO base & 5 & +0.0046 & 1 & 0 & no \\
+calm & PPO net[64,64] & 3 & +0.0262 & 1 & 0 & no \\
+calm & PPO net[128,128] & 3 & +0.0167 & 1 & 0 & no \\
+calm & PPO reward $\times$100 & 3 & +0.0396 & 0 & 0 & no \\
+volatile & DQN base & 2 & +0.2458 & 0 & 0 & no \\
+volatile & PPO base & 5 & +0.0428 & 1 & 0 & no \\
+volatile & PPO net[64,64] & 3 & +0.0358 & 1 & 0 & no \\
+volatile & PPO net[128,128] & 3 & +0.0892 & 0 & 0 & no \\
+volatile & PPO reward $\times$100 & 3 & +0.0474 & 0 & 0 & no \\
+\bottomrule
+\end{tabular}
+\end{table}

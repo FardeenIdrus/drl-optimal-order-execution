@@ -1,0 +1,35 @@
+% Sealed exhibit on block 17e6 (MAIN). Predictions registered before unsealing.
+% Source: step5_signal_sealed/judgement.json (+ follower_context.json)
+\begin{table}[htbp]\centering
+\caption{Sealed-block replication. The predictions were recorded in the registration
+ledger before the block was opened: no agent would pass, and the signal-reading rule
+would remain profitable beyond the materiality threshold in both regimes.}
+\label{tab:sigext-sealed}
+\small
+\begin{tabular}{lrlrl}
+\toprule
+run & vs fixed TWAP (bps) & $p$ & vs adaptive TWAP (bps) & $p$ \\
+\midrule
+ppo\_calm\_s0 & -0.0269 & 0.406 & -0.0281 & 0.380 \\
+ppo\_calm\_s1 & +0.0245 & 0.342 & +0.0233 & 0.363 \\
+ppo\_calm\_s2 & -0.0150 & 0.764 & -0.0162 & 0.743 \\
+ppo\_calm\_s3 & +0.0010 & 0.984 & -0.0002 & 0.978 \\
+ppo\_calm\_s4 & +0.0461 & 0.143 & +0.0449 & 0.155 \\
+ppo\_volatile\_s0 & +0.0607 & 0.120 & +0.0621 & 0.120 \\
+ppo\_volatile\_s1 & -0.0176 & 0.747 & -0.0162 & 0.799 \\
+ppo\_volatile\_s2 & -0.0540 & 0.112 & -0.0526 & 0.118 \\
+ppo\_volatile\_s3 & +0.0584 & 0.130 & +0.0598 & 0.123 \\
+ppo\_volatile\_s4 & +0.0717 & 0.121 & +0.0731 & 0.122 \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.6em}
+\begin{tabular}{lrrl}
+\toprule
+regime & follower vs adaptive TWAP (bps) & s.e. & $p$ \\
+\midrule
+calm & -0.2048 & 0.0287 & $6.6\times 10^{-12}$ \\
+volatile & -0.5188 & 0.0388 & $<10^{-15}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
