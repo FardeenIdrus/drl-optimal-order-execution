@@ -89,6 +89,7 @@ class ReactiveQRMEnv:
         signal_mean: float = 0.0,
         signal_ema_halflife_s: Optional[float] = None,
         signal_kernel: Optional[dict] = None,
+        obs_price_vs_arrival: bool = False,
     ) -> None:
         add_vendored_path()
         from qrm_core.engine import simulate_QRM_jit          # noqa: PLC0415
@@ -133,6 +134,15 @@ class ReactiveQRMEnv:
         self.obs_dim = 2 + 2 * self.K + 1 + 2 + 2  # inv, time, queues, spread, fills, flow
         if self.signal_injection:
             self.obs_dim += 1                      # the pre-computed background signal
+        # criteria section 8 Amendment A4: price vs arrival, in bps. OFF by default so every
+        # completed campaign is byte-identical; ON only for the registered fair-chance test.
+        # It reveals nothing about the future -- it is the realised drift the agent is already
+        # being SCORED on -- but it is the dominant predictor of the return-to-go
+        # (R^2 0.34 vs 0.02-0.05 for the whole observed vector), so without it the value
+        # function cannot be fit and the advantages are close to raw noise.
+        self.obs_price_vs_arrival = bool(obs_price_vs_arrival)
+        if self.obs_price_vs_arrival:
+            self.obs_dim += 1
         self.n_actions = len(ACTIONS)
         self._ep: Optional[EpisodeState] = None
         self.n_sampler_stalls = 0
@@ -455,4 +465,9 @@ class ReactiveQRMEnv:
             else:
                 sig = self.signal_mean
             obs = np.concatenate([obs, np.array([sig], dtype=np.float32)])
+        if self.obs_price_vs_arrival:
+            pva = 0.0
+            if ep.arrival_mid > 0:
+                pva = (ep.p_mid - ep.arrival_mid) / ep.arrival_mid * 1e4
+            obs = np.concatenate([obs, np.array([pva], dtype=np.float32)])
         return obs

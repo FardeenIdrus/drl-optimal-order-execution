@@ -405,17 +405,203 @@ def fig_s8_kernel_structure() -> None:
     save(fig, "s8_kernel_structure", "appendix")
 
 
-def build_s2_when_ready() -> None:
-    """MAIN, BLOCKED. The three-environment comparison (frozen replay -> reactive ->
-    reactive+signal) must use the L2 SEALED exam numbers, not L2 validation numbers:
-    mixing a validation figure with two sealed figures would reproduce exactly the
-    selection bias this dissertation documents. The L2 sealed exam is unrun and
-    user-gated, so this figure is intentionally NOT built as a placeholder.
-    Caption caveat to carry when it is built: the three environments differ on more
-    than one axis (frozen replay, 60 s decisions, real replay vs reactive simulator,
-    1 s decisions); the CONTROLLED contrast is environments 2 -> 3, where only the
-    signal changed. Environment 1 is a qualitative anchor, not a matched comparison."""
-    print("  s2_three_environment: SKIPPED (blocked on the L2 sealed exam; by design)")
+L2_TEST = Path("/Users/fardeenidrus/Desktop/MSc Dissertation/scratch_hyperliquid/l2_test_results")
+L2_LEVER = {                      # folder -> the design cell it represents
+    "runs":            "1-min data, 30-min deadline",
+    "runs_10s":        "10-s data, 30-min deadline",
+    "runs_10s_10min":  "10-s data, 10-min deadline",
+}
+
+
+def load_l2_sealed_arms() -> list[dict]:
+    """Every pre-registered L2 arm scored on the SEALED test split, pooled over
+    BEHAVIOUR-VALID seeds only. The stored `arm_summary.pooled_mean_paired_diff_bps`
+    pools ALL seeds including agents the deadline audit flags invalid, which
+    contradicts the project-wide audit-before-cost rule; it is recomputed here.
+    No PASS verdict moves (all four nominally-passing arms have zero invalid seeds),
+    but four DQN control arms shift, all in the direction that strengthens the
+    control. See addendum in reports/l2_test_protocol.md."""
+    arms = []
+    for f in sorted(L2_TEST.glob("test_*.json")):
+        d = json.loads(f.read_text())
+        for a in d["arm_summary"]:
+            rs = [r for r in d["runs_flat"]
+                  if r["algo"] == a["algo"] and r["size_btc"] == a["size_btc"]]
+            ok = [r for r in rs if not r["dl_flag"]]
+            if not ok:
+                continue
+            arms.append({
+                "lever": L2_LEVER[a["runs_dir"]],
+                "algo": a["algo"],
+                "size": a["size_btc"],
+                "bps": float(np.mean([r["mean_paired_diff_bps"] for r in ok])),
+                "n_valid": len(ok),
+                "n_total": len(rs),
+                "n_cheaper": int(sum(r["mean_paired_diff_bps"] < 0 for r in ok)),
+            })
+    return arms
+
+
+def load_reactive_sealed_arms() -> list[dict]:
+    """The two sealed out-of-sample confirmations of the no-signal reactive track
+    (R8b selected config v3a on block 9e6; remedial literal-rule pick v1b on 13e6).
+    Both PASS=False -> the boundary null."""
+    out = []
+    for folder, label in (("step5_confirm_v3a", "selected config (lr 1e-3), volatile"),
+                          ("step5_confirm_v1b", "remedial pick (bigger net), volatile")):
+        v = json.loads((S / folder / "judgement.json").read_text())["verdicts"]["ppo_volatile"]
+        out.append({"lever": label, "algo": "ppo", "size": None,
+                    "bps": float(v["pooled_vs_adaptive_bps"]),
+                    "n_valid": v["n_valid_seeds"], "n_total": v["n_valid_seeds"],
+                    "n_cheaper": v["n_cheaper_of_valid"]})
+    return out
+
+
+def load_injected_sealed_arms() -> list[dict]:
+    """The sealed exhibit for the injected environment (registered amendment, one shot,
+    block 17e6): both regimes, PPO, 5 seeds each. Both PASS=False."""
+    v = json.loads((S / "step5_signal_sealed" / "judgement.json").read_text())["verdicts"]
+    return [{"lever": f"{reg} regime", "algo": "ppo", "size": None,
+             "bps": float(v[f"ppo_{reg}"]["pooled_vs_adaptive_bps"]),
+             "n_valid": v[f"ppo_{reg}"]["n_valid_seeds"],
+             "n_total": v[f"ppo_{reg}"]["n_valid_seeds"],
+             "n_cheaper": v[f"ppo_{reg}"]["n_cheaper_of_valid"]} for reg in REGIMES]
+
+
+def fig_s2_three_environment() -> None:
+    """MAIN -- the headline figure. Three independent environments of increasing
+    favourability to the agent, each judged on data sealed until the verdict was
+    fixed; no stable saving against TWAP anywhere. Panel B answers the obvious
+    objection to a null (`maybe there was nothing to find'): in the third
+    environment a registered rule with zero fitted parameters banks a large,
+    strongly significant saving, and the agents capture none of it.
+
+    CAPTION CAVEAT that must travel with this figure: the three environments differ
+    on more than one axis (frozen replay of real book data with 1-min/10-s decisions
+    vs a reactive simulator with 1-s decisions). The CONTROLLED contrast is
+    environments 2 -> 3, where only the injected signal changes. Environment 1 is a
+    qualitative anchor, not a matched comparison; and its result is reported as `no
+    stable edge' rather than a clean null, because four of its fourteen arms do clear
+    the bar nominally while a diagnosed-broken learner clears it equally (see the L2
+    inversion figure) -- i.e. the apparent edge is a property of the test period.
+    That last clause is no longer an inference: as of 2026-07-30 the mechanism is
+    MEASURED (l2_test_protocol.md mechanism addendum; figure l2_inversion_mechanism).
+    It is a pacing exposure -- within-episode drift reverses sign between the periods,
+    a fixed rule incapable of learning reproduces the whole reversal, and 95% of the
+    shift decomposes onto each agent's front-loading dose. Captions for environment 1
+    may now say `attributable to a pacing exposure' rather than `unexplained'.
+
+    Blocks are NOT shared across panels: the agents' sealed numbers come from block
+    17e6, the ceiling confirmation from the minted block 21e6. Both are held out; the
+    ceiling is a property of the environment, not of a particular block, and its
+    calm/volatile values on the dev block (0.230/0.490 bps) bracket the same picture.
+
+    Sources: l2_test_results/test_*.json; step5_confirm_v3a, step5_confirm_v1b,
+    step5_signal_sealed/judgement.json; step5_signal_ceiling21e6/ceiling_confirmation.json.
+    """
+    envs = [
+        ("1. Frozen replay of real order-book data", load_l2_sealed_arms(),
+         "no stable edge — 4 of 14 arms clear the bar, and a diagnosed-broken learner clears it too"),
+        ("2. Reactive simulator, no injected signal", load_reactive_sealed_arms(),
+         "null — both sealed confirmations fail"),
+        ("3. Reactive simulator + measured signal", load_injected_sealed_arms(),
+         "null — both regimes fail"),
+    ]
+    # Horizontal, one sub-panel per environment, shared cost axis: 18 arms cannot carry
+    # readable vertical tick labels, and stacking keeps each environment's verdict beside
+    # its own arms instead of in a shared margin.
+    flat = [a for _, arms, _ in envs for a in arms]
+    lo = min(a["bps"] for a in flat) - 0.10
+    hi = max(a["bps"] for a in flat) + 0.10
+    fig = plt.figure(figsize=(13.4, 6.4))
+    outer = fig.add_gridspec(1, 2, width_ratios=[2.05, 1.0], wspace=0.02)
+    left = outer[0, 0].subgridspec(3, 1, height_ratios=[len(a) + 1.4 for _, a, _ in envs],
+                                   hspace=0.42)
+    axes_a = []
+    for row, (name, arms, verdict) in enumerate(envs):
+        ax = fig.add_subplot(left[row, 0], sharex=axes_a[0] if axes_a else None)
+        axes_a.append(ax)
+        ys = np.arange(len(arms))[::-1]
+        ax.axvspan(-0.05, 0.05, color=MUTED, alpha=0.13, zorder=0)
+        ax.axvline(0.0, color=INK, lw=1.2, ls="--", zorder=1)
+        for y, a in zip(ys, arms):
+            col = BLUE if a["algo"] == "ppo" else RED
+            mk = "o" if a["algo"] == "ppo" else "s"
+            ax.plot([a["bps"]], [y], mk, color=col, ms=8, zorder=3,
+                    markeredgecolor="white", markeredgewidth=1.0)
+            ax.annotate(f"{a['n_cheaper']}/{a['n_valid']} seeds cheaper",
+                        xy=(a["bps"], y), xytext=(9, 0), textcoords="offset points",
+                        va="center", fontsize=6.8, color=MUTED)
+        ax.set_yticks(ys)
+        ax.set_yticklabels(
+            [f"{a['lever']}" + (f"  ·  {a['algo'].upper()} {a['size']:.0f} BTC"
+                                if a["size"] else f"  ·  {a['algo'].upper()}")
+             for a in arms], fontsize=7.2)
+        ax.set_ylim(-0.85, len(arms) - 0.15)
+        ax.set_xlim(lo, hi)
+        ax.tick_params(axis="y", length=0)
+        ax.set_title(name, fontsize=9.8, loc="left", color=INK, fontweight="bold", pad=13)
+        ax.annotate(verdict, xy=(0.0, 1.0), xycoords="axes fraction", xytext=(0, 3),
+                    textcoords="offset points", fontsize=7.8, color=MUTED, style="italic")
+        if row < 2:
+            ax.tick_params(axis="x", labelbottom=False)
+    axes_a[-1].set_xlabel("pooled cost vs TWAP (bps)   [left of the line = cheaper than TWAP]")
+    # the one matched comparison in the figure, marked as such
+    con = fig.add_subplot(left[1:, 0], frameon=False)
+    con.set_xticks([]); con.set_yticks([])
+    con.patch.set_alpha(0.0)
+    con.annotate("", xy=(1.012, 0.04), xytext=(1.012, 0.90), xycoords="axes fraction",
+                 arrowprops=dict(arrowstyle="<->", color=INK, lw=1.2))
+    con.annotate("controlled contrast: only the signal differs", xy=(1.028, 0.47),
+                 xycoords="axes fraction", va="center", ha="center", rotation=90,
+                 fontsize=7.6, color=INK)
+
+    # ---- panel B: the edge was there to take, and the agents did not take it ----
+    ax2 = fig.add_subplot(outer[0, 1])
+    ax2.set_position(ax2.get_position().translated(0.075, 0.11).shrunk(0.76, 0.64))
+    ceil = json.loads((S / "step5_signal_ceiling21e6" /
+                       "ceiling_confirmation.json").read_text())["regimes"]
+    inj = {a["lever"].split()[0]: a for a in load_injected_sealed_arms()}
+    x = np.arange(len(REGIMES))
+    w = 0.36
+    c_sav = [-ceil[r]["vs_adaptive"]["mean_diff_bps"] for r in REGIMES]
+    a_sav = [-inj[r]["bps"] for r in REGIMES]
+    ax2.bar(x - w / 2, c_sav, w, color=OI_GREEN, edgecolor="white", linewidth=1.0)
+    ax2.bar(x + w / 2, a_sav, w, color=OI_ORANGE, edgecolor="white", linewidth=1.0)
+    for xi, v in zip(x - w / 2, c_sav):
+        ax2.text(xi, v + 0.014, f"{v:.3f}", ha="center", va="bottom", fontsize=8.5, color=INK)
+    for xi, v in zip(x + w / 2, a_sav):
+        ax2.text(xi, min(v, 0) - 0.014, f"{v:+.3f}", ha="center", va="top",
+                 fontsize=8.5, color=INK)
+    for xi, c, a in zip(x, c_sav, a_sav):
+        ax2.annotate(f"{100 * a / c:.0f}% of the\navailable edge\ncaptured",
+                     xy=(xi + w / 2, min(a, 0) - 0.055), ha="center", va="top",
+                     fontsize=8, color=INK, fontweight="bold")
+    ax2.axhline(0.0, color=INK, lw=1.2, ls="--")
+    ax2.axhspan(-0.05, 0.05, color=MUTED, alpha=0.13, zorder=0)
+    ax2.set_xticks(x)
+    ax2.set_xticklabels(REGIMES)
+    ax2.set_ylim(min(min(a_sav) - 0.20, -0.20), max(c_sav) * 1.15)
+    ax2.set_ylabel("saving vs TWAP (bps)")
+    ax2.set_title("Environment 3: the edge was real\nand the agents left all of it",
+                  fontsize=10.5)
+
+    handles = [
+        Line2D([], [], color=BLUE, marker="o", ls="", ms=8, label="PPO arm (sealed)"),
+        Line2D([], [], color=RED, marker="s", ls="", ms=8, label="DQN arm (sealed)"),
+        Line2D([], [], color=INK, lw=1.2, ls="--", label="TWAP"),
+        Patch(facecolor=MUTED, alpha=0.13, label="+/-0.05 bps materiality band"),
+        Patch(facecolor=OI_GREEN, label="registered rule, zero fitted parameters"),
+        Patch(facecolor=OI_ORANGE, label="trained agents (sealed)"),
+    ]
+    fig.legend(handles=handles, loc="lower center", ncol=3, frameon=False,
+               bbox_to_anchor=(0.5, -0.09))
+    fig.suptitle("Three environments, three sealed verdicts: no stable improvement on TWAP "
+                 "anywhere -- including where a simple rule proves the edge exists",
+                 y=1.03, fontsize=11.5)
+    save(fig, "s2_three_environment", "main_body")
+    print(f"    fractions of ceiling captured: "
+          f"{[f'{100*a/c:.1f}%' for a, c in zip(a_sav, c_sav)]}")
 
 
 def main() -> None:
@@ -424,11 +610,12 @@ def main() -> None:
     fig_s1_injection_fidelity()
     fig_s3_dev_campaign_forest()
     fig_s4_exploiter_vs_agents()
-    build_s2_when_ready()
+    fig_s2_three_environment()
     print(" SUPPORTING:")
     fig_s5_base_vs_injected()
     fig_s6_training_curves()
     fig_s10_frontier()
+    fig_s11_a4_observation()
     print(" APPENDIX:")
     fig_s8_kernel_structure()
     print("done.")
@@ -515,6 +702,73 @@ def fig_s10_frontier() -> None:
                  y=1.02, fontsize=11)
     fig.tight_layout()
     save(fig, "s10_risk_return_frontier", "appendix")
+
+
+
+
+def fig_s11_a4_observation() -> None:
+    """MAIN. Amendment A4: the observation variant. Left = the mechanism (critic explained
+    variance per run, before vs after). Right = the verdict (performance unchanged).
+    Sources: diagnostics_postnull/diag_learning{,_a4}.json, step5_signal_obsfix/."""
+    orig = {r["run"]: r for r in json.loads((DIAG / "diag_learning.json").read_text())}
+    a4 = {r["run"]: r for r in json.loads((DIAG / "diag_learning_a4.json").read_text())}
+    j4 = json.loads((S / "step5_signal_obsfix" / "judgement.json").read_text())
+    au4 = {x["run"]: x for x in json.loads(
+        (S / "step5_signal_obsfix" / "behaviour_audit.json").read_text())}
+    jd, aud = load_dev()
+    fig, axes = plt.subplots(1, 2, figsize=(10.2, 4.2))
+
+    # ---- left: the mechanism ----
+    ax = axes[0]
+    runs = sorted(orig)
+    y = np.arange(len(runs))
+    for i, r in enumerate(runs):
+        o, n = orig[r]["critic"]["explained_variance"], a4[r]["ev"]
+        ax.plot([o, n], [i, i], "-", color=MUTED, lw=1.0, zorder=1)
+        ax.plot(o, i, "o", color=MUTED, mfc="white", ms=6, zorder=3)
+        ax.plot(n, i, "o", color=OI_VERM, ms=6, zorder=3)
+    ax.axvline(0.0, color=INK, lw=1.0, ls="--", zorder=0)
+    ax.set_yticks(y)
+    ax.set_yticklabels([r.replace("ppo_", "").replace("_", " ") for r in runs], fontsize=8)
+    ax.set_xlabel("critic explained variance   [higher = the value function predicts]")
+    ax.set_title("The mechanism: the critic becomes learnable")
+
+    # ---- right: the verdict ----
+    ax = axes[1]
+    labels, orig_m, new_m, orig_n, new_n = [], [], [], [], []
+    for reg in REGIMES:
+        o = [r["mean_vs_adaptive_bps"] for r in jd["per_run"]
+             if r["algo"] == "ppo" and r["regime"] == reg
+             and r["run"].endswith(f"s{r['seed']}") and aud[r["run"]]["valid"]]
+        n = [r["mean_vs_adaptive_bps"] for r in j4["per_run"]
+             if r["regime"] == reg and au4[r["run"]]["valid"]]
+        labels.append(reg); orig_m.append(np.mean(o)); new_m.append(np.mean(n))
+        orig_n.append(len(o)); new_n.append(len(n))
+    x = np.arange(len(labels)); w = 0.34
+    b1 = ax.bar(x - w / 2, orig_m, w, color=MUTED, label="original observation",
+                edgecolor="white", linewidth=1.0)
+    b2 = ax.bar(x + w / 2, new_m, w, color=OI_VERM, label="with price-vs-arrival",
+                edgecolor="white", linewidth=1.0)
+    for b, m, k in list(zip(b1, orig_m, orig_n)) + list(zip(b2, new_m, new_n)):
+        ax.text(b.get_x() + b.get_width() / 2, m + 0.0015, f"{m:+.4f}\n({k}/5 valid)",
+                ha="center", va="bottom", fontsize=7.5, color=INK)
+    ax.axhline(0.0, color=MUTED, lw=1.0, ls="--")
+    ax.axhspan(-0.05, 0.05, color=MUTED, alpha=0.12, zorder=0)
+    ax.set_xticks(x); ax.set_xticklabels(labels)
+    ax.set_ylabel("cost vs adaptive TWAP (bps)")
+    ax.set_ylim(-0.055, max(max(orig_m), max(new_m)) * 1.9 + 0.02)
+    ax.set_title("The verdict: performance is unchanged")
+    handles = [Line2D([], [], color=MUTED, marker="o", mfc="white", ls="none", ms=6,
+                      label="original observation (28 inputs)"),
+               Line2D([], [], color=OI_VERM, marker="o", ls="none", ms=6,
+                      label="with price-vs-arrival (29 inputs)"),
+               Patch(facecolor=MUTED, alpha=0.12, label="+/-0.05 bps materiality band")]
+    fig.legend(handles=handles, loc="lower center", ncol=3, frameon=False,
+               bbox_to_anchor=(0.5, -0.13))
+    fig.suptitle("Making the value function learnable does not make the agents competitive",
+                 y=1.02, fontsize=11)
+    fig.tight_layout()
+    save(fig, "s11_a4_observation", "main_body")
 
 
 if __name__ == "__main__":

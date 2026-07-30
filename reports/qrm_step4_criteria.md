@@ -1313,3 +1313,233 @@ split is itself a finding. Report the pair, never one alone.
 volatile +0.0043 vs adaptive TWAP). **ORACLE VWAP loses again** (calm +0.1186 p=0.016;
 volatile +0.0917 p=0.11) with HIGHER variance in both -- consistent with the base env and
 with GATE-V2; the finding is now replicated across environments.
+
+---
+
+## §8 AMENDMENT A4 (registered 2026-07-29, BEFORE any run): the fair-chance observation test
+
+**ORIGIN (record honestly).** The supervisor asked whether we had a diagnostic of what the RL
+was actually learning. A post-hoc diagnostic on the ten trained base PPO models
+(`diagnostics_postnull/diag_learning.json`) found the value function explains ~ZERO variance
+in the return-to-go for ALL TEN agents (explained variance -0.022 to +0.005; corr(V, return)
++0.02 to +0.07). A follow-up regression established WHY, and it is a property of our
+environment, not of the learner:
+
+| predictor of return-to-go | calm R^2 | volatile R^2 |
+|---|---|---|
+| the 28 features the agent observes | 0.046 | 0.021 |
+| price-vs-arrival ALONE (NOT observed) | **0.345** | **0.342** |
+| observed + price-vs-arrival | 0.365 | 0.360 |
+
+`_observe()` supplies inventory, time, queue sizes, spread, fills and flow, but NEVER the mid
+price relative to the arrival price, although `arrival_mid` is used to SCORE the agent. The
+dominant driver of the quantity the agent is graded on is therefore unobservable to it, so its
+critic cannot be fit, so its advantages (return minus predicted value) are close to raw noise.
+This is a plausible mechanistic cause of the observed learning failure AND a violation of the
+project's own fair-chance invariant (restrictions exist only to prevent FALSE edges, never to
+handicap the agent). Price-vs-arrival reveals nothing about the future; it is a standard
+variance-reduction feature in execution RL.
+
+**THE TEST (10 runs).** Base PPO, both regimes, seeds 0-4, injected env, EVERYTHING identical
+to the Phase D/E campaign except the observation gains ONE feature:
+`(p_mid - arrival_mid) / arrival_mid * 1e4` (price vs arrival, bps), giving obs_dim 29.
+Training budget, hyperparameters, action grid, reward, blocks and judging rule all unchanged.
+Runs land in `runs_signal_obsfix/`; judged on the DEVELOPMENT block 18e6 (n=2000) under the
+SAME frozen rule as every other campaign. Diagnostics re-run on the new models.
+
+**PREDICTIONS, fixed now:**
+- P-A4.1 (the mechanism): critic explained variance rises materially above zero (registered
+  bar: mean EV > 0.10 across the ten runs, versus ~0.00 now). This is the test of the diagnosis.
+- P-A4.2 (the headline): agents still do NOT meet the frozen edge rule. Pooled mean vs adaptive
+  TWAP stays inside +/-0.05 bps in both regimes.
+- P-A4.3 (the ceiling is unchanged): the registered follower is unaffected by the agent's
+  observation, so the attainable edge remains ~0.31/0.63 bps and the captured fraction stays
+  near zero.
+
+**INTERPRETATION BRANCHES, fixed now (no post-hoc spin):**
+- (i) P-A4.1 holds and P-A4.2 holds -> **the null STRENGTHENS**: the most obvious objection to
+  it is removed by measurement. The learnability claim is then made with a properly specified
+  state, and the mechanism (value learnable, policy still not) is reported as the finding.
+- (ii) P-A4.1 holds and P-A4.2 FAILS (an agent meets the edge rule) -> the headline changes.
+  Any such edge is a DEVELOPMENT-block result only and requires confirmation on a fresh,
+  disjointness-audited block before any claim; blocks 17e6/18e6/19e6/21e6 are spent, so a new
+  one is minted and registered under the same audit procedure. The dissertation reports that
+  RL beats TWAP only once the state is properly specified, and the omission becomes the
+  central methodological finding.
+- (iii) P-A4.1 FAILS (EV stays ~0 even with the feature) -> the missing feature was NOT the
+  cause; the value function is unlearnable for a different reason, which is then investigated
+  and reported. The original null is unaffected.
+- (iv) Mixed by regime -> reported per regime, no pooling.
+
+**DISCLOSURE COMMITMENT.** Whatever the outcome, the write-up states that the original campaign
+omitted this feature, that the omission was found by our own diagnostic after the campaign
+closed, and what the re-run showed. The Phase D/E results are NOT retracted or overwritten;
+they stand as the results of the registered campaign, with this test reported alongside.
+
+## §8 AMENDMENT A4.1 (registered 2026-07-30, BEFORE the runs): extend A4 to the PPO variants
+
+**WHY.** A4 tested the corrected observation on BASE PPO only (10 of the campaign's 38 runs).
+Its conclusion -- a learnable critic does not produce an edge -- is therefore MEASURED for the
+primary configuration and merely INFERRED for the three registered PPO variants. This
+amendment converts that inference into a measurement. Registered before running, per the same
+discipline as A4.
+
+**WHAT RUNS.** The Wave-1 PPO variant set exactly as registered in the original Phase D
+campaign -- V1a net[64,64], V1b net[128,128], V2 reward x100 -- both regimes, seeds 0-2 =
+**18 runs**. Injected env. EVERYTHING identical to the Phase D/E variant runs except
+`--obs-price-vs-arrival` (obs_dim 28 -> 29). Output: `runs_signal_obsfix_var/`. Judged on the
+DEVELOPMENT block 18e6 (n=2000) under the SAME frozen rule. No sealed block is touched.
+
+**PREDICTIONS (fixed now):**
+- P-A4.1v: critic explained variance rises materially above zero for the variants too
+  (mean EV > 0.10, versus ~0.00 under the original observation), as it did for base PPO
+  (mean +0.405).
+- P-A4.2v: no variant group meets the frozen edge rule; pooled means stay inside +/-0.05 bps.
+- P-A4.3v: behaviour-audit invalidity may RISE relative to the original variant runs, as it
+  did for base PPO (4/10 invalid vs 0/10). Whatever the rate, it is reported per group and the
+  valid-seed count is stated wherever a variant number is cited.
+
+**BRANCHES (fixed now):** (i) both hold -> A4's conclusion is measured across the registered
+PPO configuration space, not inferred; the null strengthens further. (ii) a variant meets the
+edge rule -> DEV-BLOCK result ONLY, requiring confirmation on a newly minted, disjointness-
+audited block before any claim (17e6/18e6/19e6/21e6 are SPENT); the headline would then change
+and the observation omission becomes the central methodological finding. (iii) EV fails to
+rise for the variants -> the mechanism is configuration-dependent, investigated and reported.
+DQN is deliberately EXCLUDED: its failure is separately diagnosed as an intrinsic collapse and
+it collapsed with the signal present, so adding an observation feature to a non-functional
+learner tests little. That exclusion is a registered choice, not an omission.
+
+---
+
+## Amendment A4.2 (registered 2026-07-30, BEFORE the runs): the corrected observation for DQN.
+## This REVERSES a registered exclusion. Recorded as a reversal, not presented as a new idea.
+
+**WHAT IS BEING REVERSED, AND WHY THAT MATTERS.** Amendment A4.1 states: "DQN is deliberately
+EXCLUDED: its failure is separately diagnosed as an intrinsic collapse and it collapsed with
+the signal present, so adding an observation feature to a non-functional learner tests little.
+That exclusion is a registered choice, not an omission." That exclusion is now overturned on
+the user's decision. It is logged as a reversal so the record shows a registered choice being
+changed deliberately, with its reason, rather than quietly drifting.
+
+**WHY THE ORIGINAL REASONING WAS WEAK (the honest justification for reversing).** The exclusion
+assumed what it was meant to test. DQN's collapse is a preference for deferring; the diagnosed
+cause (criteria Parts D/E) is a DEGENERATE COST SURFACE in which deferring is nearly free, so
+"do nothing" sits in a flat region of the value function. The observation defect found in A4
+is a plausible CAUSE of exactly that flatness: an agent scored against a price it cannot
+observe has no way to distinguish good from bad states, which is precisely the condition under
+which a value-based learner's action-values fail to separate. Calling the collapse "intrinsic"
+and then declining to test the one manipulation that could have produced it is circular. This
+amendment removes the circularity.
+
+**WHAT RUNS.** Base DQN, both regimes, seeds 0-4 = **10 runs**. Injected env. EVERYTHING
+identical to the Phase D/E base DQN runs except `--obs-price-vs-arrival` (obs_dim 28 -> 29).
+Output: `runs_signal_obsfix_dqn/`. Judged on the DEVELOPMENT block 18e6 (n=2000) under the SAME
+frozen rule. **No sealed block is touched.** Kept in its own directory: it must never be pooled
+with `runs_signal_obsfix` (A4, 10 base PPO) or `runs_signal_obsfix_var` (A4.1, 18 PPO variants).
+
+**BASELINE OF RECORD (measured now, so the comparison is fixed before the result):** the ten
+original injected-env base DQN runs, `step5_signal_dev/behaviour_audit.json` --
+**8 of 10 fail the behaviour audit**; 5/5 invalid in calm, 3/5 in volatile. Deadline-residual
+fractions run from 0.005 to 1.000; six of ten runs have a top action of 0.0 or 0.5 (defer).
+
+**PREDICTIONS (fixed now, before any run):**
+- **P-A4.2a (mechanism).** DQN's learned action-values currently barely separate the seven
+  actions (argument bank N5). With the corrected observation, mean within-state Q-value spread
+  rises materially -- registered as **at least a doubling** of the current mean spread.
+- **P-A4.2b (verdict).** No DQN group meets the frozen edge rule; pooled means stay inside
+  +/-0.05 bps. This is the prediction that matters for RQ1 and I expect it to hold: base PPO
+  with the identical fix showed performance UNCHANGED (A4), and DQN collapsed across a
+  four-setting probe.
+- **P-A4.2c (the discriminating one, genuinely two-sided).** Behaviour-audit invalidity falls
+  relative to the 8/10 baseline but does NOT clear: registered prediction **4 to 7 of 10
+  invalid**. Fewer than 4 would mean the collapse was substantially an artifact of OUR
+  observation design; 8 or more would mean the observation had no bearing on it.
+
+**BRANCHES (fixed now):**
+(i) P-A4.2b holds and invalidity lands in 4-7 -> the DQN collapse is partly attributable to the
+    degenerate value surface and partly intrinsic; the §7.7 Part D finding is REPHRASED to say
+    so, and the observation specification becomes part of that finding's statement.
+(ii) P-A4.2b holds and invalidity falls BELOW 4 -> the DQN collapse was largely an artifact of
+    the observation specification. This is a material correction to a documented finding and
+    must be reported as such, prominently, even though it reflects on our own design. The
+    performance null is unaffected.
+(iii) P-A4.2b holds and invalidity stays at 8+ -> the collapse is intrinsic as originally
+    diagnosed; A4.1's exclusion reasoning was right after all, and the finding stands
+    strengthened by having been tested rather than assumed.
+(iv) P-A4.2b FAILS (a DQN group meets the edge rule) -> DEV-BLOCK result ONLY. Requires
+    confirmation on a newly minted, disjointness-audited block before any claim
+    (17e6/18e6/19e6/21e6 are SPENT). RQ3's condition would reopen and the write-up would wait.
+
+**NOTE ON RQ3.** RQ3's condition was closed by three SEALED verdicts (frozen-replay exam, two
+reactive confirmations, injected sealed exhibit). This is a development-block completeness
+check and under the frozen rules cannot by itself constitute an edge -- only a candidate, per
+branch (iv). It is registered as a completeness measurement, not as a further attempt to find
+an edge.
+
+---
+
+## Amendment A4.3 (registered 2026-07-30, BEFORE the runs): the corrected observation on the
+## PRIMARY reactive track. Closes the scope gap A4/A4.1/A4.2 leave open.
+
+**WHY THIS EXISTS (state the weakness plainly).** The observation defect -- price-vs-arrival
+absent from the observation while being the scoring reference -- affected ALL THREE
+environments. It has so far been RETESTED IN ONE: the injected extension (A4 base PPO, A4.1
+PPO variants, A4.2 base DQN). The PRIMARY reactive campaign (`step5_v3` / `runs_primary_v3`),
+which carries the dissertation's central claim, has never been re-run with the corrected
+observation. Its null is therefore demonstrated for the registered observation specification
+and merely INFERRED to be independent of it. That inference is reasonable -- the fix changed
+nothing where a signal was known present, which is the harder case -- but it is an inference,
+and a reader is entitled to ask for the measurement on the main track. This amendment supplies
+it.
+
+**WHAT RUNS.** The primary campaign configuration exactly: base PPO and base DQN, calm and
+volatile, seeds 0-4 = **20 runs**. **BASE (non-injected) reactive env**, matching
+`runs_primary_v3`. EVERYTHING identical except `--obs-price-vs-arrival` (obs_dim +1).
+Output: `runs_primary_v3_obsfix/`. Judged on the SAME development block and under the SAME
+frozen rule as the primary campaign. **No sealed block is touched, and none can be** -- the
+sealed confirmation blocks (9e6, 13e6) are SPENT, so this is by construction a development-
+block variant test that sits BESIDE the campaign of record and cannot replace it.
+
+**RELATIONSHIP TO THE CAMPAIGN OF RECORD (so the write-up cannot get this wrong).**
+`step5_v3` + the two sealed confirmations REMAIN the primary result. A4.3 is a robustness
+check reported as one figure and one table, exactly as A4 is reported for the extension
+(S11 / TS9). Every existing figure and table stands. A4.3 answers one question: does the
+boundary null depend on the observation specification?
+
+**BASELINE OF RECORD (measured now, fixed before the result).** `step5_v3`:
+| group | valid seeds | pooled vs adaptive | EDGE |
+|---|---|---|---|
+| ppo_calm | 5/5 | -0.0055 | false |
+| ppo_volatile | 5/5 | -0.0470 | false |
+| dqn_calm | 1/5 | -0.0015 | false |
+| dqn_volatile | 2/5 | -0.0349 | false |
+
+Behaviour audit: 7 of 20 invalid -- **0/10 for PPO, 7/10 for DQN**.
+
+**PREDICTIONS (fixed now, before any run):**
+- **P-A4.3a (mechanism).** Critic explained variance rises materially above zero for base PPO
+  in the base env, as it did in the injected env (mean +0.405 vs ~0.00). Registered threshold:
+  mean EV > 0.10.
+- **P-A4.3b (verdict -- the one that matters).** No group meets the frozen edge rule; pooled
+  means stay inside +/-0.05 bps. The boundary null holds under the corrected observation.
+- **P-A4.3c (DQN collapse).** DQN behaviour-audit invalidity falls from the 7/10 baseline but
+  does not clear: registered prediction **3 to 6 of 10 invalid**. Consistent with A4.2's
+  P-A4.2c; the two runs test the same hypothesis in two environments and must be read together.
+- **P-A4.3d (volatile PPO).** The volatile PPO sub-threshold signal (-0.0470, below the 0.05
+  materiality floor) stays sub-threshold. If the corrected observation pushed it ABOVE the
+  floor, that is a DEV-BLOCK candidate only -- see branch (iii).
+
+**BRANCHES (fixed now):**
+(i) P-A4.3b holds -> the boundary null is MEASURED, not inferred, to be independent of the
+    observation specification on the primary track. The largest remaining scope limitation in
+    the dissertation is closed. Reported as one figure + one table.
+(ii) P-A4.3b holds but P-A4.3c fails low (<3 invalid) -> the DQN collapse was largely an
+    artifact of the observation specification. Material correction to a documented finding;
+    must be reported prominently even though it reflects on our own design. The performance
+    null is unaffected.
+(iii) P-A4.3b FAILS (any group meets the edge rule) -> DEV-BLOCK candidate ONLY. Requires a
+    newly minted, disjointness-audited sealed block (9e6/13e6/17e6/18e6/19e6/21e6 are SPENT)
+    before any claim. The registered specification's sealed null STANDS regardless and is
+    reported as such; the write-up would read "the registered null is sealed-confirmed; a
+    corrected-observation variant produces a candidate requiring confirmation." RQ3's condition
+    would reopen pending that confirmation.

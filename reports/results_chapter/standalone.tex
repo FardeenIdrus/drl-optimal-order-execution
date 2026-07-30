@@ -1,0 +1,23 @@
+% Standalone wrapper so the Results chapter can be compiled and read on its own,
+% without swapping it into the dissertation. Mirrors main.tex's preamble exactly.
+\documentclass[12pt,a4paper]{report}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage[table]{xcolor}
+\usepackage{caption}
+\usepackage{longtable}
+\graphicspath{{../../../Idrus_Fardeen_MSc_Dissertation/figures/}}
+\captionsetup{font=small, labelfont=bf}
+\newcommand{\statusbox}[1]{\begin{center}\fcolorbox{black}{yellow!12}{\parbox{0.93\textwidth}{\small \textbf{Status:} #1}}\end{center}}
+\usepackage[backend=biber,style=numeric-comp,sorting=nyt,natbib=true]{biblatex}
+\addbibresource{../../../Idrus_Fardeen_MSc_Dissertation/references.bib}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\onehalfspacing
+\begin{document}
+\input{results}
+\printbibliography[heading=bibnumbered,title={References cited in this chapter}]
+\end{document}

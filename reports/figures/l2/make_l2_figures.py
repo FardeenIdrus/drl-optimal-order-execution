@@ -88,7 +88,7 @@ def fig_l1_three_lever():
     ]
     fig.legend(handles=handles, loc="upper center", bbox_to_anchor=(0.5, -0.04),
                ncol=4, frameon=False, fontsize=8.5)
-    save(fig, "l1_three_lever_null")
+    save(fig, "frozen_three_lever_null")
 
 
 # ---------------------------------------------------------------- L2 sweep
@@ -146,7 +146,7 @@ def fig_l2_size_sweep():
     ax2.legend(fontsize=8, frameon=False)
     fig.suptitle("The size lever: execution gets harder as orders grow, but no exploitable gap opens",
                  y=1.04)
-    save(fig, "l2_size_sweep")
+    save(fig, "frozen_size_sweep")
 
 
 if __name__ == "__main__":

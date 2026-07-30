@@ -1,24 +1,29 @@
-% Auto-generated from the 70 L2 agents' meta.json files (VALIDATION data).
-\begin{tabular}{llrrrr}
+% Auto-generated. VALIDATION columns from the 70 agents' meta.json; SEALED-EXAM
+% columns from l2_test_results/test_*.json (one shot, 2026-07-30, block spent).
+% Sealed columns pool BEHAVIOUR-VALID seeds only (audit before cost), unlike the
+% stored arm_summary -- see the addendum in reports/l2_test_protocol.md.
+\begin{tabular}{llrrrrrr}
 \toprule
-panel & arm & pooled vs TWAP & cheaper & flagged & across-seed \\
- & & (bps) & seeds & seeds & $p$ \\
+& & \multicolumn{3}{c}{validation} & \multicolumn{3}{c}{sealed exam} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}
+panel & arm & pooled & cheaper & $p$ & pooled & cheaper & $p$ \\
+ & & (bps) & seeds & & (bps) & seeds & \\
 \midrule
-1-min bars, 30-min & PPO 96.57 & -0.0890 & 4/5 & 0/5 & 0.037 \\
-1-min bars, 30-min & PPO 193.13 & -0.0297 & 3/5 & 0/5 & 0.167 \\
-1-min bars, 30-min & DQN 96.57 & +0.5920 & 3/5 & 1/5 & 0.796 \\
-1-min bars, 30-min & DQN 193.13 & +0.0505 & 3/5 & 2/5 & 0.750 \\
+1-min bars, 30-min & PPO 96.57 & -0.0890 & 4/5 & 0.037 & -0.0108 & 3/5 & 0.294 \\
+1-min bars, 30-min & PPO 193.13 & -0.0297 & 3/5 & 0.167 & +0.0799 & 0/5 & 0.974 \\
+1-min bars, 30-min & DQN 96.57 & +0.5920 & 3/5 & 0.796 & +0.0025 & 1/4 & 0.560 \\
+1-min bars, 30-min & DQN 193.13 & +0.0505 & 3/5 & 0.750 & +0.0563 & 0/4 & 0.999 \\
 \midrule
-10-s bars, 30-min & PPO 96.57 & +0.1779 & 0/5 & 0/5 & 1.000 \\
-10-s bars, 30-min & PPO 193.13 & +0.0740 & 1/5 & 0/5 & 0.781 \\
-10-s bars, 30-min & PPO 386.27 & +0.2010 & 0/5 & 0/5 & 1.000 \\
-10-s bars, 30-min & DQN 96.57 & +0.7663 & 0/5 & 1/5 & 0.884 \\
-10-s bars, 30-min & DQN 193.13 & +0.1417 & 1/5 & 0/5 & 0.940 \\
-10-s bars, 30-min & DQN 386.27 & +0.2049 & 1/5 & 1/5 & 0.981 \\
+10-s bars, 30-min & PPO 96.57 & +0.1779 & 0/5 & 1.000 & -0.4416 & 5/5 & 0.000 \\
+10-s bars, 30-min & PPO 193.13 & +0.0740 & 1/5 & 0.781 & -0.3221 & 5/5 & 0.008 \\
+10-s bars, 30-min & PPO 386.27 & +0.2010 & 0/5 & 1.000 & -0.4508 & 5/5 & 0.000 \\
+10-s bars, 30-min & DQN 96.57 & +0.7663 & 0/5 & 0.884 & -0.4893 & 4/4 & 0.001 \\
+10-s bars, 30-min & DQN 193.13 & +0.1417 & 1/5 & 0.940 & -0.2369 & 4/5 & 0.156 \\
+10-s bars, 30-min & DQN 386.27 & +0.2049 & 1/5 & 0.981 & -0.5105 & 4/4 & 0.000 \\
 \midrule
-10-s bars, 10-min & PPO 96.57 & +0.0066 & 3/5 & 0/5 & 0.562 \\
-10-s bars, 10-min & PPO 193.13 & +0.0324 & 1/5 & 0/5 & 0.797 \\
-10-s bars, 10-min & DQN 96.57 & +0.0244 & 3/5 & 1/5 & 0.672 \\
-10-s bars, 10-min & DQN 193.13 & +0.1133 & 2/5 & 1/5 & 0.867 \\
+10-s bars, 10-min & PPO 96.57 & +0.0066 & 3/5 & 0.562 & -0.0268 & 3/5 & 0.272 \\
+10-s bars, 10-min & PPO 193.13 & +0.0324 & 1/5 & 0.797 & -0.0292 & 5/5 & 0.017 \\
+10-s bars, 10-min & DQN 96.57 & +0.0244 & 3/5 & 0.672 & -0.0463 & 3/4 & 0.149 \\
+10-s bars, 10-min & DQN 193.13 & +0.1133 & 2/5 & 0.867 & -0.0493 & 3/4 & 0.270 \\
 \bottomrule
 \end{tabular}

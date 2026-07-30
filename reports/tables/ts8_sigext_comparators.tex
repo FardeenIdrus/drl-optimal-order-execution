@@ -13,7 +13,10 @@ from a feasible benchmark). The dominance gaps lie below the 0.05\,bps materiali
 are individually insignificant; the calm pattern, consistent across all five seeds, is the
 defensible claim.}
 \label{tab:sigext-comparators}
-\small
+% NINE columns: \small overflows the portrait text block by ~26pt. \scriptsize fits without
+% resizebox (which would scale the font non-uniformly against surrounding text).
+\scriptsize
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrrrrrrrr}
 \toprule
 & \multicolumn{4}{c}{base environment} & \multicolumn{4}{c}{injected environment} \\

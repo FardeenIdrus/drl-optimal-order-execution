@@ -133,9 +133,11 @@ def t3_confirmations():
         v = list(j["verdicts"].values())[0]
         lines.append(r"\cmidrule(lr){2-7}")
         lines.append(
-            f" & \\multicolumn{{6}}{{l}}{{pooled vs adaptive = {v['pooled_vs_adaptive_bps']:+.4f} bps; "
-            f"across-seed $p$ = {v['across_seed_t_p_onesided']:.3f}; "
-            f"cheaper in {v['n_cheaper_of_valid']}/{v['n_valid_seeds']}; "
+            # A single \multicolumn{6}{l} cannot wrap, so a long summary string silently
+            # overflows the text block (it did: 109pt). Kept compact deliberately.
+            f" & \\multicolumn{{6}}{{l}}{{pooled {v['pooled_vs_adaptive_bps']:+.4f} bps; "
+            f"$p$ = {v['across_seed_t_p_onesided']:.3f}; "
+            f"{v['n_cheaper_of_valid']}/{v['n_valid_seeds']} cheaper; "
             f"\\textbf{{PASS = {str(v['PASS']).upper()}}}}} \\\\")
         lines.append(r"\midrule")
     lines[-1] = r"\bottomrule"
@@ -258,6 +260,39 @@ def _l2_arm(dirname, algo, size):
     return np.array(vals), np.array(resid)
 
 
+# --------------------------------------------------------- sealed-exam (TEST) columns
+L2TEST = Path("/Users/fardeenidrus/Desktop/MSc Dissertation/scratch_hyperliquid/l2_test_results")
+_L2_TEST_CACHE: dict = {}
+
+
+def _l2_test():
+    """Per-agent sealed-exam rows, keyed (runs_dir, run). One shot, block spent 2026-07-30."""
+    if not _L2_TEST_CACHE:
+        for f in sorted(L2TEST.glob("test_*.json")):
+            for r in json.loads(f.read_text())["runs_flat"]:
+                _L2_TEST_CACHE[(r["runs_dir"], r["run"])] = r
+    return _L2_TEST_CACHE
+
+
+def _l2_arm_test(dirname, algo, size):
+    """Sealed-exam values for one arm, per seed, with the deadline-audit flag.
+
+    The stored `arm_summary` pooled column averages ALL five seeds including agents the
+    deadline audit rejects, which contradicts the audit-before-cost rule applied in every
+    other campaign. Pooling here is over VALID seeds only; no PASS verdict moves (all four
+    nominally-passing arms have zero flagged seeds) but four DQN control arms shift, every
+    one of them toward cheaper. See the addendum in reports/l2_test_protocol.md."""
+    t = _l2_test()
+    vals, flags = [], []
+    for s in range(5):
+        r = t.get((dirname, f"{algo}_size{size}_seed{s}"))
+        if r is None:
+            continue
+        vals.append(r["mean_paired_diff_bps"])
+        flags.append(bool(r["dl_flag"]))
+    return np.array(vals), np.array(flags, dtype=bool)
+
+
 # ---------------------------------------------------------------- T5
 def t5_env_validation():
     g = json.load(open(S / "step4_gates_v3.json"))
@@ -308,17 +343,31 @@ def t5_env_validation():
 def t7_l2_summary():
     from scipy.stats import ttest_1samp
     lines = [
-        r"% Auto-generated from the 70 L2 agents' meta.json files (VALIDATION data).",
-        r"\begin{tabular}{llrrrr}", r"\toprule",
-        r"panel & arm & pooled vs TWAP & cheaper & flagged & across-seed \\",
-        r" & & (bps) & seeds & seeds & $p$ \\", r"\midrule",
+        r"% Auto-generated. VALIDATION columns from the 70 agents' meta.json; SEALED-EXAM",
+        r"% columns from l2_test_results/test_*.json (one shot, 2026-07-30, block spent).",
+        r"% Sealed columns pool BEHAVIOUR-VALID seeds only (audit before cost), unlike the",
+        r"% stored arm_summary -- see the addendum in reports/l2_test_protocol.md.",
+        r"\begin{tabular}{llrrrrrr}", r"\toprule",
+        r"& & \multicolumn{3}{c}{validation} & \multicolumn{3}{c}{sealed exam} \\",
+        r"\cmidrule(lr){3-5}\cmidrule(lr){6-8}",
+        r"panel & arm & pooled & cheaper & $p$ & pooled & cheaper & $p$ \\",
+        r" & & (bps) & seeds & & (bps) & seeds & \\", r"\midrule",
     ]
     for label, dirname, arms in L2_PANELS:
         for algo, size in arms:
             vals, resid = _l2_arm(dirname, algo, size)
             p = ttest_1samp(vals, 0.0, alternative="less").pvalue
+            tv, tf = _l2_arm_test(dirname, algo, size)
+            ok = tv[~tf] if len(tv) else tv
+            if len(ok) >= 2:
+                tp = ttest_1samp(ok, 0.0, alternative="less").pvalue
+                tcell = (f"{ok.mean():+.4f} & {int((ok < 0).sum())}/{len(ok)} & {tp:.3f}")
+            elif len(ok) == 1:
+                tcell = f"{ok.mean():+.4f} & {int((ok < 0).sum())}/1 & --"
+            else:
+                tcell = "-- & -- & --"
             lines.append(f"{esc(label)} & {algo.upper()} {size} & {vals.mean():+.4f} & "
-                         f"{int((vals < 0).sum())}/5 & {int((resid > 0.10).sum())}/5 & {p:.3f} \\\\")
+                         f"{int((vals < 0).sum())}/5 & {p:.3f} & {tcell} \\\\")
         lines.append(r"\midrule")
     lines[-1] = r"\bottomrule"
     lines.append(r"\end{tabular}")
@@ -328,19 +377,31 @@ def t7_l2_summary():
 # ---------------------------------------------------------------- T9
 def t9_l2_perrun():
     lines = [
-        r"% Auto-generated: all 70 L2 agents, per seed (VALIDATION data; test columns follow",
-        r"% the sealed exam). resid = share of episodes finished by the forced deadline buy.",
+        r"% Auto-generated: all 70 L2 agents, per seed. VALIDATION columns from meta.json;",
+        r"% SEALED-EXAM column from l2_test_results/test_*.json (one shot, 2026-07-30).",
+        r"% resid = share of episodes finished by the forced deadline buy; DL = audit-rejected.",
         r"% LONGTABLE: flows across pages; include directly (no float, no resizebox).",
-        r"\begin{longtable}{llrrr}", r"\toprule",
-        r"panel & arm & seed & vs TWAP (bps) & resid \\", r"\midrule", r"\endhead",
+        r"\begin{longtable}{llrrrrr}", r"\toprule",
+        r"panel & arm & seed & \multicolumn{2}{c}{validation} & "
+        r"\multicolumn{2}{c}{sealed exam} \\",
+        r"\cmidrule(lr){4-5}\cmidrule(lr){6-7}",
+        r" & & & vs TWAP (bps) & resid & vs TWAP (bps) & audit \\",
+        r"\midrule", r"\endhead",
     ]
     for label, dirname, arms in L2_PANELS:
         for algo, size in arms:
             vals, resid = _l2_arm(dirname, algo, size)
+            tv, tf = _l2_arm_test(dirname, algo, size)
             for s in range(5):
                 flag = r" \textbf{DL}" if resid[s] > 0.10 else ""
+                if s < len(tv):
+                    tcell = (f"{tv[s]:+.4f} & "
+                             + (r"\textbf{DL}" if tf[s] else "ok"))
+                else:
+                    tcell = "-- & --"
                 lines.append(f"{esc(label)} & {algo.upper()} {size} & {s} & "
-                             f"{vals[s]:+.4f} & {resid[s]:.1%}{flag} \\\\".replace("%", r"\%"))
+                             f"{vals[s]:+.4f} & {resid[s]:.1%}{flag} & {tcell} \\\\"
+                             .replace("%", r"\%"))
         lines.append(r"\midrule")
     lines[-1] = r"\bottomrule"
     lines.append(r"\end{longtable}")

@@ -69,11 +69,14 @@ def _load_kernel(scratch: Path, regime: str) -> dict:
 
 
 def _core(scratch: Path, regime: str, order_btc: float,
-          env_steps: int = 300, kernel: Optional[dict] = None) -> ReactiveQRMEnv:
+          env_steps: int = 300, kernel: Optional[dict] = None,
+          obs_pva: bool = False) -> ReactiveQRMEnv:
     # kernel is None -> the boundary-null (no-signal) env; a kernel -> the CERTIFIED
     # measured-signal injected env (Phase E). The observation gains the signal feature
     # (obs_dim +=1) automatically when injection is ON.
     kw = dict(signal_injection=True, signal_kernel=kernel) if kernel is not None else {}
+    if obs_pva:                                  # criteria section 8 Amendment A4
+        kw["obs_price_vs_arrival"] = True
     return ReactiveQRMEnv(
         str(scratch / "step3g" / f"qrm_bundle_{regime}_b.npz"),
         str(scratch / "step3g" / f"move_process_{regime}_centered.npz"),
@@ -82,13 +85,14 @@ def _core(scratch: Path, regime: str, order_btc: float,
 
 def eval_paired_vs_adaptive(scratch: Path, regime: str, order_btc: float,
                             model, n_eps: int, seed0: int = 1_000_000,
-                            env_steps: int = 300, kernel: Optional[dict] = None) -> dict:
+                            env_steps: int = 300, kernel: Optional[dict] = None,
+                            obs_pva: bool = False) -> dict:
     """CRN-paired mean cost difference (model − adaptive-TWAP), bps; negative = better.
     In Phase E `kernel` is the certified injected kernel, so agent and benchmark are
     scored in the SAME injected market (the shadow pass makes the signal path
     policy-independent, so CRN pairing holds exactly)."""
     from execution.qrm.reactive_baselines import adaptive_twap, run_episodes
-    core = _core(scratch, regime, order_btc, env_steps, kernel=kernel)
+    core = _core(scratch, regime, order_btc, env_steps, kernel=kernel, obs_pva=obs_pva)
     seeds = list(range(seed0, seed0 + n_eps))
     base = run_episodes(core, adaptive_twap, seeds)
 
@@ -128,6 +132,20 @@ def main() -> None:
                     help="override DQN update interval in env steps (criteria §7.7 Part E d3)")
     ap.add_argument("--dqn-batch-size", type=int, default=None,
                     help="override DQN batch size (criteria §7.7 Part E d3)")
+    ap.add_argument("--obs-price-vs-arrival", action="store_true",
+                    help="criteria section 8 Amendment A4: add price-vs-arrival (bps) to the "
+                         "observation (obs_dim +1). OFF by default; the registered campaigns "
+                         "used the original observation.")
+    ap.add_argument("--log-learning", action="store_true",
+                    help="task register item 7: write SB3's per-update learning diagnostics "
+                         "(value loss, explained variance, entropy, approx KL, clip fraction) "
+                         "to <run_dir>/progress.csv. The registered campaigns trained with no "
+                         "logger, so these trajectories were never captured and CANNOT be "
+                         "recovered from a saved model.zip. OFF by default: attaching a logger "
+                         "must not change any completed run. It touches no RNG stream, so a "
+                         "run repeated with this flag is expected to reproduce its original "
+                         "curve exactly -- which the item-7 launcher GATES on before the "
+                         "trajectories are attributed to the agents of record.")
     ap.add_argument("--inject", action="store_true",
                     help="train + eval in the CERTIFIED measured-signal injected env "
                          "(Phase D/E; loads signal/kernel_solution.json for the regime)")
@@ -146,7 +164,8 @@ def main() -> None:
     if args.inject:
         logger.info("%s %s s%d: INJECTED env (offset %+.6f bps)", args.algo, args.regime,
                     args.seed, kernel["offset_bps"])
-    core = _core(scratch, args.regime, args.order_btc, args.env_steps, kernel=kernel)
+    core = _core(scratch, args.regime, args.order_btc, args.env_steps, kernel=kernel,
+                 obs_pva=args.obs_price_vs_arrival)
     env = GymReactive(core, train_seed_base=args.seed * 10_000_000,
                       reward_scale=args.reward_scale)
     # the L2 track's locked hyperparameters (configs/experiment*.yaml agent blocks),
@@ -182,6 +201,12 @@ def main() -> None:
             hp["n_steps"] = args.ppo_n_steps
         model = make_ppo(env, hp, seed=args.seed)
 
+    if args.log_learning:
+        # Standard SB3 CSV logger. PPO dumps once per rollout (n_steps env steps), DQN once
+        # per log_interval episodes, so the file is the per-update learning trajectory.
+        from stable_baselines3.common.logger import configure as sb3_configure
+        model.set_logger(sb3_configure(str(run_dir), ["csv"]))
+
     # Remediation I8: ONE learn() call for the whole budget. The old 100k-chunk loop
     # made SB3 recompute the epsilon anneal against each chunk, so every DQN run
     # trained at the epsilon floor from (before) the first gradient update. The curve
@@ -196,7 +221,8 @@ def main() -> None:
             if self.num_timesteps % EVAL_EVERY == 0:
                 r = eval_paired_vs_adaptive(scratch, args.regime, args.order_btc,
                                             self.model, N_EVAL_CURVE,
-                                            env_steps=args.env_steps, kernel=kernel)
+                                            env_steps=args.env_steps, kernel=kernel,
+                                            obs_pva=args.obs_price_vs_arrival)
                 eps = getattr(self.model, "exploration_rate", None)
                 curve.append({"steps": int(self.num_timesteps), **r,
                               **({"eps": float(eps)} if eps is not None else {})})
@@ -214,6 +240,8 @@ def main() -> None:
         "order_btc": args.order_btc, "env_steps": args.env_steps,
         "steps": args.steps, "gamma": GAMMA_1S,
         "injected": bool(args.inject),
+        "obs_price_vs_arrival": bool(args.obs_price_vs_arrival),
+        "log_learning": bool(args.log_learning),
         "signal_offset_bps": (kernel["offset_bps"] if kernel is not None else None),
         "net_arch": net_arch, "reward_scale": args.reward_scale, "tag": args.tag,
         "overrides": {"lr": args.lr, "ent_coef": args.ent_coef,

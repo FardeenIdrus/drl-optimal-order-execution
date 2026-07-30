@@ -1,82 +1,85 @@
-% Auto-generated: all 70 L2 agents, per seed (VALIDATION data; test columns follow
-% the sealed exam). resid = share of episodes finished by the forced deadline buy.
+% Auto-generated: all 70 L2 agents, per seed. VALIDATION columns from meta.json;
+% SEALED-EXAM column from l2_test_results/test_*.json (one shot, 2026-07-30).
+% resid = share of episodes finished by the forced deadline buy; DL = audit-rejected.
 % LONGTABLE: flows across pages; include directly (no float, no resizebox).
-\begin{longtable}{llrrr}
+\begin{longtable}{llrrrrr}
 \toprule
-panel & arm & seed & vs TWAP (bps) & resid \\
+panel & arm & seed & \multicolumn{2}{c}{validation} & \multicolumn{2}{c}{sealed exam} \\
+\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+ & & & vs TWAP (bps) & resid & vs TWAP (bps) & audit \\
 \midrule
 \endhead
-1-min bars, 30-min & PPO 96.57 & 0 & -0.1707 & 0.8\% \\
-1-min bars, 30-min & PPO 96.57 & 1 & -0.0834 & 0.2\% \\
-1-min bars, 30-min & PPO 96.57 & 2 & -0.1169 & 0.5\% \\
-1-min bars, 30-min & PPO 96.57 & 3 & +0.0487 & 1.0\% \\
-1-min bars, 30-min & PPO 96.57 & 4 & -0.1230 & 0.5\% \\
-1-min bars, 30-min & PPO 193.13 & 0 & -0.0118 & 2.0\% \\
-1-min bars, 30-min & PPO 193.13 & 1 & +0.0094 & 0.2\% \\
-1-min bars, 30-min & PPO 193.13 & 2 & +0.0314 & 1.8\% \\
-1-min bars, 30-min & PPO 193.13 & 3 & -0.0562 & 1.2\% \\
-1-min bars, 30-min & PPO 193.13 & 4 & -0.1214 & 0.8\% \\
-1-min bars, 30-min & DQN 96.57 & 0 & -0.0764 & 0.0\% \\
-1-min bars, 30-min & DQN 96.57 & 1 & +0.0060 & 0.5\% \\
-1-min bars, 30-min & DQN 96.57 & 2 & -0.0512 & 0.8\% \\
-1-min bars, 30-min & DQN 96.57 & 3 & -0.0793 & 0.0\% \\
-1-min bars, 30-min & DQN 96.57 & 4 & +3.1610 & 97.8\% \textbf{DL} \\
-1-min bars, 30-min & DQN 193.13 & 0 & -0.0433 & 1.5\% \\
-1-min bars, 30-min & DQN 193.13 & 1 & +0.3100 & 36.8\% \textbf{DL} \\
-1-min bars, 30-min & DQN 193.13 & 2 & -0.0553 & 0.2\% \\
-1-min bars, 30-min & DQN 193.13 & 3 & -0.0224 & 1.5\% \\
-1-min bars, 30-min & DQN 193.13 & 4 & +0.0632 & 11.8\% \textbf{DL} \\
+1-min bars, 30-min & PPO 96.57 & 0 & -0.1707 & 0.8\% & -0.0534 & ok \\
+1-min bars, 30-min & PPO 96.57 & 1 & -0.0834 & 0.2\% & -0.0415 & ok \\
+1-min bars, 30-min & PPO 96.57 & 2 & -0.1169 & 0.5\% & +0.0466 & ok \\
+1-min bars, 30-min & PPO 96.57 & 3 & +0.0487 & 1.0\% & -0.0193 & ok \\
+1-min bars, 30-min & PPO 96.57 & 4 & -0.1230 & 0.5\% & +0.0138 & ok \\
+1-min bars, 30-min & PPO 193.13 & 0 & -0.0118 & 2.0\% & +0.0297 & ok \\
+1-min bars, 30-min & PPO 193.13 & 1 & +0.0094 & 0.2\% & +0.0389 & ok \\
+1-min bars, 30-min & PPO 193.13 & 2 & +0.0314 & 1.8\% & +0.1572 & ok \\
+1-min bars, 30-min & PPO 193.13 & 3 & -0.0562 & 1.2\% & +0.0296 & ok \\
+1-min bars, 30-min & PPO 193.13 & 4 & -0.1214 & 0.8\% & +0.1440 & ok \\
+1-min bars, 30-min & DQN 96.57 & 0 & -0.0764 & 0.0\% & +0.0140 & ok \\
+1-min bars, 30-min & DQN 96.57 & 1 & +0.0060 & 0.5\% & -0.0424 & ok \\
+1-min bars, 30-min & DQN 96.57 & 2 & -0.0512 & 0.8\% & +0.0161 & ok \\
+1-min bars, 30-min & DQN 96.57 & 3 & -0.0793 & 0.0\% & +0.0223 & ok \\
+1-min bars, 30-min & DQN 96.57 & 4 & +3.1610 & 97.8\% \textbf{DL} & +0.5256 & \textbf{DL} \\
+1-min bars, 30-min & DQN 193.13 & 0 & -0.0433 & 1.5\% & +0.0475 & ok \\
+1-min bars, 30-min & DQN 193.13 & 1 & +0.3100 & 36.8\% \textbf{DL} & +0.1717 & \textbf{DL} \\
+1-min bars, 30-min & DQN 193.13 & 2 & -0.0553 & 0.2\% & +0.0692 & ok \\
+1-min bars, 30-min & DQN 193.13 & 3 & -0.0224 & 1.5\% & +0.0483 & ok \\
+1-min bars, 30-min & DQN 193.13 & 4 & +0.0632 & 11.8\% \textbf{DL} & +0.0602 & ok \\
 \midrule
-10-s bars, 30-min & PPO 96.57 & 0 & +0.2056 & 0.0\% \\
-10-s bars, 30-min & PPO 96.57 & 1 & +0.1587 & 0.0\% \\
-10-s bars, 30-min & PPO 96.57 & 2 & +0.1846 & 0.2\% \\
-10-s bars, 30-min & PPO 96.57 & 3 & +0.1919 & 0.0\% \\
-10-s bars, 30-min & PPO 96.57 & 4 & +0.1488 & 0.2\% \\
-10-s bars, 30-min & PPO 193.13 & 0 & +0.0956 & 0.2\% \\
-10-s bars, 30-min & PPO 193.13 & 1 & +0.1229 & 0.2\% \\
-10-s bars, 30-min & PPO 193.13 & 2 & +0.2496 & 0.0\% \\
-10-s bars, 30-min & PPO 193.13 & 3 & +0.1552 & 0.5\% \\
-10-s bars, 30-min & PPO 193.13 & 4 & -0.2533 & 5.5\% \\
-10-s bars, 30-min & PPO 386.27 & 0 & +0.2294 & 0.2\% \\
-10-s bars, 30-min & PPO 386.27 & 1 & +0.1743 & 0.0\% \\
-10-s bars, 30-min & PPO 386.27 & 2 & +0.1565 & 0.0\% \\
-10-s bars, 30-min & PPO 386.27 & 3 & +0.2174 & 0.0\% \\
-10-s bars, 30-min & PPO 386.27 & 4 & +0.2272 & 0.0\% \\
-10-s bars, 30-min & DQN 96.57 & 0 & +2.9426 & 97.8\% \textbf{DL} \\
-10-s bars, 30-min & DQN 96.57 & 1 & +0.1728 & 7.8\% \\
-10-s bars, 30-min & DQN 96.57 & 2 & +0.2327 & 0.0\% \\
-10-s bars, 30-min & DQN 96.57 & 3 & +0.2341 & 0.5\% \\
-10-s bars, 30-min & DQN 96.57 & 4 & +0.2493 & 0.0\% \\
-10-s bars, 30-min & DQN 193.13 & 0 & +0.2441 & 0.0\% \\
-10-s bars, 30-min & DQN 193.13 & 1 & -0.1025 & 10.0\% \\
-10-s bars, 30-min & DQN 193.13 & 2 & +0.0570 & 0.5\% \\
-10-s bars, 30-min & DQN 193.13 & 3 & +0.2537 & 0.2\% \\
-10-s bars, 30-min & DQN 193.13 & 4 & +0.2561 & 0.5\% \\
-10-s bars, 30-min & DQN 386.27 & 0 & -0.0569 & 27.0\% \textbf{DL} \\
-10-s bars, 30-min & DQN 386.27 & 1 & +0.3082 & 1.0\% \\
-10-s bars, 30-min & DQN 386.27 & 2 & +0.2214 & 1.0\% \\
-10-s bars, 30-min & DQN 386.27 & 3 & +0.2978 & 0.0\% \\
-10-s bars, 30-min & DQN 386.27 & 4 & +0.2537 & 0.0\% \\
+10-s bars, 30-min & PPO 96.57 & 0 & +0.2056 & 0.0\% & -0.4228 & ok \\
+10-s bars, 30-min & PPO 96.57 & 1 & +0.1587 & 0.0\% & -0.3486 & ok \\
+10-s bars, 30-min & PPO 96.57 & 2 & +0.1846 & 0.2\% & -0.4935 & ok \\
+10-s bars, 30-min & PPO 96.57 & 3 & +0.1919 & 0.0\% & -0.4930 & ok \\
+10-s bars, 30-min & PPO 96.57 & 4 & +0.1488 & 0.2\% & -0.4502 & ok \\
+10-s bars, 30-min & PPO 193.13 & 0 & +0.0956 & 0.2\% & -0.3933 & ok \\
+10-s bars, 30-min & PPO 193.13 & 1 & +0.1229 & 0.2\% & -0.3080 & ok \\
+10-s bars, 30-min & PPO 193.13 & 2 & +0.2496 & 0.0\% & -0.4693 & ok \\
+10-s bars, 30-min & PPO 193.13 & 3 & +0.1552 & 0.5\% & -0.4229 & ok \\
+10-s bars, 30-min & PPO 193.13 & 4 & -0.2533 & 5.5\% & -0.0173 & ok \\
+10-s bars, 30-min & PPO 386.27 & 0 & +0.2294 & 0.2\% & -0.5192 & ok \\
+10-s bars, 30-min & PPO 386.27 & 1 & +0.1743 & 0.0\% & -0.4193 & ok \\
+10-s bars, 30-min & PPO 386.27 & 2 & +0.1565 & 0.0\% & -0.3852 & ok \\
+10-s bars, 30-min & PPO 386.27 & 3 & +0.2174 & 0.0\% & -0.4977 & ok \\
+10-s bars, 30-min & PPO 386.27 & 4 & +0.2272 & 0.0\% & -0.4325 & ok \\
+10-s bars, 30-min & DQN 96.57 & 0 & +2.9426 & 97.8\% \textbf{DL} & +4.3391 & \textbf{DL} \\
+10-s bars, 30-min & DQN 96.57 & 1 & +0.1728 & 7.8\% & -0.3610 & ok \\
+10-s bars, 30-min & DQN 96.57 & 2 & +0.2327 & 0.0\% & -0.5404 & ok \\
+10-s bars, 30-min & DQN 96.57 & 3 & +0.2341 & 0.5\% & -0.5307 & ok \\
+10-s bars, 30-min & DQN 96.57 & 4 & +0.2493 & 0.0\% & -0.5250 & ok \\
+10-s bars, 30-min & DQN 193.13 & 0 & +0.2441 & 0.0\% & -0.5417 & ok \\
+10-s bars, 30-min & DQN 193.13 & 1 & -0.1025 & 10.0\% & +0.5319 & ok \\
+10-s bars, 30-min & DQN 193.13 & 2 & +0.0570 & 0.5\% & -0.1565 & ok \\
+10-s bars, 30-min & DQN 193.13 & 3 & +0.2537 & 0.2\% & -0.5317 & ok \\
+10-s bars, 30-min & DQN 193.13 & 4 & +0.2561 & 0.5\% & -0.4863 & ok \\
+10-s bars, 30-min & DQN 386.27 & 0 & -0.0569 & 27.0\% \textbf{DL} & +0.5624 & \textbf{DL} \\
+10-s bars, 30-min & DQN 386.27 & 1 & +0.3082 & 1.0\% & -0.4203 & ok \\
+10-s bars, 30-min & DQN 386.27 & 2 & +0.2214 & 1.0\% & -0.5409 & ok \\
+10-s bars, 30-min & DQN 386.27 & 3 & +0.2978 & 0.0\% & -0.5500 & ok \\
+10-s bars, 30-min & DQN 386.27 & 4 & +0.2537 & 0.0\% & -0.5306 & ok \\
 \midrule
-10-s bars, 10-min & PPO 96.57 & 0 & -0.0262 & 0.2\% \\
-10-s bars, 10-min & PPO 96.57 & 1 & -0.0946 & 0.2\% \\
-10-s bars, 10-min & PPO 96.57 & 2 & +0.1367 & 0.0\% \\
-10-s bars, 10-min & PPO 96.57 & 3 & +0.0450 & 0.0\% \\
-10-s bars, 10-min & PPO 96.57 & 4 & -0.0280 & 0.5\% \\
-10-s bars, 10-min & PPO 193.13 & 0 & -0.1008 & 1.0\% \\
-10-s bars, 10-min & PPO 193.13 & 1 & +0.0741 & 1.0\% \\
-10-s bars, 10-min & PPO 193.13 & 2 & +0.0985 & 1.5\% \\
-10-s bars, 10-min & PPO 193.13 & 3 & +0.0373 & 1.5\% \\
-10-s bars, 10-min & PPO 193.13 & 4 & +0.0529 & 0.5\% \\
-10-s bars, 10-min & DQN 96.57 & 0 & +0.2065 & 26.2\% \textbf{DL} \\
-10-s bars, 10-min & DQN 96.57 & 1 & -0.0264 & 0.0\% \\
-10-s bars, 10-min & DQN 96.57 & 2 & -0.0275 & 0.0\% \\
-10-s bars, 10-min & DQN 96.57 & 3 & +0.0553 & 0.2\% \\
-10-s bars, 10-min & DQN 96.57 & 4 & -0.0861 & 1.8\% \\
-10-s bars, 10-min & DQN 193.13 & 0 & +0.4411 & 48.8\% \textbf{DL} \\
-10-s bars, 10-min & DQN 193.13 & 1 & -0.0312 & 3.0\% \\
-10-s bars, 10-min & DQN 193.13 & 2 & +0.0772 & 0.0\% \\
-10-s bars, 10-min & DQN 193.13 & 3 & -0.0401 & 0.0\% \\
-10-s bars, 10-min & DQN 193.13 & 4 & +0.1193 & 0.0\% \\
+10-s bars, 10-min & PPO 96.57 & 0 & -0.0262 & 0.2\% & -0.0032 & ok \\
+10-s bars, 10-min & PPO 96.57 & 1 & -0.0946 & 0.2\% & +0.0123 & ok \\
+10-s bars, 10-min & PPO 96.57 & 2 & +0.1367 & 0.0\% & +0.0693 & ok \\
+10-s bars, 10-min & PPO 96.57 & 3 & +0.0450 & 0.0\% & -0.1731 & ok \\
+10-s bars, 10-min & PPO 96.57 & 4 & -0.0280 & 0.5\% & -0.0393 & ok \\
+10-s bars, 10-min & PPO 193.13 & 0 & -0.1008 & 1.0\% & -0.0253 & ok \\
+10-s bars, 10-min & PPO 193.13 & 1 & +0.0741 & 1.0\% & -0.0601 & ok \\
+10-s bars, 10-min & PPO 193.13 & 2 & +0.0985 & 1.5\% & -0.0037 & ok \\
+10-s bars, 10-min & PPO 193.13 & 3 & +0.0373 & 1.5\% & -0.0217 & ok \\
+10-s bars, 10-min & PPO 193.13 & 4 & +0.0529 & 0.5\% & -0.0352 & ok \\
+10-s bars, 10-min & DQN 96.57 & 0 & +0.2065 & 26.2\% \textbf{DL} & +0.4289 & \textbf{DL} \\
+10-s bars, 10-min & DQN 96.57 & 1 & -0.0264 & 0.0\% & -0.0850 & ok \\
+10-s bars, 10-min & DQN 96.57 & 2 & -0.0275 & 0.0\% & -0.0382 & ok \\
+10-s bars, 10-min & DQN 96.57 & 3 & +0.0553 & 0.2\% & -0.1153 & ok \\
+10-s bars, 10-min & DQN 96.57 & 4 & -0.0861 & 1.8\% & +0.0534 & ok \\
+10-s bars, 10-min & DQN 193.13 & 0 & +0.4411 & 48.8\% \textbf{DL} & +0.6376 & \textbf{DL} \\
+10-s bars, 10-min & DQN 193.13 & 1 & -0.0312 & 3.0\% & +0.1331 & ok \\
+10-s bars, 10-min & DQN 193.13 & 2 & +0.0772 & 0.0\% & -0.1616 & ok \\
+10-s bars, 10-min & DQN 193.13 & 3 & -0.0401 & 0.0\% & -0.0041 & ok \\
+10-s bars, 10-min & DQN 193.13 & 4 & +0.1193 & 0.0\% & -0.1645 & ok \\
 \bottomrule
 \end{longtable}

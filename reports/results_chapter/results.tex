@@ -1,0 +1,453 @@
+% =====================================================================================
+% RESULTS CHAPTER -- rewritten from scratch 2026-07-30.
+%
+% Supersedes chapters/results.tex (7,482 words), which was written as a comprehensive
+% meeting pack, opens with ~160 lines of methodology, and predates the frozen-replay
+% sealed exam, the three-environment figure, the attainable-edge ceiling, the comparator
+% study, the observation amendments and the inversion mechanism.
+%
+% STRUCTURE. Sections are ordered by ESCALATING OBJECTION, not by campaign chronology
+% (guidelines: "avoid simply presenting a chronological account"). Each section exists
+% because the previous one provokes a specific, reasonable objection, and answers it.
+% This is the actual logic of the research programme -- environment 2 exists because of
+% the reaction objection, environment 3 because of the no-signal objection -- it is
+% simply not the calendar order in which the work was run.
+%
+% BUDGET. ~2,500 words. Figures, tables, equations and appendices are EXCLUDED from the
+% 10,000-word limit, so all detail lives there and the prose only states claims and
+% points at evidence.
+%
+% REQUIRES IN main.tex (all already present): graphicx, booktabs, longtable, amsmath,
+% xcolor, caption, \graphicspath{{figures/}}, the \statusbox macro.
+%
+% TABLES NOT YET COPIED INTO THE DISSERTATION REPO -- \ref will render "??" until these
+% are moved from drl-optimal-order-execution/reports/tables/ into the dissertation repo
+% and \input here:
+%   t3_sealed_confirmations.tex  ts6_sigext_sealed.tex   ts7_sigext_ceiling.tex
+%   ts4_sigext_exploiter.tex     ts8_sigext_comparators.tex  ts9_sigext_a4_observation.tex
+%   t4_robustness_grid.tex       t7_l2_summary.tex
+% =====================================================================================
+
+\chapter{Results}
+
+\section{Scope and evidence base}\label{sec:res-orient}
+
+This chapter reports what three environments of increasing favourability to the agent
+returned. Every verdict below was produced on a block of simulated or replayed market data
+that was sealed until the decision rule had been fixed, and every decision rule was
+registered before the data were seen.
+
+Sections~\ref{sec:res-replay} to~\ref{sec:res-comparators} answer Research Question~1. Each is
+placed where it is because the preceding result invites a specific objection, and the
+section answers it. Section~\ref{sec:res-learned} answers Research Question~3,
+Section~\ref{sec:res-regime} Research Question~2.
+
+% =====================================================================================
+\section{Execution performance on recorded order books}\label{sec:res-replay}
+
+Seventy agents were trained on three years of Hyperliquid BTC--USD order books replayed at
+one-minute and ten-second resolution: two algorithms, three order sizes from 0.5\% to 2\% of
+average daily volume, two execution deadlines, five random seeds per configuration,
+fourteen configurations in all. All seventy were then evaluated once, together, on a test
+period that had never been touched.
+
+The verdict is \emph{no stable edge} (Table~\ref{tab:t7}). Four of the fourteen
+configurations did clear the
+pre-registered bar, and Section~\ref{sec:res-apparent} returns to them, because what they
+turn out to be is more informative than the null itself. Across the whole exam the agents
+neither systematically beat nor systematically lost to TWAP, and no configuration's result
+survived a change of evaluation period.
+
+This environment has a clear limitation, and it is the reason the study does not stop here:
+replayed books cannot respond. An agent whose orders would in reality have moved the price
+against it is not penalised for that here, so any apparent skill could be an artefact of
+frictionless execution.
+
+% =====================================================================================
+\section{Execution performance in a reacting market}\label{sec:res-reactive}
+
+The second environment removes that objection. Agents trade inside a queue-reactive
+simulator calibrated on real per-order Hyperliquid data, in which their market orders
+consume visible liquidity, move the price, and meet calibrated refill dynamics. Two
+regime-specific calibrations were built, one for calm and one for volatile hours.
+
+In the primary campaign, calm returned a null. Volatile PPO returned a small but genuine
+cost signal, $-0.047$\,bps against adaptive TWAP with across-seed $p = 0.006$ --- consistent
+in direction across seeds, and yet below the $0.05$\,bps materiality threshold registered
+before any agent was trained. A further ninety-eight runs explored the hyperparameter space
+and produced a champion configuration.
+
+That champion was then tested twice on blocks sealed until the verdict was fixed, and
+\textbf{both tests failed}. The selected configuration returned $-0.0023$\,bps
+($p = 0.38$, 3 of 5 seeds cheaper); a second, chosen by the alternative selection rule to
+show the outcome was not an artefact of how the champion was picked, returned $-0.0022$\,bps
+($p = 0.39$, 2 of 5). Whichever way the winner was selected, it returned approximately zero
+on data it had not been chosen on (Table~\ref{tab:t3}).
+
+A second objection now applies, and it is the stronger one. The background price process in
+this simulator is unpredictable by construction. Under a pure-cost objective with no
+predictable price component, classical execution theory already implies that uniform trading
+is close to optimal~\autocite{almgren2001optimal}. The agents may have found nothing because
+there was nothing to find.
+
+% =====================================================================================
+\section{Performance under injected predictability}\label{sec:res-injected}
+
+The third environment is the study's principal methodological contribution and exists
+precisely to close that objection. Rather than assume a signal, the venue's real
+short-horizon predictability was measured --- top-of-book queue-depth
+imbalance~\autocite{gould2016queue}, which predicts returns over one to ten seconds on this
+venue --- and injected into the certified reactive simulator at exactly its measured
+strength. The agent is then asked to exploit a signal that is \emph{known} to be present,
+which separates ``there was no signal'' from ``the learner failed to find it''.
+
+Figure~\ref{fig:injfid} shows the instrument is faithful: the injected predictability
+reproduces the real venue slope within the pre-registered $\pm 20\%$ band at every gated
+horizon in both regimes. The environment also passes the same fairness gates as the base
+simulator, so no constant-pace policy can profit from residual drift.
+
+The agents were then trained and judged under the identical frozen rule. The result is a
+null, and it replicates on \emph{six independent samples}: the development block, a reserve
+block, a curve-monitoring block, and a one-shot sealed block, in both regimes. On the sealed
+block PPO returned $+0.005$\,bps in calm ($p = 0.63$, 3 of 5 seeds cheaper) and
+$+0.025$\,bps in volatile ($p = 0.81$, 2 of 5); neither meets the registered rule
+(Table~\ref{tab:sigext-sealed}).
+
+One objection survives even this. Signal present is not the same as signal capturable. A
+predictive relationship can be real and still be unreachable given the action set, the
+transaction costs, or the horizon.
+
+% =====================================================================================
+\section{The attainable edge and the fraction captured}\label{sec:res-ceiling}
+
+This is the central result of the dissertation.
+
+A benchmark policy was registered before the campaign that reads the same injected signal
+and does one thing with it: at each decision it requests the pace multiple nearest
+$1 + s$, where $s$ is the signal. It has no free parameters, no training, and no memory.
+Its logic occupies one line.
+
+On the development block it saved $0.230$\,bps in calm and $0.490$\,bps in volatile against
+adaptive TWAP. A single tuned coefficient, fitted on development data and then confirmed
+\emph{one-shot} on a freshly minted block, raised this to $\mathbf{0.313}$\,\textbf{bps in
+calm} and $\mathbf{0.625}$\,\textbf{bps in volatile}, executing over 98\% of the order in
+both cases, with $p < 10^{-25}$ (Table~\ref{tab:sigext-ceiling}). Both figures are five to twelve times
+the materiality threshold.
+
+The trained agents, on their own sealed block, captured $-2\%$ and $-4\%$ of that
+respectively. Not a small fraction: none of it, and marginally worse than simply trading
+uniformly. Figure~\ref{fig:threeenv} places all eighteen pre-registered arms from all three
+environments on one axis alongside this comparison, and Figure~\ref{fig:exploiter} shows the
+same contrast for the untuned rule family, where every signal-reading rule tested beats the
+trained agents.
+
+The conclusion this licenses is narrow and strong. In an environment certified to contain
+real, measured, economically material predictability, standard deep reinforcement learning
+did not find it, while a rule that could be written on a single line did. The failure is not
+an absence of opportunity. It is a failure of learning.
+
+% =====================================================================================
+\section{Action-space parity between agents and benchmarks}\label{sec:res-parity}
+
+The obvious rejoinder is that the benchmark won because it had finer control. It did not.
+The rule computes a continuous target and then snaps it to the same seven pace multiples the
+agents choose from, returning an action index through the identical environment, fill engine
+and random-number stream. Every schedule benchmark in the study does likewise.
+
+The single exception is the TWAP benchmark on the replay track, which requests an exact
+quantity. That asymmetry was measured rather than argued: the agents' own $1.0\times$ action
+reproduces the benchmark to within $0.007$\,bps on the ten-second datasets and $0.023$\,bps
+at one minute, on both evaluation periods --- inside the materiality band and two orders of
+magnitude below every effect discussed here. The discreteness costs the agent nothing, and
+the ceiling in Section~\ref{sec:res-ceiling} was reachable at every decision using actions
+the agent had available.
+
+% =====================================================================================
+\section{Policy attribution: what the agents learned}\label{sec:res-learned}
+
+\statusbox{Incomplete section. The recorded-book measurements below are final. What is
+missing is the same measurement repeated inside the reacting simulator and the injected
+environment, which has not been run yet. Nothing already written here changes when it is.}
+
+Research Question~3 asked which order-book signal drives an execution edge, per regime. No
+edge was found in any environment, so the question as posed has no subject. It is answered
+here in the form the evidence supports: given that the agents did not find the edge, what did
+they learn?
+
+Two measurements bear on this. First, the learned value function of every agent in the
+injected environment explained approximately zero variance in its own realised returns
+(mean explained variance $-0.004$ across ten agents). The critic could not predict the
+outcome of the episodes it was trading.
+
+Second, and more directly, agent behaviour is almost entirely reducible to a single number.
+Regressing each replay-track agent's per-episode cost against that of a fixed
+front-loading rule gives a mean absolute correlation of $0.95$ across thirty agents, with an
+intercept indistinguishable from zero. What the agents learned was not a state-conditional
+response to order-book information; it was a constant deviation from uniform pacing, which
+each seed settled on at a different magnitude.
+
+\emph{Still to be measured: whether the same holds in the two simulated environments,
+where a predictable signal is present and there is therefore something for a
+state-conditional policy to respond to. That measurement, and its split by market regime,
+is outstanding.}
+
+% =====================================================================================
+\section{Regime dependence}\label{sec:res-regime}
+
+Research Question~2 asked whether performance depends on market regime, and unlike
+Research Question~3 it is answered unconditionally, because it does not require an edge to
+exist.
+
+It does depend on regime, in two measured ways. The only cost signal anywhere in the
+reactive campaign appeared in volatile conditions ($-0.047$\,bps, across-seed $p = 0.006$)
+and was absent in calm --- though, as Section~\ref{sec:res-reactive} records, it sat below
+the materiality threshold and did not survive sealed confirmation. Conversely, the DQN
+behavioural collapse described in Section~\ref{sec:res-robust} is concentrated in calm
+conditions and at the smallest order size, where deferring execution is cheapest.
+
+The asymmetry is interpretable: volatile conditions offer more short-horizon price variation
+to time against, while calm conditions make doing nothing nearly free, which is precisely
+the setting in which a value-based learner's action values fail to separate.
+
+% =====================================================================================
+\section{Sensitivity to order size, deadline and evaluation block}\label{sec:res-robust}
+
+The result does not depend on the order size, the execution deadline, or which block of
+market data it was measured on.
+
+A sixteen-cell grid crossing order size with execution deadline produced two apparently
+significant cells, both in calm. Both were escalated to additional seeds and then to a
+reserve block, and both died (Table~\ref{tab:t4}). This pattern --- a result that clears the
+bar on the block it was found on and vanishes on a fresh one --- was demonstrated three
+separate times in this study, and Section~\ref{sec:res-apparent} shows a fourth and sharper
+instance.
+
+DQN failed differently and consistently. Rather than trading badly, it collapsed
+behaviourally: seven of ten agents in the primary campaign, and eight of ten in the injected
+environment, deferred execution until the deadline forced completion, and were rejected by
+the behaviour audit before any cost was compared. A four-setting probe and an
+update-rhythm variant confirmed this is not a tuning artefact.
+
+% =====================================================================================
+\section{Comparators and the risk--return frontier}\label{sec:res-comparators}
+
+Two standard comparators were added to confirm the benchmark choice rather than to compete
+with it. The Almgren--Chriss schedule at zero urgency is theoretically identical to uniform
+trading, and this identity was confirmed empirically in all three environments --- which
+demonstrates, rather than asserts, that TWAP is the appropriate primary benchmark under a
+pure-cost objective. An oracle VWAP schedule, given perfect foreknowledge of the volume
+profile, was more expensive than TWAP in three of four cells and had higher variance in all
+four (Table~\ref{tab:sigext-comparators}).
+
+Plotting every feasible policy as a mean-cost against cost-standard-deviation pair
+(Figure~\ref{fig:frontier}) places the trained agents strictly inside the efficient frontier
+in all five calm seeds and three of five volatile seeds: the agents' deviation from uniform
+pacing bought them neither lower cost nor lower risk. The gaps are themselves below the
+materiality threshold and are reported as such.
+
+% =====================================================================================
+\section{Attribution of an apparent edge on sealed data}\label{sec:res-apparent}
+
+Section~\ref{sec:res-replay} left four configurations unexplained. They are the most
+instructive result in the study, and they are a finding about evaluation rather than about
+execution.
+
+All four cleared the pre-registered bar on genuinely sealed data. All five seeds agreed in
+each. Two cleared a Bonferroni correction for all fourteen configurations outright, at
+$p \leq 0.008$. On the ordinary standards of the literature this is a positive result.
+
+It is not one. The same period was equally kind to agents that had already been diagnosed as
+non-functional: across all thirty agents on the affected dataset, twenty-eight reversed sign
+between the two adjacent periods, including every behaviourally collapsed DQN seed. A learner
+that has stopped learning cannot acquire skill, so what changed was the period, not the
+policies (Figure~\ref{fig:frozenexam}).
+
+The mechanism was then measured (Figure~\ref{fig:frozenmech}). Because the order is a buy,
+TWAP pays the average price across the execution window while a front-loading policy pays
+closer to the arrival price; so the sign of within-window price drift determines whether
+deviating from uniform pacing is rewarded. That drift reverses between the two periods on
+exactly the two datasets whose agents reversed, and not on the third. A fixed rule incapable
+of learning reproduces the entire reversal, monotonically in the size of the deviation: at
+twice the TWAP pace it costs $+0.236$\,bps in the earlier period and saves $0.548$\,bps in
+the later one. Finally, each agent's effective front-loading magnitude is a property of its
+weights and is therefore unchanged between periods ($r = 0.999$), while its cost flips ---
+and decomposing the observed shift attributes \textbf{95\%} of it to that pacing exposure,
+leaving a residual of $-0.025$\,bps, half the materiality threshold.
+
+Two predictions could have refuted this and did not. The first is directional: an agent that
+front-loads should become cheaper on the later period, and an agent that delays should become
+more expensive. This holds for \textbf{all thirty agents without exception} --- twenty-six
+front-loaders all fall, four delayers all rise --- so the sign of a single number computed
+from an agent's weights predicts which way its measured cost will move. The second is
+degenerate: one collapsed agent returns a front-loading magnitude of exactly $1.000$ with a
+zero intercept and unit correlation. It has ceased to be a learner and become the
+maximum-pace benchmark, so its movement is definitionally a property of the period.
+
+Why the two adjacent periods differ in within-window drift is a fact about Bitcoin in 2025
+that this study does not attempt to explain. The claim here is about what such a difference
+does to a benchmark comparison, and it is a sharp one: a result can pass a genuine sealed
+hold-out, with unanimous seed agreement and a small $p$-value, and still be almost entirely a
+market exposure that any fixed rule would have collected. Out-of-sample evaluation and seed
+agreement are each necessary; together they are still not sufficient.
+
+% =====================================================================================
+\section{Dependence of the result on the observation specification}\label{sec:res-obs}
+
+\statusbox{Incomplete section. The result reported below is final. Three further sets of
+training runs, whose predictions were fixed in writing before they began, are still being
+scored; they extend the same test to other network settings, to the second algorithm, and to
+the reacting simulator that carries the central claim.}
+
+Agents were scored on their execution price relative to the price at order arrival, while the
+arrival price itself was not among the state variables they observed. Whether the null
+depends on that specification is therefore a question the study must answer rather than
+assume, and it was tested directly.
+
+Adding the missing variable to the observation of ten agents in the injected environment
+raised the critic's explained variance from $-0.004$ to $+0.405$: the value function moved
+from predicting nothing to predicting well. Execution cost was unchanged
+(Table~\ref{tab:sigext-a4}, Figure~\ref{fig:obs}).
+
+\emph{Still to be scored: eighteen runs across three network and reward settings,
+establishing whether the finding is specific to one configuration; ten DQN runs, which also
+test whether the behavioural collapse reported in
+Section~\ref{sec:res-robust} is partly attributable to the same specification; and twenty
+runs repeating the primary reacting-market campaign under the corrected observation, which
+extends the test from the injected environment to the one carrying the central claim.}
+
+% =====================================================================================
+% FIGURES -- placed at the end of the source for readability; LaTeX floats them into place.
+% =====================================================================================
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\textwidth]{s1_injection_fidelity.pdf}
+\caption[Injection fidelity]{\textbf{The injected predictability reproduces the measured
+venue signal.} Predictive slope by forward horizon, real venue data against the injected
+simulator, both regimes. Shaded band is the $\pm 20\%$ acceptance tolerance registered before
+certification; gated horizons are shaded on the horizontal axis. All gated horizons pass in
+both regimes.}
+\label{fig:injfid}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{s2_three_environment.pdf}
+\caption[Three environments, three sealed verdicts]{\textbf{No stable improvement on TWAP in
+any environment, including where a simple rule proves the edge exists.} Left: every one of
+the eighteen pre-registered configurations, grouped by environment, each scored on data
+sealed until its verdict was fixed. Right: in the injected environment, the saving available
+to a registered rule with no fitted parameters against the saving the trained agents
+achieved. The environments differ on more than one axis; the controlled comparison is between
+the second and third, where only the injected signal changes. The first is a qualitative
+anchor, and its result is reported as no stable edge rather than a clean null for the reason
+given in Section~\ref{sec:res-apparent}.}
+\label{fig:threeenv}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{frozen_exam_inversion.pdf}
+\caption[An apparent edge on sealed data]{\textbf{An apparent edge that a non-functional
+agent also produces is a property of the period, not of skill.} Left: every agent on the
+affected dataset, paired between the two adjacent evaluation periods; 28 of 30 reverse sign.
+Right: the control. DQN on this track is independently diagnosed as behaviourally collapsed,
+and it reverses to cheaper on the later period as well. Medians are shown with seed counts
+annotated, because one collapsed seed at $+2.94 \to +4.34$\,bps distorts the mean.}
+\label{fig:frozenexam}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{frozen_inversion_mechanism.pdf}
+\caption[The mechanism behind the apparent edge]{\textbf{95\% of the apparent edge is a
+pacing exposure any fixed rule would have collected.} (A) A family of fixed pacing rules,
+incapable of learning, reproduces the entire reversal, monotonically in the size of the
+deviation from uniform trading. (B) Each agent's front-loading magnitude is a property of its
+weights and does not move between periods ($r = 0.999$); only its cost flips, and the sign of
+the magnitude predicts the direction agent by agent. (C) Decomposition of the observed shift:
+95\% pacing exposure, residual $-0.026$\,bps, inside the materiality band. Colour denotes
+evaluation period throughout; algorithm is carried by line style.}
+\label{fig:frozenmech}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{s4_exploiter_vs_agents.pdf}
+\caption[The capturable edge and what the agents captured]{\textbf{Signal-reading rules
+capture the injected edge; the trained agents do not.} Saving against adaptive TWAP for
+hand-written rules reading the injected signal, against the trained agents, both regimes.
+The rules have no fitted parameters and choose from the agents' own action set.}
+\label{fig:exploiter}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{s11_a4_observation.pdf}
+\caption[The observation specification]{\textbf{Making the value function learnable does not
+make the agents competitive.} Left: critic explained variance per agent, original observation
+against the observation including price relative to arrival. Right: execution cost against
+adaptive TWAP under both specifications, with the materiality band shaded.}
+\label{fig:obs}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\textwidth]{s10_risk_return_frontier.pdf}
+\caption[Risk--return frontier]{\textbf{The agents' deviation from uniform pacing buys them
+nothing.} Every feasible policy plotted as cost standard deviation against mean cost, with
+the efficient set joined and the trained agents shown individually. The zero-urgency
+Almgren--Chriss schedule and TWAP coincide, as theory requires. Oracle VWAP is marked and is
+infeasible in practice.}
+\label{fig:frontier}
+\end{figure}
+
+% =====================================================================================
+% TABLES -- the .tex sources contain only the tabular/longtable environment; captions and
+% labels live here so they can be read alongside the prose. Copy the sources across with
+% reports/tables/sync_to_dissertation.py.
+% =====================================================================================
+
+\begin{table}[htbp]
+\centering\scriptsize\setlength{\tabcolsep}{4pt}
+\input{tables/t7_l2_summary.tex}
+\caption[Frozen-replay track: all fourteen configurations]{\textbf{Frozen-replay track,
+validation against sealed exam.} Pooled cost relative to TWAP, seeds cheaper, and the
+across-seed one-sided $p$, for every configuration. Sealed-exam columns pool
+behaviour-valid seeds only, applying the deadline audit before the cost comparison as
+elsewhere in the study. The ten-second, thirty-minute panel shows the reversal analysed in
+Section~\ref{sec:res-apparent}: every arm loses on validation and wins on the sealed period,
+including the behaviourally collapsed DQN arms.}
+\label{tab:t7}
+\end{table}
+
+\begin{table}[htbp]
+\centering\small
+\input{tables/t3_sealed_confirmations.tex}
+\caption[Sealed confirmations, reactive simulator]{\textbf{Both one-shot sealed
+confirmations fail.} Per-seed results for the selected configuration and for the alternative
+selection rule, each on a block held out until the decision rule was fixed, with the
+pre-registered pass criteria itemised.}
+\label{tab:t3}
+\end{table}
+
+% ts6_sigext_sealed is a self-contained float with its own caption and label
+\input{tables/ts6_sigext_sealed.tex}
+
+% ts7_sigext_ceiling is a self-contained float with its own caption and label
+\input{tables/ts7_sigext_ceiling.tex}
+
+\begin{table}[htbp]
+\centering\scriptsize\setlength{\tabcolsep}{4pt}
+\input{tables/t4_robustness_grid.tex}
+\caption[Robustness grid]{\textbf{Order size crossed with execution deadline.} Pooled cost
+and across-seed $p$ per cell and regime. The two cells that cleared the bar were escalated to
+further seeds and then to a reserve block; both died.}
+\label{tab:t4}
+\end{table}
+
+% ts8_sigext_comparators is a self-contained float with its own caption and label
+\input{tables/ts8_sigext_comparators.tex}
+
+% ts9_sigext_a4_observation is a self-contained float with its own caption and label
+\input{tables/ts9_sigext_a4_observation.tex}

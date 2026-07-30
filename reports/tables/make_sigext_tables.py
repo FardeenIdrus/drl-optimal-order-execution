@@ -302,6 +302,7 @@ def main() -> None:
     table_ts2_dev_verdicts()
     table_ts4_exploiter()
     table_ts7_ceiling()
+    table_ts9_a4_observation()
     populate_sealed()
     print(" SUPPORTING:")
     table_ts5_base_env()
@@ -412,7 +413,10 @@ from a feasible benchmark). The dominance gaps lie below the 0.05\,bps materiali
 are individually insignificant; the calm pattern, consistent across all five seeds, is the
 defensible claim.}
 \label{tab:sigext-comparators}
-\small
+% NINE columns: \small overflows the portrait text block by ~26pt. \scriptsize fits without
+% resizebox (which would scale the font non-uniformly against surrounding text).
+\scriptsize
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrrrrrrrr}
 \toprule
 & \multicolumn{4}{c}{base environment} & \multicolumn{4}{c}{injected environment} \\
@@ -435,6 +439,71 @@ regime & agents dominated & mean excess cost (bps) & efficient set \\
 \end{table}
 """
     _w("ts8_sigext_comparators", body)
+
+
+
+
+def table_ts9_a4_observation() -> None:
+    """MAIN. Amendment A4: the observation variant. Upper panel = the mechanism (critic
+    explained variance before/after); lower = the verdict (performance unchanged)."""
+    orig = json.loads((DIAG / "diag_learning.json").read_text())
+    a4 = json.loads((DIAG / "diag_learning_a4.json").read_text())
+    j4 = json.loads((S / "step5_signal_obsfix" / "judgement.json").read_text())
+    aud = {x["run"]: x for x in json.loads(
+        (S / "step5_signal_obsfix" / "behaviour_audit.json").read_text())}
+    jd = json.loads((DEV / "judgement.json").read_text())
+    ao = {x["run"]: x for x in json.loads((DEV / "behaviour_audit.json").read_text())}
+    om = {r["run"]: r for r in orig}
+    am = {r["run"]: r for r in a4}
+    ev_rows = []
+    for run in sorted(om):
+        ev_rows.append(f"{run.replace('_', chr(92)+'_')} & {om[run]['critic']['explained_variance']:+.4f} & "
+                       f"{am[run]['ev']:+.4f} & {om[run]['critic']['corr_V_return']:+.3f} & "
+                       f"{am[run]['corr']:+.3f} \\\\")
+    ver = []
+    for reg in ("calm", "volatile"):
+        o = [r["mean_vs_adaptive_bps"] for r in jd["per_run"]
+             if r["algo"] == "ppo" and r["regime"] == reg
+             and r["run"].endswith(f"s{r['seed']}") and ao[r["run"]]["valid"]]
+        n = [r["mean_vs_adaptive_bps"] for r in j4["per_run"]
+             if r["regime"] == reg and aud[r["run"]]["valid"]]
+        ver.append(f"{reg} & {np.mean(o):+.4f} & {len(o)}/5 & {np.mean(n):+.4f} & "
+                   f"{len(n)}/5 & no \\\\")
+    body = r"""% Amendment A4: observation variant (MAIN).
+% Sources: diagnostics_postnull/diag_learning{,_a4}.json, step5_signal_obsfix/
+\begin{table}[htbp]\centering
+\caption{The observation variant. The agents' state did not include the mid price relative to
+the arrival price, although they are scored on implementation shortfall against that price.
+Realised drift alone predicts 34\% of the variance in remaining cost, against 2--5\% for the
+whole observed vector, so the value function could not be fitted. Upper panel: adding that one
+feature, with training, seeds and market otherwise identical, makes the critic learnable in
+every run. Lower panel: it does not change performance. Fewer runs pass the behavioural audit
+under the variant, so the valid-seed count is reported alongside each figure.}
+\label{tab:sigext-a4}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+& \multicolumn{2}{c}{explained variance} & \multicolumn{2}{c}{corr($V$, return)} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+run & original & with feature & original & with feature \\
+\midrule
+""" + "\n".join(ev_rows) + r"""
+\bottomrule
+\end{tabular}
+
+\vspace{0.6em}
+\begin{tabular}{lrrrrl}
+\toprule
+& \multicolumn{2}{c}{original observation} & \multicolumn{2}{c}{with feature} & \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+regime & vs TWAP (bps) & valid & vs TWAP (bps) & valid & meets edge rule \\
+\midrule
+""" + "\n".join(ver) + r"""
+\bottomrule
+\end{tabular}
+\end{table}
+"""
+    _w("ts9_sigext_a4_observation", body)
 
 
 if __name__ == "__main__":

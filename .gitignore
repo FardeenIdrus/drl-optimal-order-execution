@@ -51,3 +51,23 @@ reports/results_pack/talking_points.md
 reports/results_pack/overleaf_upload/
 reports/results_pack/overleaf_upload.zip
 reports/methodology_defensibility.md
+
+# Convenience renders of tracked .tex tables (regenerable; duplicates tracked content)
+reports/tables/rendered/
+
+# Results-chapter working area: the .tex source and its verification script ARE tracked
+# (they are work product and the provenance of every number in the chapter). These are not:
+#   - the preview PDF, a build artifact
+#   - `tables`, a symlink to an absolute path in the dissertation repo, meaningless to anyone
+#     else. It exists so standalone.tex can resolve \input{tables/...} while previewing;
+#     recreate it locally with:
+#       ln -s "<path>/Idrus_Fardeen_MSc_Dissertation/tables" reports/results_chapter/tables
+reports/results_chapter/*.pdf
+reports/results_chapter/tables
+reports/results_chapter/*.aux
+reports/results_chapter/*.bbl
+reports/results_chapter/*.bcf
+reports/results_chapter/*.blg
+reports/results_chapter/*.run.xml
+reports/results_chapter/*.toc
+reports/results_pack/
