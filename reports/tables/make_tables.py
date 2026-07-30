@@ -329,7 +329,9 @@ def t5_env_validation():
         ]
     lines = [
         r"% Auto-generated from step4_gates_v3.json + step3g/fairness_verdict_*.json.",
-        r"\begin{tabular}{llllc}", r"\toprule",
+        # The check column is a sentence, not a token: it needs a p{} column or it
+        # overflows the text block (it did: 107pt).
+        r"\begin{tabular}{l p{6.6cm} l l c}", r"\toprule",
         r"regime & check & measured & pass band & verdict \\", r"\midrule",
     ]
     for reg, check, meas, band, ok in rows:
