@@ -1543,3 +1543,200 @@ Behaviour audit: 7 of 20 invalid -- **0/10 for PPO, 7/10 for DQN**.
     reported as such; the write-up would read "the registered null is sealed-confirmed; a
     corrected-observation variant produces a candidate requiring confirmation." RQ3's condition
     would reopen pending that confirmation.
+
+---
+
+## Amendment A5 (registered 2026-07-31, BEFORE the runs): ESCALATION of the A4.3 volatile
+## candidate. Registered because the frozen rule said "no edge" while the across-seed
+## evidence is the strongest in the project. Not escalating would be the indefensible choice.
+
+**WHAT TRIGGERED THIS.** Amendment A4.3 (base PPO, volatile, base reacting environment,
+corrected observation, development block 5e6) returned:
+
+| quantity | value |
+|---|---|
+| valid seeds | 5/5 |
+| seeds cheaper on BOTH benchmarks | **5/5** |
+| pooled vs adaptive TWAP | **-0.0583 bps** (past the registered 0.05 materiality floor) |
+| across-seed one-sided p | **0.0001** |
+| 95% CI vs adaptive | **[-0.0693, -0.0473]** -- entirely below zero |
+| per-seed p (adaptive) | 0.110, 0.045, 0.199, 0.057, 0.161 |
+
+`EDGE = false` under the frozen §3 rule, because that rule requires PER-SEED significance on
+both benchmarks and only one of five seeds clears it (`n_significant_both = 0`).
+
+**WHY WE ESCALATE ANYWAY, AND WHY THAT IS NOT RULE-BENDING.** The frozen rule is not being
+relaxed and no verdict is being reinterpreted: A4.3 stands as recorded, EDGE = false. What is
+registered here is an ADDITIONAL one-shot test, because declining to run it would be
+indefensible on its own terms. The original volatile signal (-0.0470, across-seed p = 0.006)
+WAS escalated to two sealed confirmations. This candidate is larger and two orders of magnitude
+more significant across seeds. Escalating a weaker signal and declining the stronger one is an
+asymmetry that no reader should have to accept. Cost is not a consideration and is not offered
+as one.
+
+**THE BLOCK.** `eval_seed0 = 25,000,000`, n = 2000, i.e. episode seeds 25,000,000-25,001,999.
+**Disjointness audited against every block spent to date:** 1e6 (curve monitor), 5e6 (primary +
+A4.3), 6e6 (cross-block reserve), 9e6 (confirmation v3a), 13e6 (confirmation v1b), 17e6 (signal
+sealed), 18e6 (signal dev + the A4 family), 19e6 (signal reserve), 21e6 (ceiling confirmation).
+The highest previously used seed is 21,001,999. 25e6 does not overlap any of them.
+**25e6 is SPENT after this run, whatever the outcome.**
+
+**TWO ARMS, both declared now.**
+- **Arm A (fresh data, same agents).** The five existing A4.3 volatile agents
+  (`runs_primary_v3_obsfix/ppo_volatile_s0..s4`) evaluated once on 25e6. Tests whether the
+  number survives a change of evaluation data alone. INTERPRETIVE.
+- **Arm B (fresh data AND fresh seeds) -- THE PRIMARY TEST.** Five newly trained agents, seeds
+  20-24, configuration byte-identical to A4.3 (base PPO, volatile, base env,
+  `--obs-price-vs-arrival`), evaluated once on 25e6. This matches the escalation pattern used
+  for both earlier sealed confirmations, which drew fresh seeds (5-9 and 10-14). Arm B is the
+  arm the verdict rests on.
+
+**PREDICTIONS (fixed now, before either arm runs).**
+- **P-A5a.** Arm B pooled vs adaptive TWAP lands inside +/-0.02 bps and the across-seed p is
+  not significant. Reasoning stated openly: every comparable development-block pattern in this
+  project has collapsed on fresh data -- the §7.5 ladder, two grid cells, and both sealed
+  confirmations of the tuned champion (-0.0023, p = 0.38 and -0.0022, p = 0.39).
+- **P-A5b.** Arm A retains more of the effect than Arm B, because it changes only the data and
+  not the seeds. If Arm A holds and Arm B does not, the effect is seed-specific rather than a
+  property of the configuration.
+- **P-A5c.** Behaviour-audit validity stays at 5/5 for both arms (A4.3 PPO was 0/10 invalid).
+
+**BRANCHES (fixed now).**
+(i) Arm B fails the frozen rule -> the candidate is dead. Reported in the Results as an
+    escalated candidate that did not survive, and it becomes the FIFTH demonstrated instance in
+    this study of a development-block pattern dying on fresh data -- the strongest one yet,
+    because it had 5/5 seed agreement and across-seed p = 0.0001. This STRENGTHENS the null.
+(ii) Arm B meets the frozen rule -> a genuine edge exists for base PPO in the volatile regime
+    under the corrected observation. This would be a material change to the dissertation's
+    headline and must be reported as such, not minimised. It would require a further
+    independent confirmation before any claim, and the write-up would wait for it.
+(iii) Arms A and B disagree -> report both and state that the effect is seed-specific.
+    No edge is claimed on a seed-specific result.
+
+**NOTE ON SCOPE.** This tests base PPO in the BASE reacting environment under the corrected
+observation. It says nothing about the injected environment or the frozen-replay track, and the
+write-up must not generalise it.
+
+---
+
+## §9 TICK-CLASS AND QUEUE-IMBALANCE PREDICTABILITY (registered 2026-08-03, BEFORE (ii) and (iii) run)
+
+Motivation: Gould and Bonart (2016) report that queue-imbalance predictability splits sharply
+by relative tick size — out-of-sample AUC 0.747–0.805 for large-tick equities against
+0.581–0.642 for small-tick. Their mechanism: where the spread sits at the minimum, nobody can
+post inside it, so the price moves only when a queue empties, which is exactly what imbalance
+measures. Our injected signal IS top-of-book queue imbalance, so where this venue sits on that
+split determines whether their range is the right comparator and whether their mechanism applies
+here at all.
+
+### R1 — Honest status of each measurement
+
+- **(i) tick size, relative tick, spread distribution: ALREADY MEASURED 2026-08-03** on 7 of the
+  31 December days. **It is NOT pre-registered and must never be presented as if it were.**
+  Extending to all 31 days completes a measurement already begun; the 7-day sample is reported
+  alongside the full month so the extension cannot be accused of selection.
+- **(ii) event-level one-tick-ahead AUC and (iii) AUC by horizon: NOT RUN.** Registered below.
+
+### R2 — No new split
+Both reuse the EXISTING step3g chronological calibrate/holdout hour labels (278/93 calm, 279/93
+volatile; calibrate max < holdout min, already verified). No new split is created, so no fresh
+researcher degree of freedom enters.
+
+### R3 — Predictor fixed now
+Top-of-book queue imbalance `(bid_sz_1 − ask_sz_1)/(bid_sz_1 + ask_sz_1)`, RAW and unnormalised
+— identical to the S2 definition already measured and injected (§8). Undefined (NaN) while
+either side is swept.
+
+### R4 — Estimands fixed now
+- **(ii)** Label = sign of the NEXT change in the mid, in event time. Intervals with no change
+  are excluded. AUC reported on holdout hours, per regime, with the estimation-split value
+  alongside.
+- **(iii)** Label = sign of the forward mid return at horizons {0.5, 1, 2, 5, 10, 30, 60} s on
+  the 0.5 s grid. AUC per horizon per regime, both splits.
+
+### R5 — Measurement, not a test. NO pass/fail gate.
+Registered explicitly so that a disappointing value cannot later invite a retrospective
+threshold. Nothing here escalates, confirms or refutes anything.
+
+### R6 — Reported regardless of outcome
+If the measured AUC falls in the small-tick range despite large-tick structure, that tension is
+reported as a finding, not omitted. Both splits, both regimes, all horizons, in full.
+
+### R7 — Both classification criteria reported
+The relative-tick ratio and the spread-pinning mechanism give OPPOSITE answers here, and this is
+already known from (i). Committing in advance to reporting both prevents quoting only the
+convenient one. Gould and Bonart's own rule (rank by dollar volume, split on price thresholds,
+all stocks sharing a $0.01 tick) is Nasdaq-specific and does not transfer to a single-instrument
+perpetual venue; Briola (2024) is checked as an alternative.
+
+### Implementation and integrity gates
+New standalone modules; **no existing module is edited** (same discipline as the per-episode
+re-scoring). `reports/diagnostics/tick_class_measure.py` for (i)+(iii);
+`reports/diagnostics/event_ahead_auc.py` for (ii), reusing the existing `stream_events`,
+`attach_timestamps`, `inject_removes` and book engine.
+
+All must pass before any number is quoted:
+1. **Causality** — the predictor at t uses no data after t.
+2. **Determinism** — identical across reruns.
+3. **Planted-signal recovery** — a synthetic series of known AUC is recovered.
+4. **Grid-reproduction gate (ii only)** — the event sampler, downsampled to 500 ms, must
+   reproduce `book_05s_v2` exactly. If it cannot, the sampler is wrong and nothing is reported.
+
+### Disclosures this measurement forces into the Data chapter
+- **The book-diff stream carries NO timestamps** (fields: oid, coin, side, px, raw_book_diff).
+  The 0.5 s grid's timestamps are DERIVED by joining order IDs against the order-status stream,
+  which does carry nanosecond timestamps. This is a processing step §10 requires and the chapter
+  currently omits.
+- **4,345 phantom orders across the month** (audited 2026-07-04): a cancel's status timestamp
+  can precede the order's appearance in the diff-file ordering, orphaning the remove. Already
+  measured; directly relevant to an event-level measurement because it is a sub-second ordering
+  ambiguity.
+
+### §9 RESULT — measurements (i) and (iii), run 2026-08-03
+
+`reports/diagnostics/tick_class_measure.py`; 16 integrity tests pass; output
+`oxford_l4/tick_class/tick_class_measurement.json`. 31 days, 5,355,301 grid samples.
+
+**(i) TICK CLASS.** Tick $1.00, constant across all 31 days. Median mid ~$86k, so the
+**relative tick is 1.131e-05** — by that ratio the venue looks small-tick, finer than any
+Nasdaq small-tick equity. **But the spread sits at exactly one tick 94.7% of the time**
+(7-day pre-registration sample: 94.3%), mean spread 1.262 ticks = 0.1419 bps. By Gould and
+Bonart's MECHANISM criterion — spread pinned at the minimum, so the price moves only when a
+queue empties — this venue is emphatically **large-tick**. **The two criteria disagree and both
+are reported (R7).** The mechanism criterion is the one their result turns on.
+
+**(iii) AUC BY HORIZON, holdout split:**
+
+| regime | 0.5 s | 1 s | 2 s | 5 s | 10 s | 30 s | 60 s |
+|---|---|---|---|---|---|---|---|
+| calm | 0.9966 | 0.9906 | 0.9747 | 0.9309 | 0.8773 | 0.7633 | 0.6926 |
+| volatile | 0.9887 | 0.9667 | 0.9168 | 0.8187 | 0.7341 | 0.6191 | 0.5734 |
+
+**AMENDMENT (2026-08-03, recorded AFTER the run and declared as such).** 0.9966 is far above
+Gould and Bonart's 0.747-0.805 large-tick range, so a validation control was run that was NOT
+pre-registered. Declared here rather than presented as planned. One day (20251211), 0.5 s
+horizon, n=42,146:
+
+| predictor | AUC |
+|---|---|
+| imbalance at t (real) | **0.9834** |
+| imbalance at t-1 (lag 0.5 s) | 0.9095 |
+| imbalance at t-10 (lag 5 s) | 0.5922 |
+| imbalance shifted 1,000 samples (placebo) | **0.5058** |
+| random uniform (null) | 0.5028 |
+
+**No look-ahead artefact: the placebo is at chance and the signal decays smoothly with lag.**
+The magnitude is explained by the queue distribution — **|imbalance| exceeds 0.99 for 30.4% of
+samples and 0.9 for 55.0%**. One side of the touch is frequently near-exhausted, which is the
+large-tick mechanism in an extreme form.
+
+**READING FOR THE WRITE-UP.** The venue's short-horizon predictability is real, sharp, and
+**extremely short-lived**: AUC 0.99 at half a second decaying to 0.69 (calm) / 0.57 (volatile)
+at one minute, against an execution horizon of 300 seconds. This does not weaken the null — it
+sharpens it. The signal lives at half-second scale while the decision problem lives at
+five-minute scale. Note the asymmetry: calm decays more slowly than volatile.
+
+**COMPARABILITY CAVEAT — why (ii) is still required.** These are 0.5 s-interval AUCs conditional
+on the mid changing; Gould and Bonart measure the NEXT price change in event time. 10.4% of
+0.5 s intervals contain a move of two ticks or more, so the grid aggregates multiple changes.
+The two numbers are not interchangeable and (ii) remains the only commensurable measurement.
