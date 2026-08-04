@@ -1,0 +1,59 @@
+{
+ "seed0": 18000000,
+ "n": 2000,
+ "note": "diagnostic only; judge's dev seeds",
+ "regimes": {
+  "calm": {
+   "adaptive_mean_cost_bps": 0.05920497527002014,
+   "exploiters": {
+    "follower": {
+     "mean_diff_bps": -0.23025198536163322,
+     "se": 0.02834946956619658,
+     "wilcoxon_p": 1.928575783645216e-15,
+     "frac_cheaper": 0.57,
+     "executed_frac": 0.986195802190002
+    },
+    "half": {
+     "mean_diff_bps": -0.1465933133201203,
+     "se": 0.027950261661633113,
+     "wilcoxon_p": 7.363075419857515e-07,
+     "frac_cheaper": 0.547,
+     "executed_frac": 0.9894353928502728
+    },
+    "bangbang": {
+     "mean_diff_bps": -0.17691854930158513,
+     "se": 0.02789761014640253,
+     "wilcoxon_p": 5.631531184856734e-10,
+     "frac_cheaper": 0.5585,
+     "executed_frac": 0.9888159154522231
+    }
+   }
+  },
+  "volatile": {
+   "adaptive_mean_cost_bps": -0.28531733769174344,
+   "exploiters": {
+    "follower": {
+     "mean_diff_bps": -0.4898639080709654,
+     "se": 0.03933623296472808,
+     "wilcoxon_p": 4.6759974639500266e-32,
+     "frac_cheaper": 0.611,
+     "executed_frac": 0.9879482672858911
+    },
+    "half": {
+     "mean_diff_bps": -0.32337621511927755,
+     "se": 0.03788308976447583,
+     "wilcoxon_p": 2.024163747280875e-17,
+     "frac_cheaper": 0.574,
+     "executed_frac": 0.9884993009712968
+    },
+    "bangbang": {
+     "mean_diff_bps": -0.33233925931474706,
+     "se": 0.03793466551778952,
+     "wilcoxon_p": 7.051337427812122e-16,
+     "frac_cheaper": 0.566,
+     "executed_frac": 0.9883226000433192
+    }
+   }
+  }
+ }
+}

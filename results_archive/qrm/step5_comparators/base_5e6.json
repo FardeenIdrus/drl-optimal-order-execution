@@ -1,0 +1,97 @@
+{
+ "which": "base_5e6",
+ "seed0": 5000000,
+ "n": 2000,
+ "inject": false,
+ "registered": "criteria section 8 Amendment A3",
+ "regimes": {
+  "calm": {
+   "adaptive": {
+    "mean_cost_bps": 0.1801817233473275,
+    "std_cost_bps": 2.354577418229179,
+    "mean_vs_adaptive_bps": 0.0,
+    "wilcoxon_p_vs_adaptive": 1.0
+   },
+   "fixed": {
+    "mean_cost_bps": 0.18026780531697456,
+    "std_cost_bps": 2.3552104967282825,
+    "mean_vs_adaptive_bps": 8.608196964710393e-05,
+    "wilcoxon_p_vs_adaptive": 0.8972352504578226
+   },
+   "ac_kT0": {
+    "mean_cost_bps": 0.18026780531697456,
+    "std_cost_bps": 2.3552104967282825,
+    "mean_vs_adaptive_bps": 8.608196964710393e-05,
+    "wilcoxon_p_vs_adaptive": 0.8972352504578226
+   },
+   "ac_kT1": {
+    "mean_cost_bps": 0.16875455090049024,
+    "std_cost_bps": 2.2339954179097425,
+    "mean_vs_adaptive_bps": -0.011427172446837226,
+    "wilcoxon_p_vs_adaptive": 0.5259784527882165
+   },
+   "ac_kT2": {
+    "mean_cost_bps": 0.16240757432994016,
+    "std_cost_bps": 1.9084457432800337,
+    "mean_vs_adaptive_bps": -0.017774149017387327,
+    "wilcoxon_p_vs_adaptive": 0.3842523144704194
+   },
+   "ac_kT4": {
+    "mean_cost_bps": 0.20235178179415336,
+    "std_cost_bps": 1.9690395777890284,
+    "mean_vs_adaptive_bps": 0.02217005844682588,
+    "wilcoxon_p_vs_adaptive": 0.3442823745062775
+   },
+   "vwap_oracle": {
+    "mean_cost_bps": 0.28436937557533043,
+    "std_cost_bps": 3.0327035825046558,
+    "mean_vs_adaptive_bps": 0.10418765222800291,
+    "wilcoxon_p_vs_adaptive": 0.0006174576903027351
+   }
+  },
+  "volatile": {
+   "adaptive": {
+    "mean_cost_bps": 0.10374278454070787,
+    "std_cost_bps": 5.88073870447276,
+    "mean_vs_adaptive_bps": 0.0,
+    "wilcoxon_p_vs_adaptive": 1.0
+   },
+   "fixed": {
+    "mean_cost_bps": 0.10310446512716892,
+    "std_cost_bps": 5.881447063600873,
+    "mean_vs_adaptive_bps": -0.0006383194135389566,
+    "wilcoxon_p_vs_adaptive": 0.9574752705320643
+   },
+   "ac_kT0": {
+    "mean_cost_bps": 0.10310446512716892,
+    "std_cost_bps": 5.881447063600873,
+    "mean_vs_adaptive_bps": -0.0006383194135389566,
+    "wilcoxon_p_vs_adaptive": 0.9574752705320643
+   },
+   "ac_kT1": {
+    "mean_cost_bps": 0.0784044442176286,
+    "std_cost_bps": 5.526508417757695,
+    "mean_vs_adaptive_bps": -0.025338340323079266,
+    "wilcoxon_p_vs_adaptive": 0.7794264147763363
+   },
+   "ac_kT2": {
+    "mean_cost_bps": 0.05836503470323391,
+    "std_cost_bps": 4.785423209897862,
+    "mean_vs_adaptive_bps": -0.045377749837473995,
+    "wilcoxon_p_vs_adaptive": 0.3336058807812714
+   },
+   "ac_kT4": {
+    "mean_cost_bps": 0.09523493698117091,
+    "std_cost_bps": 4.891197272728673,
+    "mean_vs_adaptive_bps": -0.008507847559536924,
+    "wilcoxon_p_vs_adaptive": 0.9470619447869169
+   },
+   "vwap_oracle": {
+    "mean_cost_bps": 0.056077326307810337,
+    "std_cost_bps": 6.505415497284066,
+    "mean_vs_adaptive_bps": -0.047665458232897535,
+    "wilcoxon_p_vs_adaptive": 0.4442167243915047
+   }
+  }
+ }
+}

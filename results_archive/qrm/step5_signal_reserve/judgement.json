@@ -1,0 +1,154 @@
+{
+  "criteria": "qrm_step4_criteria.md \u00a73 (frozen 2026-07-06)",
+  "mode": "screen",
+  "n_eval_episodes": 2000,
+  "eval_seed0": 19000000,
+  "order_btc": 25.0,
+  "env_steps": 300,
+  "per_run": [
+    {
+      "run": "ppo_calm_s0",
+      "algo": "ppo",
+      "regime": "calm",
+      "seed": 0,
+      "mean_vs_fixed_bps": -0.018792343392199873,
+      "mean_vs_adaptive_bps": -0.017861781179567444,
+      "p_fixed": 0.47626472881317516,
+      "p_adaptive": 0.49677681282840125
+    },
+    {
+      "run": "ppo_calm_s1",
+      "algo": "ppo",
+      "regime": "calm",
+      "seed": 1,
+      "mean_vs_fixed_bps": -0.014573755336259183,
+      "mean_vs_adaptive_bps": -0.013643193123626753,
+      "p_fixed": 0.47830444012514806,
+      "p_adaptive": 0.5138988057496623
+    },
+    {
+      "run": "ppo_calm_s2",
+      "algo": "ppo",
+      "regime": "calm",
+      "seed": 2,
+      "mean_vs_fixed_bps": 0.0151428935795124,
+      "mean_vs_adaptive_bps": 0.016073455792144822,
+      "p_fixed": 0.5410424260055575,
+      "p_adaptive": 0.512626527649038
+    },
+    {
+      "run": "ppo_calm_s3",
+      "algo": "ppo",
+      "regime": "calm",
+      "seed": 3,
+      "mean_vs_fixed_bps": 0.006861728874417708,
+      "mean_vs_adaptive_bps": 0.007792291087050145,
+      "p_fixed": 0.9560344105229971,
+      "p_adaptive": 0.9969109724646922
+    },
+    {
+      "run": "ppo_calm_s4",
+      "algo": "ppo",
+      "regime": "calm",
+      "seed": 4,
+      "mean_vs_fixed_bps": 0.002979730450186446,
+      "mean_vs_adaptive_bps": 0.0039102926628188745,
+      "p_fixed": 0.9152731751790082,
+      "p_adaptive": 0.8716531371264966
+    },
+    {
+      "run": "ppo_volatile_s0",
+      "algo": "ppo",
+      "regime": "volatile",
+      "seed": 0,
+      "mean_vs_fixed_bps": 0.0020394847879011383,
+      "mean_vs_adaptive_bps": 0.004235774951692947,
+      "p_fixed": 0.8693364638892126,
+      "p_adaptive": 0.8778769681388097
+    },
+    {
+      "run": "ppo_volatile_s1",
+      "algo": "ppo",
+      "regime": "volatile",
+      "seed": 1,
+      "mean_vs_fixed_bps": 0.013689912060154089,
+      "mean_vs_adaptive_bps": 0.015886202223945895,
+      "p_fixed": 0.5729880777857754,
+      "p_adaptive": 0.5386106208191355
+    },
+    {
+      "run": "ppo_volatile_s2",
+      "algo": "ppo",
+      "regime": "volatile",
+      "seed": 2,
+      "mean_vs_fixed_bps": -0.024999524951933298,
+      "mean_vs_adaptive_bps": -0.022803234788141488,
+      "p_fixed": 0.6382968902163009,
+      "p_adaptive": 0.6681454263434772
+    },
+    {
+      "run": "ppo_volatile_s3",
+      "algo": "ppo",
+      "regime": "volatile",
+      "seed": 3,
+      "mean_vs_fixed_bps": -0.012680864229512444,
+      "mean_vs_adaptive_bps": -0.01048457406572062,
+      "p_fixed": 0.9348629873519584,
+      "p_adaptive": 0.976125321334465
+    },
+    {
+      "run": "ppo_volatile_s4",
+      "algo": "ppo",
+      "regime": "volatile",
+      "seed": 4,
+      "mean_vs_fixed_bps": 0.046800965543227976,
+      "mean_vs_adaptive_bps": 0.048997255707019786,
+      "p_fixed": 0.15752126258106913,
+      "p_adaptive": 0.1512257089678291
+    }
+  ],
+  "verdicts": {
+    "ppo_calm": {
+      "n_valid_seeds": 5,
+      "n_negative_both": 2,
+      "n_significant_both": 0,
+      "pooled_vs_adaptive_bps": -0.000745786952236071,
+      "EDGE": false,
+      "across_seed": {
+        "n_valid_seeds": 5,
+        "n_seeds_total": 5,
+        "n_cheaper_vs_adaptive": 2,
+        "pooled_vs_adaptive_bps": -0.0007,
+        "pooled_vs_fixed_bps": -0.0017,
+        "across_seed_t_p_vs_adaptive_onesided": 0.4569,
+        "across_seed_t_p_vs_fixed_onesided": 0.4041,
+        "ci95_vs_adaptive_bps": [
+          -0.0187,
+          0.0172
+        ],
+        "trustworthy": true
+      }
+    },
+    "ppo_volatile": {
+      "n_valid_seeds": 5,
+      "n_negative_both": 2,
+      "n_significant_both": 0,
+      "pooled_vs_adaptive_bps": 0.007166284805759304,
+      "EDGE": false,
+      "across_seed": {
+        "n_valid_seeds": 5,
+        "n_seeds_total": 5,
+        "n_cheaper_vs_adaptive": 2,
+        "pooled_vs_adaptive_bps": 0.0072,
+        "pooled_vs_fixed_bps": 0.005,
+        "across_seed_t_p_vs_adaptive_onesided": 0.7038,
+        "across_seed_t_p_vs_fixed_onesided": 0.6462,
+        "ci95_vs_adaptive_bps": [
+          -0.0271,
+          0.0414
+        ],
+        "trustworthy": true
+      }
+    }
+  }
+}

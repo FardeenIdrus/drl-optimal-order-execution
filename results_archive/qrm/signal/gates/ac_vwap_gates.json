@@ -1,0 +1,51 @@
+{
+ "registered": "criteria section 8 Amendment A3 (gates fixed before running)",
+ "GATE_AC2": {
+  "executed_by_halftime": {
+   "0.0": 0.5,
+   "1.0": 0.556590558014963,
+   "2.0": 0.6759728631680573,
+   "4.0": 0.8670988855829602
+  },
+  "pass": true
+ },
+ "GATE_AC1_calm": {
+  "n": 2000,
+  "action_agreement": 0.9464433333333333,
+  "paired_mean_diff_bps": -0.00012022619584776059,
+  "se": 0.0006818696750547461,
+  "pass": false
+ },
+ "GATE_V1_calm": {
+  "n": 500,
+  "byte_identical_to_fixed": true,
+  "agreement_vs_adaptive": 0.9465866666666667,
+  "pass": true
+ },
+ "GATE_V2_calm": {
+  "n": 500,
+  "oracle_minus_adaptive_bps": 0.10612196519163873,
+  "wilcoxon_p": 0.22333852922989694,
+  "pass": false
+ },
+ "GATE_AC1_volatile": {
+  "n": 2000,
+  "action_agreement": 0.9477666666666666,
+  "paired_mean_diff_bps": 0.004265397782693883,
+  "se": 0.0022394766118940886,
+  "pass": false
+ },
+ "GATE_V1_volatile": {
+  "n": 500,
+  "byte_identical_to_fixed": true,
+  "agreement_vs_adaptive": 0.9480599999999999,
+  "pass": true
+ },
+ "GATE_V2_volatile": {
+  "n": 500,
+  "oracle_minus_adaptive_bps": 0.06358557466426423,
+  "wilcoxon_p": 0.7162200551444204,
+  "pass": false
+ },
+ "all_pass": false
+}

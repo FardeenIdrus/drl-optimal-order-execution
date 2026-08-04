@@ -1,0 +1,39 @@
+{
+ "seed0": 17000000,
+ "n": 2000,
+ "note": "registered follower, sealed exhibit A1, interpretive context",
+ "regimes": {
+  "calm": {
+   "vs_adaptive": {
+    "mean_diff_bps": -0.20479515873723853,
+    "se": 0.028701792074782462,
+    "wilcoxon_p": 6.561349980245152e-12,
+    "frac_cheaper": 0.567
+   },
+   "vs_fixed": {
+    "mean_diff_bps": -0.20359731198427353,
+    "se": 0.028715391927887773,
+    "wilcoxon_p": 8.38209615027933e-12,
+    "frac_cheaper": 0.569
+   },
+   "executed_frac": 0.9850163239086953,
+   "adaptive_mean_cost_bps": 0.09544559669737192
+  },
+  "volatile": {
+   "vs_adaptive": {
+    "mean_diff_bps": -0.5187811693971205,
+    "se": 0.038771037701804706,
+    "wilcoxon_p": 1.4901936179174748e-37,
+    "frac_cheaper": 0.6095
+   },
+   "vs_fixed": {
+    "mean_diff_bps": -0.5201470069371156,
+    "se": 0.03886830214829273,
+    "wilcoxon_p": 1.3910422780132418e-37,
+    "frac_cheaper": 0.6115
+   },
+   "executed_frac": 0.9878458957969496,
+   "adaptive_mean_cost_bps": -0.1250115034305896
+  }
+ }
+}

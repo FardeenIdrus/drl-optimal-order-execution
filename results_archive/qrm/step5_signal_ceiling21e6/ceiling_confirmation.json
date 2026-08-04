@@ -1,0 +1,43 @@
+{
+ "seed0": 21000000,
+ "n": 2000,
+ "c_star": {
+  "calm": 1.25,
+  "volatile": 2.0
+ },
+ "registered": "criteria section 8 Amendment A2 Test 2 (one shot)",
+ "regimes": {
+  "calm": {
+   "c_star": 1.25,
+   "executed_frac": 0.984415588474508,
+   "vs_adaptive": {
+    "mean_diff_bps": -0.31270873902766744,
+    "se": 0.028237847786796895,
+    "wilcoxon_p": 7.567223435245292e-26,
+    "frac_cheaper": 0.6025
+   },
+   "vs_fixed": {
+    "mean_diff_bps": -0.31234098990278575,
+    "se": 0.028260505906261616,
+    "wilcoxon_p": 9.097882947610034e-26,
+    "frac_cheaper": 0.602
+   }
+  },
+  "volatile": {
+   "c_star": 2.0,
+   "executed_frac": 0.9872305923522704,
+   "vs_adaptive": {
+    "mean_diff_bps": -0.6249991441661995,
+    "se": 0.03955510388185838,
+    "wilcoxon_p": 2.7167154380153334e-49,
+    "frac_cheaper": 0.6265
+   },
+   "vs_fixed": {
+    "mean_diff_bps": -0.6278710441156833,
+    "se": 0.039559381666936407,
+    "wilcoxon_p": 1.2623667883782715e-49,
+    "frac_cheaper": 0.627
+   }
+  }
+ }
+}

@@ -1,0 +1,60 @@
+{
+ "seed0": 18000000,
+ "n": 2000,
+ "env": "BASE (no injection)",
+ "note": "post-hoc diagnostic; fixed untuned rules",
+ "regimes": {
+  "calm": {
+   "adaptive_mean_cost_bps": 0.10387814929899189,
+   "exploiters": {
+    "raw": {
+     "mean_diff_bps": -0.04006140036544379,
+     "se": 0.019286887378559093,
+     "wilcoxon_p": 0.03149272834533136,
+     "frac_cheaper": 0.511,
+     "executed_frac": 0.9912761251342772
+    },
+    "x3": {
+     "mean_diff_bps": -0.0368801532045849,
+     "se": 0.019710974472798373,
+     "wilcoxon_p": 0.07200887428874089,
+     "frac_cheaper": 0.5215,
+     "executed_frac": 0.9867513795761533
+    },
+    "ema8": {
+     "mean_diff_bps": -0.00047294111522753113,
+     "se": 0.020025922632742242,
+     "wilcoxon_p": 0.863001885302541,
+     "frac_cheaper": 0.5135,
+     "executed_frac": 0.9807435011919801
+    }
+   }
+  },
+  "volatile": {
+   "adaptive_mean_cost_bps": -0.16454442285121512,
+   "exploiters": {
+    "raw": {
+     "mean_diff_bps": -0.07197408719866419,
+     "se": 0.03348966959847642,
+     "wilcoxon_p": 0.029840565015373573,
+     "frac_cheaper": 0.5235,
+     "executed_frac": 0.9882004024382869
+    },
+    "x3": {
+     "mean_diff_bps": -0.11808471404047004,
+     "se": 0.034009566797022495,
+     "wilcoxon_p": 0.0014596287752625177,
+     "frac_cheaper": 0.5175,
+     "executed_frac": 0.9880673924041986
+    },
+    "ema8": {
+     "mean_diff_bps": -0.00650362565735556,
+     "se": 0.035922512660754,
+     "wilcoxon_p": 0.7755085295721802,
+     "frac_cheaper": 0.5025,
+     "executed_frac": 0.9862491269702539
+    }
+   }
+  }
+ }
+}

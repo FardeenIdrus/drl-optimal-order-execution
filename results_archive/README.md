@@ -41,3 +41,38 @@ The working record lives outside the repository (`scratch_hyperliquid/`) and rem
 operational source for scripts. This archive is the frozen, citable snapshot; it is
 append-only (new campaign results are added the same way, e.g. the frozen-replay sealed
 exam when it runs) and existing files in it are never edited.
+
+## Phase F additions (2026-07-31) — the measured-signal extension and after
+
+Everything below was added when the archive was found to be missing every campaign after
+mid-July, which made this README's opening claim untrue at the time it was checked.
+
+- `qrm/step5_signal_dev/`, `.../_reserve/`, `.../_curveblock/`, `.../_sealed/` — the
+  measured-signal extension scored on its development, reserve, curve-monitoring and
+  one-shot sealed blocks. Includes `diagnostics_postnull/` (exploiter ceiling, base-env
+  reader, learning diagnostics).
+- `qrm/step5_signal_ceiling21e6/` — the attainable-edge ceiling, confirmed one-shot on a
+  freshly minted block (0.313 bps calm, 0.625 bps volatile).
+- `qrm/step5_comparators/` — Almgren-Chriss and oracle VWAP in both environments, plus the
+  risk-return frontier summary and the per-episode agent arrays behind it.
+- `qrm/step5_signal_obsfix{,_var,_dqn}/`, `qrm/step5_primary_v3_obsfix/` — the four
+  observation-specification amendments (A4, A4.1, A4.2, A4.3).
+- `qrm/signal/` — the injection instrument's certification record: measurement, kernel
+  solution, drift-correction diagnostics, and the gate suite that certified it.
+- `l2/sealed_exam/` — the frozen-replay one-shot sealed exam (70 agents, three datasets),
+  the validation re-check used as its control, and the three-stage inversion analysis that
+  attributed the apparent edge.
+
+**Trained agents are archived as `meta.json` + `curve.json` only — the `model.zip` weights
+are deliberately excluded.** They add ~19 MB across the extension campaigns, no number in the
+report cites them, and training is bit-reproducible from the recorded configuration and seed
+(verified under Amendment A4: the same seed trained twice produced identical weights across
+all 24 policy tensors). The configuration and the training curve are cited, so both are kept.
+The agents of the primary and confirmation campaigns retain their weights, as before.
+
+**Integrity.** `CHECKSUMS.sha256` covers every file in this archive. Regenerate and verify:
+
+    .venv/bin/python results_archive/archive_phase_f.py
+    cd results_archive && shasum -a 256 -c CHECKSUMS.sha256 | grep -v ": OK$"
+
+Last run 2026-07-31: 1,446 files, 58.4 MB, zero mismatches.

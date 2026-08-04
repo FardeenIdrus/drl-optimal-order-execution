@@ -1,0 +1,382 @@
+[
+  {
+    "run": "dqn_calm_s0",
+    "algo": "dqn",
+    "regime": "calm",
+    "seed": 0,
+    "action_shares": [
+      0.4672,
+      0.1027,
+      0.0607,
+      0.0833,
+      0.1787,
+      0.0904,
+      0.0171
+    ],
+    "top_action": 0.0,
+    "top_share": 0.46715,
+    "deadline_residual_frac": 0.58,
+    "valid": false
+  },
+  {
+    "run": "dqn_calm_s1",
+    "algo": "dqn",
+    "regime": "calm",
+    "seed": 1,
+    "action_shares": [
+      0.7854,
+      0.0371,
+      0.0807,
+      0.0289,
+      0.0346,
+      0.0006,
+      0.0327
+    ],
+    "top_action": 0.0,
+    "top_share": 0.7854,
+    "deadline_residual_frac": 0.94,
+    "valid": false
+  },
+  {
+    "run": "dqn_calm_s2",
+    "algo": "dqn",
+    "regime": "calm",
+    "seed": 2,
+    "action_shares": [
+      0.7429,
+      0.0543,
+      0.0719,
+      0.105,
+      0.0196,
+      0.0007,
+      0.0056
+    ],
+    "top_action": 0.0,
+    "top_share": 0.7429333333333333,
+    "deadline_residual_frac": 0.81,
+    "valid": false
+  },
+  {
+    "run": "dqn_calm_s3",
+    "algo": "dqn",
+    "regime": "calm",
+    "seed": 3,
+    "action_shares": [
+      0.6397,
+      0.0957,
+      0.0804,
+      0.0636,
+      0.0444,
+      0.0762,
+      0.0
+    ],
+    "top_action": 0.0,
+    "top_share": 0.6397,
+    "deadline_residual_frac": 0.805,
+    "valid": false
+  },
+  {
+    "run": "dqn_calm_s4",
+    "algo": "dqn",
+    "regime": "calm",
+    "seed": 4,
+    "action_shares": [
+      0.5311,
+      0.2567,
+      0.0806,
+      0.0287,
+      0.0865,
+      0.0006,
+      0.0159
+    ],
+    "top_action": 0.0,
+    "top_share": 0.5311,
+    "deadline_residual_frac": 0.85,
+    "valid": false
+  },
+  {
+    "run": "dqn_volatile_s0",
+    "algo": "dqn",
+    "regime": "volatile",
+    "seed": 0,
+    "action_shares": [
+      0.5151,
+      0.0826,
+      0.0919,
+      0.0249,
+      0.1688,
+      0.1048,
+      0.0118
+    ],
+    "top_action": 0.0,
+    "top_share": 0.5150833333333333,
+    "deadline_residual_frac": 0.66,
+    "valid": false
+  },
+  {
+    "run": "dqn_volatile_s1",
+    "algo": "dqn",
+    "regime": "volatile",
+    "seed": 1,
+    "action_shares": [
+      0.5106,
+      0.0934,
+      0.0163,
+      0.0253,
+      0.0114,
+      0.3393,
+      0.0036
+    ],
+    "top_action": 0.0,
+    "top_share": 0.5106333333333334,
+    "deadline_residual_frac": 0.605,
+    "valid": false
+  },
+  {
+    "run": "dqn_volatile_s2",
+    "algo": "dqn",
+    "regime": "volatile",
+    "seed": 2,
+    "action_shares": [
+      0.887,
+      0.0003,
+      0.0,
+      0.108,
+      0.0003,
+      0.0,
+      0.0044
+    ],
+    "top_action": 0.0,
+    "top_share": 0.8869666666666667,
+    "deadline_residual_frac": 0.925,
+    "valid": false
+  },
+  {
+    "run": "dqn_volatile_s3",
+    "algo": "dqn",
+    "regime": "volatile",
+    "seed": 3,
+    "action_shares": [
+      0.3959,
+      0.4724,
+      0.0561,
+      0.0446,
+      0.0181,
+      0.0067,
+      0.0062
+    ],
+    "top_action": 0.5,
+    "top_share": 0.4724,
+    "deadline_residual_frac": 0.835,
+    "valid": false
+  },
+  {
+    "run": "dqn_volatile_s4",
+    "algo": "dqn",
+    "regime": "volatile",
+    "seed": 4,
+    "action_shares": [
+      0.4033,
+      0.2727,
+      0.0,
+      0.2016,
+      0.0135,
+      0.1058,
+      0.0031
+    ],
+    "top_action": 0.0,
+    "top_share": 0.40331666666666666,
+    "deadline_residual_frac": 0.59,
+    "valid": false
+  },
+  {
+    "run": "ppo_calm_s0",
+    "algo": "ppo",
+    "regime": "calm",
+    "seed": 0,
+    "action_shares": [
+      0.1202,
+      0.1007,
+      0.1746,
+      0.129,
+      0.1848,
+      0.1419,
+      0.1488
+    ],
+    "top_action": 1.2,
+    "top_share": 0.18483333333333332,
+    "deadline_residual_frac": 0.045,
+    "valid": true
+  },
+  {
+    "run": "ppo_calm_s1",
+    "algo": "ppo",
+    "regime": "calm",
+    "seed": 1,
+    "action_shares": [
+      0.1547,
+      0.0982,
+      0.1084,
+      0.1343,
+      0.159,
+      0.1808,
+      0.1646
+    ],
+    "top_action": 1.5,
+    "top_share": 0.1808,
+    "deadline_residual_frac": 0.075,
+    "valid": true
+  },
+  {
+    "run": "ppo_calm_s2",
+    "algo": "ppo",
+    "regime": "calm",
+    "seed": 2,
+    "action_shares": [
+      0.1703,
+      0.1475,
+      0.1201,
+      0.1466,
+      0.065,
+      0.1603,
+      0.1902
+    ],
+    "top_action": 2.0,
+    "top_share": 0.19023333333333334,
+    "deadline_residual_frac": 0.01,
+    "valid": true
+  },
+  {
+    "run": "ppo_calm_s3",
+    "algo": "ppo",
+    "regime": "calm",
+    "seed": 3,
+    "action_shares": [
+      0.1834,
+      0.1748,
+      0.1394,
+      0.2245,
+      0.0535,
+      0.0787,
+      0.1457
+    ],
+    "top_action": 1.0,
+    "top_share": 0.22446666666666668,
+    "deadline_residual_frac": 0.095,
+    "valid": true
+  },
+  {
+    "run": "ppo_calm_s4",
+    "algo": "ppo",
+    "regime": "calm",
+    "seed": 4,
+    "action_shares": [
+      0.1037,
+      0.1459,
+      0.2211,
+      0.0575,
+      0.1497,
+      0.1305,
+      0.1916
+    ],
+    "top_action": 0.8,
+    "top_share": 0.2211,
+    "deadline_residual_frac": 0.005,
+    "valid": true
+  },
+  {
+    "run": "ppo_volatile_s0",
+    "algo": "ppo",
+    "regime": "volatile",
+    "seed": 0,
+    "action_shares": [
+      0.1531,
+      0.1731,
+      0.1141,
+      0.0391,
+      0.166,
+      0.1252,
+      0.2294
+    ],
+    "top_action": 2.0,
+    "top_share": 0.2294,
+    "deadline_residual_frac": 0.085,
+    "valid": true
+  },
+  {
+    "run": "ppo_volatile_s1",
+    "algo": "ppo",
+    "regime": "volatile",
+    "seed": 1,
+    "action_shares": [
+      0.1351,
+      0.1339,
+      0.1617,
+      0.1262,
+      0.1241,
+      0.0627,
+      0.2562
+    ],
+    "top_action": 2.0,
+    "top_share": 0.25625,
+    "deadline_residual_frac": 0.015,
+    "valid": true
+  },
+  {
+    "run": "ppo_volatile_s2",
+    "algo": "ppo",
+    "regime": "volatile",
+    "seed": 2,
+    "action_shares": [
+      0.1249,
+      0.1562,
+      0.1039,
+      0.1915,
+      0.0796,
+      0.102,
+      0.2418
+    ],
+    "top_action": 2.0,
+    "top_share": 0.24183333333333334,
+    "deadline_residual_frac": 0.01,
+    "valid": true
+  },
+  {
+    "run": "ppo_volatile_s3",
+    "algo": "ppo",
+    "regime": "volatile",
+    "seed": 3,
+    "action_shares": [
+      0.1615,
+      0.1137,
+      0.1839,
+      0.0992,
+      0.1126,
+      0.1502,
+      0.1789
+    ],
+    "top_action": 0.8,
+    "top_share": 0.18388333333333334,
+    "deadline_residual_frac": 0.075,
+    "valid": true
+  },
+  {
+    "run": "ppo_volatile_s4",
+    "algo": "ppo",
+    "regime": "volatile",
+    "seed": 4,
+    "action_shares": [
+      0.1433,
+      0.1707,
+      0.1401,
+      0.1071,
+      0.0872,
+      0.1206,
+      0.231
+    ],
+    "top_action": 2.0,
+    "top_share": 0.23096666666666665,
+    "deadline_residual_frac": 0.065,
+    "valid": true
+  }
+]

@@ -1,0 +1,84 @@
+{
+  "criteria": "qrm_step4_criteria.md \u00a73 (frozen 2026-07-06)",
+  "mode": "screen",
+  "n_eval_episodes": 2000,
+  "eval_seed0": 25000000,
+  "order_btc": 25.0,
+  "env_steps": 300,
+  "per_run": [
+    {
+      "run": "ppo_volatile_s20",
+      "algo": "ppo",
+      "regime": "volatile",
+      "seed": 20,
+      "mean_vs_fixed_bps": -0.025149695007775637,
+      "mean_vs_adaptive_bps": -0.02565034512716189,
+      "p_fixed": 0.5005360890050492,
+      "p_adaptive": 0.4908129028946223
+    },
+    {
+      "run": "ppo_volatile_s21",
+      "algo": "ppo",
+      "regime": "volatile",
+      "seed": 21,
+      "mean_vs_fixed_bps": -0.005269272491804368,
+      "mean_vs_adaptive_bps": -0.005769922611190618,
+      "p_fixed": 0.30763964941849176,
+      "p_adaptive": 0.28419503375273303
+    },
+    {
+      "run": "ppo_volatile_s22",
+      "algo": "ppo",
+      "regime": "volatile",
+      "seed": 22,
+      "mean_vs_fixed_bps": -0.011754729196030145,
+      "mean_vs_adaptive_bps": -0.012255379315416409,
+      "p_fixed": 0.6415087269759617,
+      "p_adaptive": 0.6262857999408779
+    },
+    {
+      "run": "ppo_volatile_s23",
+      "algo": "ppo",
+      "regime": "volatile",
+      "seed": 23,
+      "mean_vs_fixed_bps": -0.0078885066318776,
+      "mean_vs_adaptive_bps": -0.008389156751263876,
+      "p_fixed": 0.7505379058807032,
+      "p_adaptive": 0.7281510446588477
+    },
+    {
+      "run": "ppo_volatile_s24",
+      "algo": "ppo",
+      "regime": "volatile",
+      "seed": 24,
+      "mean_vs_fixed_bps": -0.010395840342791066,
+      "mean_vs_adaptive_bps": -0.010896490462177336,
+      "p_fixed": 0.8690926684234679,
+      "p_adaptive": 0.8713787363645906
+    }
+  ],
+  "verdicts": {
+    "ppo_volatile": {
+      "n_valid_seeds": 2,
+      "n_negative_both": 2,
+      "n_significant_both": 0,
+      "pooled_vs_adaptive_bps": -0.018273417794669615,
+      "EDGE": false,
+      "across_seed": {
+        "n_valid_seeds": 2,
+        "n_seeds_total": 5,
+        "n_cheaper_vs_adaptive": 2,
+        "pooled_vs_adaptive_bps": -0.0183,
+        "pooled_vs_fixed_bps": -0.0178,
+        "across_seed_t_p_vs_adaptive_onesided": 0.1221,
+        "across_seed_t_p_vs_fixed_onesided": 0.1252,
+        "ci95_vs_adaptive_bps": [
+          -0.112,
+          0.0755
+        ],
+        "trustworthy": false,
+        "warning": "3 of 5 seeds were audit-invalid and dropped; this p is on survivors only -> SURVIVORSHIP, not a clean edge"
+      }
+    }
+  }
+}

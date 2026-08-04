@@ -1,0 +1,51 @@
+{
+ "registered": "criteria section 8 Amendment A3",
+ "regimes": {
+  "calm": {
+   "sigma_bps_per_sqrt_s": 0.21851927486881206,
+   "eta_bps_per_unit": 0.013898813039606037,
+   "eta_source": "G2 sim cost-vs-size, small-size slope (1->2 units)",
+   "eta_concavity_disclosure": {
+    "1": 0.07486863451914264,
+    "2": 0.08876744755874867,
+    "5": 0.1219438479405717,
+    "10": 0.1837003983090602
+   },
+   "gamma": 0.0,
+   "gamma_justification": {
+    "probe_bps_t1": 0.34927056223290015,
+    "probe_bps_t30": -0.45716370289413905,
+    "reading": "impact fully decays by 30 s (probe goes negative)"
+   },
+   "implied_lambda_by_kappaT": {
+    "0.0": 0.0,
+    "1.0": 3.234116813673399e-06,
+    "2.0": 1.2936467254693595e-05,
+    "4.0": 5.174586901877438e-05
+   }
+  },
+  "volatile": {
+   "sigma_bps_per_sqrt_s": 0.5722396604108264,
+   "eta_bps_per_unit": 0.027852197492151953,
+   "eta_source": "G2 sim cost-vs-size, small-size slope (1->2 units)",
+   "eta_concavity_disclosure": {
+    "1": 0.10106408831526206,
+    "2": 0.12891628580741402,
+    "5": 0.18527735232013756,
+    "10": 0.24663802425053583
+   },
+   "gamma": 0.0,
+   "gamma_justification": {
+    "probe_bps_t1": 0.1350823589536869,
+    "probe_bps_t30": -0.2343316386283333,
+    "reading": "impact fully decays by 30 s (probe goes negative)"
+   },
+   "implied_lambda_by_kappaT": {
+    "0.0": 0.0,
+    "1.0": 9.450636254247453e-07,
+    "2.0": 3.7802545016989814e-06,
+    "4.0": 1.5121018006795926e-05
+   }
+  }
+ }
+}

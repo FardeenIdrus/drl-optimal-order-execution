@@ -1,0 +1,33 @@
+{
+  "algo": "dqn",
+  "regime": "volatile",
+  "seed": 2,
+  "order_btc": 25.0,
+  "env_steps": 300,
+  "steps": 2000000,
+  "gamma": 0.9999164611258403,
+  "injected": true,
+  "obs_price_vs_arrival": true,
+  "log_learning": false,
+  "signal_offset_bps": 0.006489031155680915,
+  "net_arch": [
+    30,
+    30,
+    30,
+    30,
+    30
+  ],
+  "reward_scale": 1.0,
+  "tag": "",
+  "overrides": {
+    "lr": null,
+    "ent_coef": null,
+    "ppo_n_steps": null,
+    "dqn_final_eps": null,
+    "dqn_anneal_frac": null,
+    "dqn_train_freq": null,
+    "dqn_batch_size": null
+  },
+  "wall_s": 4247.016231040936,
+  "criteria": "reports/qrm_step4_criteria.md"
+}

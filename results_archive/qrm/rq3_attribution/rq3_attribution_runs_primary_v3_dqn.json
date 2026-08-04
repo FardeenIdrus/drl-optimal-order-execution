@@ -1,0 +1,312 @@
+[
+ {
+  "run": "dqn_calm_s0",
+  "algo": "dqn",
+  "regime": "calm",
+  "n_states": 200,
+  "obs_dim": 27,
+  "group_mean_abs_shap": {
+   "inventory remaining": 0.0,
+   "time remaining": 0.11723184638366797,
+   "bid queue depth": 0.1780095135804464,
+   "ask queue depth": 0.13456142342493654,
+   "spread": 0.0038328194379115806,
+   "own recent fills": 0.0,
+   "order flow": 0.11459378392295404
+  },
+  "group_share": {
+   "inventory remaining": 0.0,
+   "time remaining": 0.2138372170792536,
+   "bid queue depth": 0.32469896339513127,
+   "ask queue depth": 0.24544730121575709,
+   "spread": 0.006991269586320045,
+   "own recent fills": 0.0,
+   "order flow": 0.20902524872353806
+  },
+  "top_action": 0.0,
+  "top_action_share": 1.0,
+  "marginal_entropy": -0.0,
+  "mean_state_entropy": null,
+  "entropy_uniform": 1.9459101490553132,
+  "frac_states_confident": null
+ },
+ {
+  "run": "dqn_calm_s1",
+  "algo": "dqn",
+  "regime": "calm",
+  "n_states": 200,
+  "obs_dim": 27,
+  "group_mean_abs_shap": {
+   "inventory remaining": 0.010649663351926575,
+   "time remaining": 0.30821046669810026,
+   "bid queue depth": 0.6550754183261935,
+   "ask queue depth": 0.5739306609215871,
+   "spread": 0.008542312703306614,
+   "own recent fills": 0.07868989118444801,
+   "order flow": 0.20143978814785268
+  },
+  "group_share": {
+   "inventory remaining": 0.00579877039540719,
+   "time remaining": 0.16782142972812908,
+   "bid queue depth": 0.3566903306724452,
+   "ask queue depth": 0.3125067915847794,
+   "spread": 0.004651312288034349,
+   "own recent fills": 0.04284685781505409,
+   "order flow": 0.10968450751615062
+  },
+  "top_action": 0.0,
+  "top_action_share": 0.845,
+  "marginal_entropy": 0.573646128070217,
+  "mean_state_entropy": null,
+  "entropy_uniform": 1.9459101490553132,
+  "frac_states_confident": null
+ },
+ {
+  "run": "dqn_calm_s2",
+  "algo": "dqn",
+  "regime": "calm",
+  "n_states": 200,
+  "obs_dim": 27,
+  "group_mean_abs_shap": {
+   "inventory remaining": 0.05997013029798133,
+   "time remaining": 0.10976618706212751,
+   "bid queue depth": 0.8106259705009029,
+   "ask queue depth": 1.0824264962777026,
+   "spread": 0.011914591490617148,
+   "own recent fills": 0.07183124437918054,
+   "order flow": 0.09831646002403477
+  },
+  "group_share": {
+   "inventory remaining": 0.02671452499963243,
+   "time remaining": 0.04889686805439943,
+   "bid queue depth": 0.36110456400036567,
+   "ask queue depth": 0.48218187206521024,
+   "spread": 0.00530751977117538,
+   "own recent fills": 0.031998222518234525,
+   "order flow": 0.04379642859098223
+  },
+  "top_action": 0.0,
+  "top_action_share": 0.49,
+  "marginal_entropy": 1.2064296989882182,
+  "mean_state_entropy": null,
+  "entropy_uniform": 1.9459101490553132,
+  "frac_states_confident": null
+ },
+ {
+  "run": "dqn_calm_s3",
+  "algo": "dqn",
+  "regime": "calm",
+  "n_states": 200,
+  "obs_dim": 27,
+  "group_mean_abs_shap": {
+   "inventory remaining": 0.015581765093387004,
+   "time remaining": 0.3487755803453914,
+   "bid queue depth": 0.5189130888624204,
+   "ask queue depth": 0.9513551643268334,
+   "spread": 0.005916106546852991,
+   "own recent fills": 0.03120519179572407,
+   "order flow": 0.1338277548785993
+  },
+  "group_share": {
+   "inventory remaining": 0.007769227178365105,
+   "time remaining": 0.17390306564944286,
+   "bid queue depth": 0.25873536464173236,
+   "ask queue depth": 0.4743553990621348,
+   "spread": 0.0029498311326372905,
+   "own recent fills": 0.015559227260352445,
+   "order flow": 0.06672788507533516
+  },
+  "top_action": 0.0,
+  "top_action_share": 0.91,
+  "marginal_entropy": 0.3430883318954655,
+  "mean_state_entropy": null,
+  "entropy_uniform": 1.9459101490553132,
+  "frac_states_confident": null
+ },
+ {
+  "run": "dqn_calm_s4",
+  "algo": "dqn",
+  "regime": "calm",
+  "n_states": 200,
+  "obs_dim": 27,
+  "group_mean_abs_shap": {
+   "inventory remaining": 0.07817204406107693,
+   "time remaining": 0.3165691573969711,
+   "bid queue depth": 0.8433557670839754,
+   "ask queue depth": 1.1536836717614243,
+   "spread": 0.01284134972415388,
+   "own recent fills": 0.17643391229651956,
+   "order flow": 0.2562054074032023
+  },
+  "group_share": {
+   "inventory remaining": 0.027551936719071426,
+   "time remaining": 0.11157560860243611,
+   "bid queue depth": 0.29724289553189814,
+   "ask queue depth": 0.4066187586621338,
+   "spread": 0.004525966529811103,
+   "own recent fills": 0.06218458331336278,
+   "order flow": 0.09030025064128656
+  },
+  "top_action": 0.5,
+  "top_action_share": 0.555,
+  "marginal_entropy": 1.4485890009228923,
+  "mean_state_entropy": null,
+  "entropy_uniform": 1.9459101490553132,
+  "frac_states_confident": null
+ },
+ {
+  "run": "dqn_volatile_s0",
+  "algo": "dqn",
+  "regime": "volatile",
+  "n_states": 200,
+  "obs_dim": 27,
+  "group_mean_abs_shap": {
+   "inventory remaining": 0.0,
+   "time remaining": 0.04559199584387882,
+   "bid queue depth": 0.10933525889161502,
+   "ask queue depth": 0.08001789649385363,
+   "spread": 0.007751531298072451,
+   "own recent fills": 0.0,
+   "order flow": 0.09449069457064199
+  },
+  "group_share": {
+   "inventory remaining": 0.0,
+   "time remaining": 0.13521264122120327,
+   "bid queue depth": 0.3242566783863258,
+   "ask queue depth": 0.23730988147454454,
+   "spread": 0.02298879443466867,
+   "own recent fills": 0.0,
+   "order flow": 0.2802320044832577
+  },
+  "top_action": 0.0,
+  "top_action_share": 0.98,
+  "marginal_entropy": 0.098039113279732,
+  "mean_state_entropy": null,
+  "entropy_uniform": 1.9459101490553132,
+  "frac_states_confident": null
+ },
+ {
+  "run": "dqn_volatile_s1",
+  "algo": "dqn",
+  "regime": "volatile",
+  "n_states": 200,
+  "obs_dim": 27,
+  "group_mean_abs_shap": {
+   "inventory remaining": 0.11419496027000185,
+   "time remaining": 0.2434991278460224,
+   "bid queue depth": 0.9791325614379522,
+   "ask queue depth": 1.0826946237983075,
+   "spread": 0.02286812191943903,
+   "own recent fills": 0.23608238172514673,
+   "order flow": 1.0244081569389831
+  },
+  "group_share": {
+   "inventory remaining": 0.030839498527467004,
+   "time remaining": 0.06575939057986228,
+   "bid queue depth": 0.2644246043368778,
+   "ask queue depth": 0.29239258175122446,
+   "spread": 0.00617576651888146,
+   "own recent fills": 0.063756423631649,
+   "order flow": 0.2766517346540379
+  },
+  "top_action": 2.0,
+  "top_action_share": 0.6,
+  "marginal_entropy": 1.1248942874733485,
+  "mean_state_entropy": null,
+  "entropy_uniform": 1.9459101490553132,
+  "frac_states_confident": null
+ },
+ {
+  "run": "dqn_volatile_s2",
+  "algo": "dqn",
+  "regime": "volatile",
+  "n_states": 200,
+  "obs_dim": 27,
+  "group_mean_abs_shap": {
+   "inventory remaining": 0.010518740944655968,
+   "time remaining": 0.3483361619413794,
+   "bid queue depth": 0.33637718662189214,
+   "ask queue depth": 0.323560601439009,
+   "spread": 0.0022243032026707907,
+   "own recent fills": 0.015532378785945837,
+   "order flow": 0.12257068433502835
+  },
+  "group_share": {
+   "inventory remaining": 0.00907476398038077,
+   "time remaining": 0.30051775892966437,
+   "bid queue depth": 0.2902004710486769,
+   "ask queue depth": 0.27914330306811175,
+   "spread": 0.00191895842774771,
+   "own recent fills": 0.013400146678956143,
+   "order flow": 0.10574459786646226
+  },
+  "top_action": 0.0,
+  "top_action_share": 0.83,
+  "marginal_entropy": 0.5066203011868865,
+  "mean_state_entropy": null,
+  "entropy_uniform": 1.9459101490553132,
+  "frac_states_confident": null
+ },
+ {
+  "run": "dqn_volatile_s3",
+  "algo": "dqn",
+  "regime": "volatile",
+  "n_states": 200,
+  "obs_dim": 27,
+  "group_mean_abs_shap": {
+   "inventory remaining": 0.09821593420551383,
+   "time remaining": 0.12277086344314543,
+   "bid queue depth": 0.9031890264921657,
+   "ask queue depth": 0.43250784143870064,
+   "spread": 0.00977238611286497,
+   "own recent fills": 0.2328184236897564,
+   "order flow": 0.2078158163672425
+  },
+  "group_share": {
+   "inventory remaining": 0.048934487207303645,
+   "time remaining": 0.06116858018187999,
+   "bid queue depth": 0.44999920043703756,
+   "ask queue depth": 0.21548997731523317,
+   "spread": 0.004868931982301261,
+   "own recent fills": 0.11599798207724414,
+   "order flow": 0.10354084079900025
+  },
+  "top_action": 1.0,
+  "top_action_share": 0.41,
+  "marginal_entropy": 1.206578919349634,
+  "mean_state_entropy": null,
+  "entropy_uniform": 1.9459101490553132,
+  "frac_states_confident": null
+ },
+ {
+  "run": "dqn_volatile_s4",
+  "algo": "dqn",
+  "regime": "volatile",
+  "n_states": 200,
+  "obs_dim": 27,
+  "group_mean_abs_shap": {
+   "inventory remaining": 0.3288002250293979,
+   "time remaining": 0.2868146883319689,
+   "bid queue depth": 1.386753824524945,
+   "ask queue depth": 1.202023292807379,
+   "spread": 0.03497825938907804,
+   "own recent fills": 0.09656841011786421,
+   "order flow": 0.21962803554971183
+  },
+  "group_share": {
+   "inventory remaining": 0.09247477250908916,
+   "time remaining": 0.08066637744360641,
+   "bid queue depth": 0.39002328674680126,
+   "ask queue depth": 0.3380679880710245,
+   "spread": 0.009837604519521538,
+   "own recent fills": 0.027159779943628313,
+   "order flow": 0.061770190766328816
+  },
+  "top_action": 0.5,
+  "top_action_share": 0.27,
+  "marginal_entropy": 1.563508128197006,
+  "mean_state_entropy": null,
+  "entropy_uniform": 1.9459101490553132,
+  "frac_states_confident": null
+ }
+]

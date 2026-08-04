@@ -1,0 +1,28 @@
+{
+ "seed": 424242,
+ "regime": "calm",
+ "n_steps": 300,
+ "mids_first5": [
+  99981.5,
+  99981.0,
+  99979.0,
+  99979.0,
+  99978.0
+ ],
+ "mids_last5": [
+  99961.0,
+  99961.0,
+  99961.0,
+  99961.5,
+  99961.5
+ ],
+ "mid_sum": 29985293.0,
+ "reward_sum": 3.063507662302248,
+ "obs_sha256": "3b7e2ce0ee15a346373f6828089dc7f99eba8028f4cc71c78b528fe0c1c46e28",
+ "final_info": {
+  "filled_units": 0.0,
+  "remaining_btc": 0.0,
+  "spread_ticks": 1.0,
+  "deadline_residual_btc": 0.09997083360524517
+ }
+}

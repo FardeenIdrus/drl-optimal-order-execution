@@ -1,0 +1,97 @@
+{
+ "which": "injected_dev",
+ "seed0": 18000000,
+ "n": 2000,
+ "inject": true,
+ "registered": "criteria section 8 Amendment A3",
+ "regimes": {
+  "calm": {
+   "adaptive": {
+    "mean_cost_bps": 0.05920497527002014,
+    "std_cost_bps": 3.146797579182855,
+    "mean_vs_adaptive_bps": 0.0,
+    "wilcoxon_p_vs_adaptive": 1.0
+   },
+   "fixed": {
+    "mean_cost_bps": 0.05908474907417239,
+    "std_cost_bps": 3.1480679580879367,
+    "mean_vs_adaptive_bps": -0.00012022619584776059,
+    "wilcoxon_p_vs_adaptive": 0.6043194006704022
+   },
+   "ac_kT0": {
+    "mean_cost_bps": 0.05908474907417239,
+    "std_cost_bps": 3.1480679580879367,
+    "mean_vs_adaptive_bps": -0.00012022619584776059,
+    "wilcoxon_p_vs_adaptive": 0.6043194006704022
+   },
+   "ac_kT1": {
+    "mean_cost_bps": 0.035465210136722006,
+    "std_cost_bps": 3.015499101362078,
+    "mean_vs_adaptive_bps": -0.02373976513329813,
+    "wilcoxon_p_vs_adaptive": 0.3180712452466521
+   },
+   "ac_kT2": {
+    "mean_cost_bps": 0.09801591954124995,
+    "std_cost_bps": 2.5428282215105886,
+    "mean_vs_adaptive_bps": 0.03881094427122979,
+    "wilcoxon_p_vs_adaptive": 0.21114351145728805
+   },
+   "ac_kT4": {
+    "mean_cost_bps": 0.13698110133510216,
+    "std_cost_bps": 2.5943358328924484,
+    "mean_vs_adaptive_bps": 0.077776126065082,
+    "wilcoxon_p_vs_adaptive": 0.0085752866857455
+   },
+   "vwap_oracle": {
+    "mean_cost_bps": 0.17781298190968592,
+    "std_cost_bps": 4.268607991122473,
+    "mean_vs_adaptive_bps": 0.11860800663966574,
+    "wilcoxon_p_vs_adaptive": 0.015745941326009073
+   }
+  },
+  "volatile": {
+   "adaptive": {
+    "mean_cost_bps": -0.28531733769174344,
+    "std_cost_bps": 8.753973931511299,
+    "mean_vs_adaptive_bps": 0.0,
+    "wilcoxon_p_vs_adaptive": 1.0
+   },
+   "fixed": {
+    "mean_cost_bps": -0.2810519399090495,
+    "std_cost_bps": 8.753948768561576,
+    "mean_vs_adaptive_bps": 0.004265397782693883,
+    "wilcoxon_p_vs_adaptive": 0.10710621310804044
+   },
+   "ac_kT0": {
+    "mean_cost_bps": -0.2810519399090495,
+    "std_cost_bps": 8.753948768561576,
+    "mean_vs_adaptive_bps": 0.004265397782693883,
+    "wilcoxon_p_vs_adaptive": 0.10710621310804044
+   },
+   "ac_kT1": {
+    "mean_cost_bps": -0.2630980367347853,
+    "std_cost_bps": 8.324777770654297,
+    "mean_vs_adaptive_bps": 0.022219300956958073,
+    "wilcoxon_p_vs_adaptive": 0.8602940804341994
+   },
+   "ac_kT2": {
+    "mean_cost_bps": -0.1886443741705524,
+    "std_cost_bps": 7.098647853162055,
+    "mean_vs_adaptive_bps": 0.09667296352119101,
+    "wilcoxon_p_vs_adaptive": 0.09208442711721403
+   },
+   "ac_kT4": {
+    "mean_cost_bps": -0.12969567483468658,
+    "std_cost_bps": 7.261655801670726,
+    "mean_vs_adaptive_bps": 0.15562166285705684,
+    "wilcoxon_p_vs_adaptive": 0.017745445553696008
+   },
+   "vwap_oracle": {
+    "mean_cost_bps": -0.1935793283184416,
+    "std_cost_bps": 9.736638241706272,
+    "mean_vs_adaptive_bps": 0.09173800937330184,
+    "wilcoxon_p_vs_adaptive": 0.11359108845535719
+   }
+  }
+ }
+}

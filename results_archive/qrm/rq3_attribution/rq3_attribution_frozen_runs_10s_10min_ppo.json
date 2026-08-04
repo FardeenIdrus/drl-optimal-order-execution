@@ -1,0 +1,652 @@
+[
+ {
+  "run": "ppo_size193.13_seed0",
+  "algo": "ppo",
+  "dataset": "runs_10s_10min",
+  "size_btc": 193.13,
+  "features": [
+   "inventory remaining",
+   "time remaining",
+   "spread",
+   "queue imbalance",
+   "recent return",
+   "rolling volatility",
+   "ask depth"
+  ],
+  "by_regime": {
+   "calm": {
+    "n_states": 200,
+    "mean_abs_shap": {
+     "inventory remaining": 0.3135205357142856,
+     "time remaining": 0.42653511904761904,
+     "spread": 0.07166190476190469,
+     "queue imbalance": 0.477476488095238,
+     "recent return": 0.22786875,
+     "rolling volatility": 0.06630952380952392,
+     "ask depth": 0.7251943452380947
+    },
+    "share": {
+     "inventory remaining": 0.13580744287838878,
+     "time remaining": 0.1847618806969487,
+     "spread": 0.031041730696639208,
+     "queue imbalance": 0.20682811330056378,
+     "recent return": 0.09870572649696063,
+     "rolling volatility": 0.028723244066097553,
+     "ask depth": 0.3141318618644014
+    },
+    "imbalance_share": 0.20682811330056378,
+    "top_action": 1.0,
+    "top_action_share": 0.435
+   },
+   "volatile": {
+    "n_states": 200,
+    "mean_abs_shap": {
+     "inventory remaining": 0.34664077380952363,
+     "time remaining": 0.4842898809523807,
+     "spread": 0.07261785714285711,
+     "queue imbalance": 0.5322669642857137,
+     "recent return": 0.27501369047619056,
+     "rolling volatility": 0.07728601190476193,
+     "ask depth": 0.39059672619047603
+    },
+    "share": {
+     "inventory remaining": 0.15910353867892668,
+     "time remaining": 0.22228266155515652,
+     "spread": 0.03333063769658568,
+     "queue imbalance": 0.24430350939119758,
+     "recent return": 0.12622765308029327,
+     "rolling volatility": 0.03547325910132573,
+     "ask depth": 0.17927874049651443
+    },
+    "imbalance_share": 0.24430350939119758,
+    "top_action": 1.0,
+    "top_action_share": 0.475
+   }
+  }
+ },
+ {
+  "run": "ppo_size193.13_seed1",
+  "algo": "ppo",
+  "dataset": "runs_10s_10min",
+  "size_btc": 193.13,
+  "features": [
+   "inventory remaining",
+   "time remaining",
+   "spread",
+   "queue imbalance",
+   "recent return",
+   "rolling volatility",
+   "ask depth"
+  ],
+  "by_regime": {
+   "calm": {
+    "n_states": 200,
+    "mean_abs_shap": {
+     "inventory remaining": 0.2191086309523807,
+     "time remaining": 0.20179821428571412,
+     "spread": 0.07127172619047625,
+     "queue imbalance": 0.6355211309523802,
+     "recent return": 0.2471324404761899,
+     "rolling volatility": 0.10795386904761896,
+     "ask depth": 0.5089633928571419
+    },
+    "share": {
+     "inventory remaining": 0.11000813176021679,
+     "time remaining": 0.10131707021136903,
+     "spread": 0.03578348060256919,
+     "queue imbalance": 0.3190768524559201,
+     "recent return": 0.12407807924297215,
+     "rolling volatility": 0.05420052783222696,
+     "ask depth": 0.25553585789472566
+    },
+    "imbalance_share": 0.3190768524559201,
+    "top_action": 1.0,
+    "top_action_share": 0.545
+   },
+   "volatile": {
+    "n_states": 200,
+    "mean_abs_shap": {
+     "inventory remaining": 0.17537053571428565,
+     "time remaining": 0.1470970238095237,
+     "spread": 0.24446785714285696,
+     "queue imbalance": 0.4062142857142855,
+     "recent return": 0.5946178571428566,
+     "rolling volatility": 0.10976220238095247,
+     "ask depth": 0.37994285714285686
+    },
+    "share": {
+     "inventory remaining": 0.08523590257811683,
+     "time remaining": 0.07149403712483587,
+     "spread": 0.1188194947916335,
+     "queue imbalance": 0.1974336289842427,
+     "recent return": 0.2890040196102823,
+     "rolling volatility": 0.053348074411682926,
+     "ask depth": 0.18466484249920584
+    },
+    "imbalance_share": 0.1974336289842427,
+    "top_action": 2.0,
+    "top_action_share": 0.4
+   }
+  }
+ },
+ {
+  "run": "ppo_size193.13_seed2",
+  "algo": "ppo",
+  "dataset": "runs_10s_10min",
+  "size_btc": 193.13,
+  "features": [
+   "inventory remaining",
+   "time remaining",
+   "spread",
+   "queue imbalance",
+   "recent return",
+   "rolling volatility",
+   "ask depth"
+  ],
+  "by_regime": {
+   "calm": {
+    "n_states": 200,
+    "mean_abs_shap": {
+     "inventory remaining": 0.14347232142857141,
+     "time remaining": 0.12111755952380941,
+     "spread": 0.0450872023809522,
+     "queue imbalance": 0.18429851190476196,
+     "recent return": 0.15869672619047612,
+     "rolling volatility": 0.02943333333333338,
+     "ask depth": 0.5088526785714285
+    },
+    "share": {
+     "inventory remaining": 0.12046796047600723,
+     "time remaining": 0.10169756248719261,
+     "spread": 0.03785791754339478,
+     "queue imbalance": 0.15474807702880342,
+     "recent return": 0.1332512832302917,
+     "rolling volatility": 0.024713990833712392,
+     "ask depth": 0.4272632084005977
+    },
+    "imbalance_share": 0.15474807702880342,
+    "top_action": 2.0,
+    "top_action_share": 0.85
+   },
+   "volatile": {
+    "n_states": 200,
+    "mean_abs_shap": {
+     "inventory remaining": 0.244474107142857,
+     "time remaining": 0.26904196428571386,
+     "spread": 0.17215029761904777,
+     "queue imbalance": 0.4562693452380951,
+     "recent return": 0.268670833333333,
+     "rolling volatility": 0.18699196428571416,
+     "ask depth": 0.29432113095238094
+    },
+    "share": {
+     "inventory remaining": 0.1292201326128507,
+     "time remaining": 0.14220580948111078,
+     "spread": 0.0909923940316353,
+     "queue imbalance": 0.24116740209380436,
+     "recent return": 0.1420096431408637,
+     "rolling volatility": 0.09883715991410838,
+     "ask depth": 0.15556745872562677
+    },
+    "imbalance_share": 0.24116740209380436,
+    "top_action": 2.0,
+    "top_action_share": 0.6
+   }
+  }
+ },
+ {
+  "run": "ppo_size193.13_seed3",
+  "algo": "ppo",
+  "dataset": "runs_10s_10min",
+  "size_btc": 193.13,
+  "features": [
+   "inventory remaining",
+   "time remaining",
+   "spread",
+   "queue imbalance",
+   "recent return",
+   "rolling volatility",
+   "ask depth"
+  ],
+  "by_regime": {
+   "calm": {
+    "n_states": 200,
+    "mean_abs_shap": {
+     "inventory remaining": 0.23862589285714286,
+     "time remaining": 0.14556904761904757,
+     "spread": 0.057026785714285884,
+     "queue imbalance": 0.7675360119047617,
+     "recent return": 0.1328982142857145,
+     "rolling volatility": 0.05508273809523821,
+     "ask depth": 0.48688214285714215
+    },
+    "share": {
+     "inventory remaining": 0.1266846748742212,
+     "time remaining": 0.07728150222326996,
+     "spread": 0.030275087589347237,
+     "queue imbalance": 0.4074790416001603,
+     "recent return": 0.07055465300335012,
+     "rolling volatility": 0.0292430074675706,
+     "ask depth": 0.25848203324208063
+    },
+    "imbalance_share": 0.4074790416001603,
+    "top_action": 2.0,
+    "top_action_share": 0.355
+   },
+   "volatile": {
+    "n_states": 200,
+    "mean_abs_shap": {
+     "inventory remaining": 0.25014285714285683,
+     "time remaining": 0.19524136904761893,
+     "spread": 0.14246279761904768,
+     "queue imbalance": 0.8079842261904756,
+     "recent return": 0.21497619047619032,
+     "rolling volatility": 0.09472827380952378,
+     "ask depth": 0.17577023809523798
+    },
+    "share": {
+     "inventory remaining": 0.13296234821682243,
+     "time remaining": 0.10377970090432367,
+     "spread": 0.07572548071659954,
+     "queue imbalance": 0.42948050271562865,
+     "recent return": 0.11426965943743483,
+     "rolling volatility": 0.05035240211175495,
+     "ask depth": 0.09342990589743572
+    },
+    "imbalance_share": 0.42948050271562865,
+    "top_action": 1.2,
+    "top_action_share": 0.43
+   }
+  }
+ },
+ {
+  "run": "ppo_size193.13_seed4",
+  "algo": "ppo",
+  "dataset": "runs_10s_10min",
+  "size_btc": 193.13,
+  "features": [
+   "inventory remaining",
+   "time remaining",
+   "spread",
+   "queue imbalance",
+   "recent return",
+   "rolling volatility",
+   "ask depth"
+  ],
+  "by_regime": {
+   "calm": {
+    "n_states": 200,
+    "mean_abs_shap": {
+     "inventory remaining": 0.19603541666666668,
+     "time remaining": 0.16412648809523797,
+     "spread": 0.06386874999999986,
+     "queue imbalance": 0.514122023809523,
+     "recent return": 0.1505791666666668,
+     "rolling volatility": 0.05401190476190494,
+     "ask depth": 1.0073693452380934
+    },
+    "share": {
+     "inventory remaining": 0.09117446756676709,
+     "time remaining": 0.07633388609126322,
+     "spread": 0.029704832802261202,
+     "queue imbalance": 0.23911394472605252,
+     "recent return": 0.07003313779175528,
+     "rolling volatility": 0.025120494769101408,
+     "ask depth": 0.46851923625279923
+    },
+    "imbalance_share": 0.23911394472605252,
+    "top_action": 0.8,
+    "top_action_share": 0.645
+   },
+   "volatile": {
+    "n_states": 200,
+    "mean_abs_shap": {
+     "inventory remaining": 0.4012833333333336,
+     "time remaining": 0.29673303571428566,
+     "spread": 0.1552761904761906,
+     "queue imbalance": 0.6166488095238095,
+     "recent return": 0.40779523809523793,
+     "rolling volatility": 0.057826785714285754,
+     "ask depth": 0.49094434523809516
+    },
+    "share": {
+     "inventory remaining": 0.16537484180797762,
+     "time remaining": 0.1222881060940755,
+     "spread": 0.06399163210502655,
+     "queue imbalance": 0.25413016403890265,
+     "recent return": 0.1680584948042858,
+     "rolling volatility": 0.023831280158899747,
+     "ask depth": 0.2023254809908321
+    },
+    "imbalance_share": 0.25413016403890265,
+    "top_action": 2.0,
+    "top_action_share": 0.425
+   }
+  }
+ },
+ {
+  "run": "ppo_size96.57_seed0",
+  "algo": "ppo",
+  "dataset": "runs_10s_10min",
+  "size_btc": 96.57,
+  "features": [
+   "inventory remaining",
+   "time remaining",
+   "spread",
+   "queue imbalance",
+   "recent return",
+   "rolling volatility",
+   "ask depth"
+  ],
+  "by_regime": {
+   "calm": {
+    "n_states": 200,
+    "mean_abs_shap": {
+     "inventory remaining": 0.4277892857142854,
+     "time remaining": 0.26948720238095214,
+     "spread": 0.07214732142857133,
+     "queue imbalance": 0.5641041666666662,
+     "recent return": 0.2524803571428571,
+     "rolling volatility": 0.06230029761904759,
+     "ask depth": 0.5119622023809518
+    },
+    "share": {
+     "inventory remaining": 0.1980257656185636,
+     "time remaining": 0.12474695219817838,
+     "spread": 0.03339735014486442,
+     "queue imbalance": 0.2611265948521115,
+     "recent return": 0.11687439984239197,
+     "rolling volatility": 0.02883911436369173,
+     "ask depth": 0.23698982298019833
+    },
+    "imbalance_share": 0.2611265948521115,
+    "top_action": 1.0,
+    "top_action_share": 0.35
+   },
+   "volatile": {
+    "n_states": 200,
+    "mean_abs_shap": {
+     "inventory remaining": 0.29218244047619024,
+     "time remaining": 0.2661767857142857,
+     "spread": 0.17496428571428563,
+     "queue imbalance": 0.8179059523809523,
+     "recent return": 0.6502675595238092,
+     "rolling volatility": 0.08430922619047608,
+     "ask depth": 0.3782860119047616
+    },
+    "share": {
+     "inventory remaining": 0.10967429493875222,
+     "time remaining": 0.09991275059069307,
+     "spread": 0.0656750099147056,
+     "queue imbalance": 0.30701112122752444,
+     "recent return": 0.24408597585839006,
+     "rolling volatility": 0.0316465114200651,
+     "ask depth": 0.14199433604986952
+    },
+    "imbalance_share": 0.30701112122752444,
+    "top_action": 2.0,
+    "top_action_share": 0.425
+   }
+  }
+ },
+ {
+  "run": "ppo_size96.57_seed1",
+  "algo": "ppo",
+  "dataset": "runs_10s_10min",
+  "size_btc": 96.57,
+  "features": [
+   "inventory remaining",
+   "time remaining",
+   "spread",
+   "queue imbalance",
+   "recent return",
+   "rolling volatility",
+   "ask depth"
+  ],
+  "by_regime": {
+   "calm": {
+    "n_states": 200,
+    "mean_abs_shap": {
+     "inventory remaining": 0.20817648809523795,
+     "time remaining": 0.2850476190476186,
+     "spread": 0.08606101190476188,
+     "queue imbalance": 0.47538273809523757,
+     "recent return": 0.31169851190476183,
+     "rolling volatility": 0.04578898809523813,
+     "ask depth": 0.38358630952380923
+    },
+    "share": {
+     "inventory remaining": 0.11592785975817128,
+     "time remaining": 0.15873531496138668,
+     "spread": 0.04792505152732359,
+     "queue imbalance": 0.2647277985021442,
+     "recent return": 0.1735764768901032,
+     "rolling volatility": 0.025498649914513408,
+     "ask depth": 0.21360884844635752
+    },
+    "imbalance_share": 0.2647277985021442,
+    "top_action": 1.2,
+    "top_action_share": 0.375
+   },
+   "volatile": {
+    "n_states": 200,
+    "mean_abs_shap": {
+     "inventory remaining": 0.39967499999999967,
+     "time remaining": 0.4560151785714283,
+     "spread": 0.1822175595238093,
+     "queue imbalance": 0.3059955357142856,
+     "recent return": 0.37545416666666653,
+     "rolling volatility": 0.0809925595238095,
+     "ask depth": 0.25176904761904756
+    },
+    "share": {
+     "inventory remaining": 0.1947620926104259,
+     "time remaining": 0.2222167271925652,
+     "spread": 0.08879482880646017,
+     "queue imbalance": 0.1491119806471824,
+     "recent return": 0.182959252340786,
+     "rolling volatility": 0.03946776850874243,
+     "ask depth": 0.122687349893838
+    },
+    "imbalance_share": 0.1491119806471824,
+    "top_action": 2.0,
+    "top_action_share": 0.46
+   }
+  }
+ },
+ {
+  "run": "ppo_size96.57_seed2",
+  "algo": "ppo",
+  "dataset": "runs_10s_10min",
+  "size_btc": 96.57,
+  "features": [
+   "inventory remaining",
+   "time remaining",
+   "spread",
+   "queue imbalance",
+   "recent return",
+   "rolling volatility",
+   "ask depth"
+  ],
+  "by_regime": {
+   "calm": {
+    "n_states": 200,
+    "mean_abs_shap": {
+     "inventory remaining": 0.2637309523809524,
+     "time remaining": 0.18767708333333338,
+     "spread": 0.04170684523809518,
+     "queue imbalance": 0.33466369047619016,
+     "recent return": 0.0893782738095239,
+     "rolling volatility": 0.0466080357142858,
+     "ask depth": 0.3496101190476195
+    },
+    "share": {
+     "inventory remaining": 0.20080399914796027,
+     "time remaining": 0.14289679895942387,
+     "spread": 0.03175547367514622,
+     "queue imbalance": 0.2548119847539279,
+     "recent return": 0.06805236418351489,
+     "rolling volatility": 0.03548722620293959,
+     "ask depth": 0.2661921530770872
+    },
+    "imbalance_share": 0.2548119847539279,
+    "top_action": 2.0,
+    "top_action_share": 0.855
+   },
+   "volatile": {
+    "n_states": 200,
+    "mean_abs_shap": {
+     "inventory remaining": 0.3185250000000001,
+     "time remaining": 0.3254541666666665,
+     "spread": 0.15357529761904787,
+     "queue imbalance": 0.439616666666667,
+     "recent return": 0.40249166666666647,
+     "rolling volatility": 0.10644553571428583,
+     "ask depth": 0.39041190476190507
+    },
+    "share": {
+     "inventory remaining": 0.14908588007758497,
+     "time remaining": 0.1523290820576626,
+     "spread": 0.07188104043234529,
+     "queue imbalance": 0.20576293115697147,
+     "recent return": 0.18838654532264004,
+     "rolling volatility": 0.049821917815852136,
+     "ask depth": 0.18273260313694337
+    },
+    "imbalance_share": 0.20576293115697147,
+    "top_action": 2.0,
+    "top_action_share": 0.625
+   }
+  }
+ },
+ {
+  "run": "ppo_size96.57_seed3",
+  "algo": "ppo",
+  "dataset": "runs_10s_10min",
+  "size_btc": 96.57,
+  "features": [
+   "inventory remaining",
+   "time remaining",
+   "spread",
+   "queue imbalance",
+   "recent return",
+   "rolling volatility",
+   "ask depth"
+  ],
+  "by_regime": {
+   "calm": {
+    "n_states": 200,
+    "mean_abs_shap": {
+     "inventory remaining": 0.43664761904761845,
+     "time remaining": 0.24505892857142836,
+     "spread": 0.0969142857142857,
+     "queue imbalance": 0.3421619047619043,
+     "recent return": 0.12210327380952371,
+     "rolling volatility": 0.04489940476190468,
+     "ask depth": 0.4683151785714284
+    },
+    "share": {
+     "inventory remaining": 0.24864613122485582,
+     "time remaining": 0.13954720432072004,
+     "spread": 0.05518720623242314,
+     "queue imbalance": 0.19484185911087495,
+     "recent return": 0.06953091078075105,
+     "rolling volatility": 0.02556767242358185,
+     "ask depth": 0.2666790159067931
+    },
+    "imbalance_share": 0.19484185911087495,
+    "top_action": 2.0,
+    "top_action_share": 0.435
+   },
+   "volatile": {
+    "n_states": 200,
+    "mean_abs_shap": {
+     "inventory remaining": 0.30636339285714254,
+     "time remaining": 0.2176785714285713,
+     "spread": 0.1238755952380952,
+     "queue imbalance": 0.22963244047619033,
+     "recent return": 0.21751726190476184,
+     "rolling volatility": 0.055679761904761954,
+     "ask depth": 0.3601773809523814
+    },
+    "share": {
+     "inventory remaining": 0.2027655333990188,
+     "time remaining": 0.1440697964388719,
+     "spread": 0.08198662676152606,
+     "queue imbalance": 0.15198142259961472,
+     "recent return": 0.14396303429822405,
+     "rolling volatility": 0.03685145446673496,
+     "ask depth": 0.2383821320360095
+    },
+    "imbalance_share": 0.15198142259961472,
+    "top_action": 2.0,
+    "top_action_share": 0.445
+   }
+  }
+ },
+ {
+  "run": "ppo_size96.57_seed4",
+  "algo": "ppo",
+  "dataset": "runs_10s_10min",
+  "size_btc": 96.57,
+  "features": [
+   "inventory remaining",
+   "time remaining",
+   "spread",
+   "queue imbalance",
+   "recent return",
+   "rolling volatility",
+   "ask depth"
+  ],
+  "by_regime": {
+   "calm": {
+    "n_states": 200,
+    "mean_abs_shap": {
+     "inventory remaining": 0.24087708333333346,
+     "time remaining": 0.4977747023809526,
+     "spread": 0.08127113095238091,
+     "queue imbalance": 0.3107749999999998,
+     "recent return": 0.05888125,
+     "rolling volatility": 0.027873809523809596,
+     "ask depth": 0.43869166666666637
+    },
+    "share": {
+     "inventory remaining": 0.14544447211916098,
+     "time remaining": 0.30056233586107745,
+     "spread": 0.04907248367640995,
+     "queue imbalance": 0.18764967259372825,
+     "recent return": 0.035553205001719795,
+     "rolling volatility": 0.016830540523152825,
+     "ask depth": 0.26488729022475094
+    },
+    "imbalance_share": 0.18764967259372825,
+    "top_action": 1.0,
+    "top_action_share": 0.425
+   },
+   "volatile": {
+    "n_states": 200,
+    "mean_abs_shap": {
+     "inventory remaining": 0.16133928571428569,
+     "time remaining": 0.4274619047619044,
+     "spread": 0.12188839285714272,
+     "queue imbalance": 0.2899229166666663,
+     "recent return": 0.1881669642857142,
+     "rolling volatility": 0.05487619047619046,
+     "ask depth": 0.303656845238095
+    },
+    "share": {
+     "inventory remaining": 0.1042706536102344,
+     "time remaining": 0.2762608747501909,
+     "spread": 0.07877425720863937,
+     "queue imbalance": 0.1873719217460381,
+     "recent return": 0.12160889560816858,
+     "rolling volatility": 0.03546548643288961,
+     "ask depth": 0.19624791064383906
+    },
+    "imbalance_share": 0.1873719217460381,
+    "top_action": 1.2,
+    "top_action_share": 0.39
+   }
+  }
+ }
+]
