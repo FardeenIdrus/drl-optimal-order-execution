@@ -25,6 +25,10 @@ criteria/MSc_Project_Guidelines_2025-2026.md
 # Results archive: primary evidence — always tracked (overrides *.csv above)
 !results_archive/**
 
+# ...but never macOS folder metadata, which the line above re-includes
+results_archive/.DS_Store
+results_archive/**/.DS_Store
+
 # LaTeX build artifacts (regenerable)
 *.aux
 *.log
