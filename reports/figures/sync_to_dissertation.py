@@ -30,6 +30,7 @@ DEST = (REPO.parent / "Idrus_Fardeen_MSc_Dissertation" / "figures")
 # Every directory holding figures of record. results_pack/figures is deliberately EXCLUDED:
 # it is a frozen snapshot of the 2026-07-21 meeting pack, not a source of truth.
 SRC_DIRS = [
+    SRC_ROOT / "data",
     SRC_ROOT / "qrm",
     SRC_ROOT / "l2",
     SRC_ROOT / "sigext" / "main_body",

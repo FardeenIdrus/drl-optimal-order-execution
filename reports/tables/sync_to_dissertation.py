@@ -27,6 +27,10 @@ DEST = REPO.parent / "Idrus_Fardeen_MSc_Dissertation" / "tables"
 # Tables cited by the Results chapter (reports/results_chapter/results.tex), plus the
 # per-run tables the appendix carries. Keep this list in step with the chapter.
 WANTED = [
+    # Data chapter
+    "d1_sources.tex",                  # sources, instrument, scale of an order
+    "d2_pipeline.tex",                 # processing steps and their checks
+    "d3_partitions.tex",               # how the data was divided
     # main body
     "t3_sealed_confirmations.tex",     # the two sealed reactive confirmations
     "t4_robustness_grid.tex",          # size x deadline grid
