@@ -4,11 +4,11 @@
 \toprule
 version & bar width, steps, episode & training & tuning & held-out test & last training bar $\rightarrow$ first test bar & test: calm / volatile \\
 \midrule
-\textbf{10-second (main)} & 10\,s, 180, 30\,min & 22,016 & 3,885 & 6,474 & \scriptsize 2025-07-14\,03:29:50 $\rightarrow$ 2025-07-14\,04:00:00 & 4,559/1,915 \\
+\textbf{10-second} & 10\,s, 180, 30\,min & 22,016 & 3,885 & 6,474 & \scriptsize 2025-07-14\,03:29:50 $\rightarrow$ 2025-07-14\,04:00:00 & 4,559/1,915 \\
 1-minute & 1\,min, 30, 30\,min & 22,276 & 3,931 & 6,551 & \scriptsize 2025-07-16\,07:29:00 $\rightarrow$ 2025-07-16\,08:00:00 & 4,596/1,955 \\
 10-second, shorter episode & 10\,s, 60, 10\,min & 66,795 & 11,787 & 19,645 & \scriptsize 2025-07-15\,02:59:50 $\rightarrow$ 2025-07-15\,03:10:00 & 13,636/6,009 \\
 \midrule
-\multicolumn{7}{@{}p{15.2cm}}{\footnotesize The three versions do not share a boundary. The split falls at the same fraction of each version's own row count, and the versions contain different numbers of rows, so that fraction lands on a different date in each. Tuning episodes are the last 15\% of the training file by date. In all three, every training bar is dated before every test bar.} \\
+\multicolumn{7}{@{}p{15.2cm}}{\footnotesize The three versions do not share a boundary. The split falls at the same fraction of each version's own row count, and the versions contain different numbers of rows, so that fraction lands on a different date in each. Tuning episodes are the last 15\% of the training file by date. In all three, every training bar is dated before every test bar. \textbf{Episode counts quoted elsewhere in this chapter are the 10-second version's.}} \\
 \bottomrule
 \end{tabular}
 

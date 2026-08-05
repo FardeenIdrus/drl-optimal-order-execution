@@ -201,8 +201,10 @@ def fig_d1() -> None:
 # --------------------------------------------------------------------------- Figure D2
 
 def fig_d2() -> None:
-    # The headline build. Each build computes its own threshold by the same rule and lands in a
-    # different place, so the figure names the build it draws and states the other two.
+    # Each dataset version computes its own threshold by the same rule and lands in a different
+    # place, so the figure names the version it draws and states the other two.
+    # "Sealed" is NOT used here: section 3.4 defines that term and this figure appears in it,
+    # so the figure would be using the word before the reader meets it. Same fix as F-D1(b).
     V = M["volatility"]["dataset_10s"]
     others = {k: v["threshold"] for k, v in M["volatility"].items() if k != "dataset_10s"}
     lo, hi = V["hist_range"]
@@ -217,10 +219,10 @@ def fig_d2() -> None:
     ax.bar(centres, tr / tr.sum(), width=width, color=C_COMPLETE, alpha=0.75,
            label=f"training episodes (n={V['train_vol']['n']:,})", linewidth=0)
     ax.step(centres, te / te.sum(), where="mid", color=C_MISSING, linewidth=1.3,
-            label=f"sealed test episodes (n={V['test_vol']['n']:,})")
+            label=f"evaluation episodes (n={V['test_vol']['n']:,})")
     ax.axvline(thr, color="black", linestyle="--", linewidth=1.1)
     ax.annotate(f"threshold {thr:.5f}\nchosen as the median of the TRAINING split,\n"
-                f"then applied unchanged to the sealed test set",
+                f"then applied unchanged to the evaluation set",
                 xy=(thr, ax.get_ylim()[1] * 0.74),
                 xytext=(thr * 1.6, ax.get_ylim()[1] * 0.60), fontsize=7,
                 arrowprops=dict(arrowstyle="->", lw=0.7))
@@ -232,11 +234,15 @@ def fig_d2() -> None:
     cbs = V["counts_by_split_regime"]
     ax.set_title(
         f"10-second dataset. Training is {V['train_volatile_pct']}% volatile by "
-        f"construction; the sealed test set is {V['test_volatile_pct']}% "
+        f"construction; the evaluation set is {V['test_volatile_pct']}% "
         f"({cbs['calm']['test']:,} calm, {cbs['volatile']['test']:,} volatile)",
         loc="left")
-    ax.annotate("same rule, other datasets: "
-                + ", ".join(f"{k} {v:.5f}" for k, v in sorted(others.items())),
+    # Plain names, not folder names. "dataset_10s_10min" is an internal path and must not
+    # appear in a report-facing figure; the labels match \Cref{tab:d3-partitions}.
+    plain = {"dataset": "1-minute", "dataset_10s_10min": "10-second, shorter episode"}
+    ax.annotate("same rule, other versions: "
+                + ", ".join(f"{plain.get(k, k)} {v:.5f}"
+                            for k, v in sorted(others.items(), key=lambda kv: plain.get(kv[0], kv[0]))),
                 xy=(0.5, -0.30), xycoords="axes fraction", ha="center", fontsize=6.5,
                 color="0.35")
     save(fig, "figD2_regimes")

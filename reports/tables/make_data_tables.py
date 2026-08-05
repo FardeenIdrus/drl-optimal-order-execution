@@ -251,7 +251,10 @@ PANEL_B = [
      "---", "no result was ever judged on them"),
 ]
 
-BUILD_ORDER = [("dataset_10s", r"\textbf{10-second (main)}"),
+# "(main)" was removed 2026-08-06: it read as "the study's main track", which is the reactive
+# simulator, not this dataset. Which version the chapter's quoted figures come from is stated in
+# the panel note below instead.
+BUILD_ORDER = [("dataset_10s", r"\textbf{10-second}"),
                ("dataset", "1-minute"),
                ("dataset_10s_10min", "10-second, shorter episode")]
 
@@ -283,7 +286,9 @@ def table_d3() -> str:
             r"boundary. The split falls at the same fraction of each version's own row count, "
             r"and the versions contain different numbers of rows, so that fraction lands on a "
             r"different date in each. Tuning episodes are the last 15\% of the training file by "
-            r"date. In all three, every training bar is dated before every test bar.} \\",
+            r"date. In all three, every training bar is dated before every test bar. "
+            r"\textbf{Episode counts quoted elsewhere in this chapter are the 10-second "
+            r"version's.}} \\",
             r"\bottomrule",
             r"\end{tabular}",
             r"",
