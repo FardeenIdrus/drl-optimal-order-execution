@@ -3,15 +3,15 @@
 \toprule
 step & what it produced & what was checked \\
 \midrule
-downloading the raw files & 17,107 hourly files. 703 days arrived complete, 12 in part, 3 not at all, and 13 were never requested because the venue's archive holds nothing for those weeks & 99.27\% of the 718 days requested, and 97.51\% of the 731 days in the period \\
+downloading the raw files & 17,107 hourly files, one for each hour obtained. 703 days arrived with all 24 hours, 12 with only some, 3 with none although they were requested, and 13 were never requested because the venue's archive holds nothing for those weeks & 17,107 of the 17,232 hours in the 718 days requested, or 99.27\%. Measured instead against all 731 days of the two years, including the 13 never requested, it is 97.51\% \\
 checking the download & 17,107 files on disk against 17,107 expected & every file matched byte for byte \\
 building one book per minute & 1,020,217 minutes, no duplicates, a median of 106 snapshots behind each minute & timestamps strictly increasing; bid prices below ask prices at every level \\
-computing the input variables & 995,572 minutes usable of 1,052,640 (94.58\%). Order imbalance over 5 levels, returns over 5 minutes, volatility over 30 minutes & a minute counts only if every variable it needs is available \\
-the volatility window, and its cost & volatility is measured over a 30-minute trailing window, so a minute whose window overlaps a gap in the data is discarded rather than filled in by interpolation & this is the processing decision with the largest measured consequence; \Cref{fig:d1-coverage} shows where it falls \\
+computing the input variables & 995,572 minutes usable of 1,052,640 (94.58\%). Five variables describe each minute: the average gap between the best buy and best sell price; the imbalance between the buy and sell volume resting on the best 5 levels; the sell-side volume resting on those levels; the price change over the previous 5 minutes; and price volatility over the previous 30 minutes & a minute is usable only if all five variables can be computed for it \\
+the volatility window, and its cost & volatility is computed from the previous 30 minutes, and the price change from the previous 5. If any minute inside either stretch is absent, the variable cannot be computed and the minute is discarded rather than estimated by interpolation & no 30-minute window is ever completed across absent minutes; \Cref{fig:d1-coverage} shows where the loss falls \\
 cutting the data into episodes & 995,572 usable minutes became 982,740. The 12,832 difference is minutes left over at the ends, too few to complete an episode & 982,740 $\div$ 30 steps $=$ 32,758 episodes exactly \\
-labelling each episode calm or volatile & the dividing line is 0.001638, the median volatility of the training episodes. Each of the three builds sets its own line by the same rule & 32,758 episodes labelled (1-minute build) \\
-splitting into training and test & 786,210 training rows and 196,530 test rows, split by date (1-minute build; \Cref{tab:d3-partitions} gives all three) & every training row is dated before every test row \\
-guarding against leakage & 0 missing values in the core fields. The scaling constants are computed on the training portion alone and applied unchanged elsewhere & no test-period information enters training \\
+labelling each episode calm or volatile & the dividing line is 0.001638, the median volatility of the training episodes, so half of the training data is labelled volatile by construction & 32,758 episodes labelled \\
+splitting into training and test & 786,210 training rows and 196,530 test rows, split by date & every training row is dated before every test row \\
+guarding against leakage & every variable is computed from completed minutes only and then shifted by one minute, so the values available at any decision point come from minutes strictly before it. 0 missing values in the core fields, and the scaling constants are computed on the training portion alone and applied unchanged elsewhere & no test-period information enters training; the one-minute shift is enforced in code and unit-tested \\
 reproducibility & the pipeline draws no random numbers at any stage & the same input and settings reproduce every file exactly \\
 \bottomrule
 \end{tabular}

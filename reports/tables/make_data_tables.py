@@ -149,12 +149,16 @@ def table_d2() -> str:
     thr_1min = M["volatility"]["dataset"]["threshold"]
     rows = [
         ("downloading the raw files",
-         f"{n(s0['hours_present'])} hourly files. "
-         f"{s0['days_fully_covered']} days arrived complete, {len(s0['days_partial'])} in part, "
-         f"{len(s0['days_missing'])} not at all, and {s0['days_skipped']} were never requested "
-         f"because the venue's archive holds nothing for those weeks",
-         f"{s0['coverage_pct']}\\% of the {s0['days_in_range_excluding_skips']} days requested, "
-         f"and {RC['coverage_pct_calendar']}\\% of the {RC['span_days']} days in the period"),
+         f"{n(s0['hours_present'])} hourly files, one for each hour obtained. "
+         f"{s0['days_fully_covered']} days arrived with all 24 hours, "
+         f"{len(s0['days_partial'])} with only some, "
+         f"{len(s0['days_missing'])} with none although they were requested, and "
+         f"{s0['days_skipped']} were never requested because the venue's archive holds nothing "
+         f"for those weeks",
+         f"{n(s0['hours_present'])} of the {n(s0['hours_expected'])} hours in the "
+         f"{s0['days_in_range_excluding_skips']} days requested, or {s0['coverage_pct']}\\%. "
+         f"Measured instead against all {RC['span_days']} days of the two years, including the "
+         f"{s0['days_skipped']} never requested, it is {RC['coverage_pct_calendar']}\\%"),
         ("checking the download",
          f"{n(s1['raw_files'])} files on disk against {n(s1['expected'])} expected",
          "every file matched byte for byte" if s1["byte_exact"] else "MISMATCH"),
@@ -164,15 +168,19 @@ def table_d2() -> str:
          "timestamps strictly increasing; bid prices below ask prices at every level"),
         ("computing the input variables",
          f"{n(s4['feature_valid_rows'])} minutes usable of {n(s4['rows'])} ({s4['valid_pct']}\\%). "
-         f"Order imbalance over {p['imbalance_depth']} levels, returns over "
-         f"{p['return_lookback']} minutes, volatility over {p['vol_window']} minutes",
-         "a minute counts only if every variable it needs is available"),
+         f"Five variables describe each minute: the average gap between the best buy and best "
+         f"sell price; the imbalance between the buy and sell volume resting on the best "
+         f"{p['imbalance_depth']} levels; the sell-side volume resting on those levels; the "
+         f"price change over the previous {p['return_lookback']} minutes; and price volatility "
+         f"over the previous {p['vol_window']} minutes",
+         "a minute is usable only if all five variables can be computed for it"),
         ("the volatility window, and its cost",
-         f"volatility is measured over a {p['vol_window']}-minute trailing window, so a minute "
-         f"whose window overlaps a gap in the data is discarded rather than filled in by "
-         f"interpolation",
-         "this is the processing decision with the largest measured consequence; "
-         "\\Cref{fig:d1-coverage} shows where it falls"),
+         f"volatility is computed from the previous {p['vol_window']} minutes, and the price "
+         f"change from the previous {p['return_lookback']}. If any minute inside either stretch "
+         f"is absent, the variable cannot be computed and the minute is discarded rather than "
+         f"estimated by interpolation",
+         f"no {p['vol_window']}-minute window is ever completed across absent minutes; "
+         "\\Cref{fig:d1-coverage} shows where the loss falls"),
         ("cutting the data into episodes",
          f"{n(s4['feature_valid_rows'])} usable minutes became {n(s6['rows'])}. The "
          f"{n(dropped)} difference is minutes left over at the ends, too few to complete an "
@@ -180,17 +188,21 @@ def table_d2() -> str:
          f"{n(s6['rows'])} $\\div$ {s6['rows'] // s6['episodes']} steps $=$ "
          f"{n(s6['episodes'])} episodes exactly"),
         ("labelling each episode calm or volatile",
-         f"the dividing line is {thr_1min:.6f}, the median volatility of the training episodes. "
-         f"Each of the three builds sets its own line by the same rule",
-         f"{n(s5['n_episodes'])} episodes labelled (1-minute build)"),
+         f"the dividing line is {thr_1min:.6f}, the median volatility of the training episodes, "
+         f"so half of the training data is labelled volatile by construction",
+         f"{n(s5['n_episodes'])} episodes labelled"),
         ("splitting into training and test",
          f"{n(s6['train_rows'])} training rows and {n(s6['test_rows'])} test rows, split by "
-         f"date (1-minute build; \\Cref{{tab:d3-partitions}} gives all three)",
+         f"date",
          "every training row is dated before every test row"),
         ("guarding against leakage",
-         f"{s6['nan_in_core_fields']} missing values in the core fields. The scaling constants "
-         f"are computed on the training portion alone and applied unchanged elsewhere",
-         "no test-period information enters training"),
+         f"every variable is computed from completed minutes only and then shifted by one "
+         f"minute, so the values available at any decision point come from minutes strictly "
+         f"before it. {s6['nan_in_core_fields']} missing values in the core fields, and the "
+         f"scaling constants are computed on the training portion alone and applied unchanged "
+         f"elsewhere",
+         "no test-period information enters training; the one-minute shift is enforced in code "
+         "and unit-tested"),
         ("reproducibility",
          "the pipeline draws no random numbers at any stage",
          "the same input and settings reproduce every file exactly"),

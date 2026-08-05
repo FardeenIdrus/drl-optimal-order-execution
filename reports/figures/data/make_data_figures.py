@@ -102,22 +102,29 @@ def fig_d1() -> None:
     ax.bar(xs, [1.0] * len(span), width=1.0, color=cs, linewidth=0, align="edge")
 
     # Upper layer: dates inside the evaluation window that supply no episode at all.
+    # The track is drawn full-width in pale grey FIRST. Without it the row is empty for 96%
+    # of the span and its axis label reads as floating text beside blank paper.
     test_start = date.fromisoformat(HEAD["test_first_ts"][:10])
+    ax.bar(xs, [0.34] * len(span), width=1.0, bottom=1.06, color="#f2f2f2",
+           linewidth=0, align="edge", zorder=1)
     zero_x = [mdates.date2num(d) for d in span
               if d >= test_start and all_contrib.get(d.isoformat(), 0) == 0]
     ax.bar(zero_x, [0.34] * len(zero_x), width=1.0, bottom=1.06, color=C_ZERO,
-           linewidth=0, align="edge")
+           linewidth=0, align="edge", zorder=2)
 
     bx = mdates.date2num(test_start)
     ax.axvline(bx, color="black", linewidth=1.1, zorder=5)
-    ax.annotate(f"sealed test begins {HEAD['test_first_ts'][:10]}\n"
-                f"(10-second build; the other two builds differ)",
-                xy=(bx, 1.46), xytext=(bx - 430, 1.66), fontsize=7,
+    # The dataset qualification lives in the caption. Naming it here would forward-reference
+    # the three dataset versions, which the reader does not meet until section 3.4.
+    ax.annotate(f"evaluation period begins {HEAD['test_first_ts'][:10]}",
+                xy=(bx, 1.44), xytext=(bx - 330, 1.66), fontsize=7,
                 arrowprops=dict(arrowstyle="->", lw=0.7))
+    ax.text(0.0, 1.0, "(a)", transform=ax.transAxes, fontsize=9, fontweight="bold",
+            ha="left", va="top")
 
     ax.set_ylim(0, 1.9)
     ax.set_yticks([0.5, 1.23])
-    ax.set_yticklabels(["raw pull", "no episodes"])
+    ax.set_yticklabels(["what was\ncollected", "supplied no\nepisode"])
     ax.set_xlim(xs[0], xs[-1] + 1)
     ax.xaxis.set_major_locator(mdates.MonthLocator(interval=3))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%b\n%Y"))
@@ -136,36 +143,58 @@ def fig_d1() -> None:
               frameon=False, columnspacing=1.1, handlelength=1.2)
     save(fig, "figD1_coverage")
 
-    # An inset would crowd the band, so November is drawn as its own strip.
+    # An inset would crowd the band, so November is drawn as its own panel.
+    #
+    # REBUILT 2026-08-05. The first version drew episode counts as a STEP LINE over a
+    # full-height coloured background. Two defects: a step implies continuity between points,
+    # but daily counts are discrete; and the line competed with the colour for the same space,
+    # so neither encoding read cleanly. Now the counts are BARS and the coverage colour is a
+    # thin strip beneath the axis. The panel's payload then reads directly: a run of absent
+    # bars sitting above unbroken blue is exactly "collected in full, no episodes".
     nov = _dates("2025-11-01", "2025-11-30")
-    fig, ax = plt.subplots(figsize=(7.4, 1.5))
-    nx = [mdates.date2num(d) for d in nov]
-    ax.bar(nx, [1.0] * len(nov), width=1.0, align="edge", linewidth=0,
-           color=[colour[state[d.isoformat()]] for d in nov])
+    fig, ax = plt.subplots(figsize=(7.4, 1.9))
+    nx = np.array([mdates.date2num(d) for d in nov], dtype=float)
     eps = [contrib.get(d.isoformat(), 0) for d in nov]
-    ax2 = ax.twinx()
-    ax2.step(np.array(nx) + 0.5, eps, where="mid", color="black", linewidth=1.2)
-    ax2.set_ylabel("episodes contributed", fontsize=7)
-    ax2.set_ylim(0, max(eps) * 1.45)
+    top = max(eps)
 
-    # The payload of this panel: a fortnight that the pull got in full and that contributes
-    # nothing. Name it on the panel, because a reader who does not notice the flat line at zero
-    # over solid blue has missed the only thing the panel is for.
-    ax2.annotate("raw pull complete, zero episodes",
-                 xy=(mdates.date2num(date(2025, 11, 11)), max(eps) * 0.10),
-                 xytext=(mdates.date2num(date(2025, 11, 5)), max(eps) * 0.62),
-                 fontsize=6.5, arrowprops=dict(arrowstyle="->", lw=0.7))
-    ax.set_ylim(0, 1.0)
-    ax.set_yticks([])
+    # Strip height is set in data units so the bars keep the rest of the panel.
+    strip_h = top * 0.13
+    ax.bar(nx, [strip_h] * len(nov), width=1.0, align="edge", linewidth=0, bottom=-strip_h,
+           color=[colour[state[d.isoformat()]] for d in nov], zorder=1)
+    ax.axhline(0.0, color="0.35", linewidth=0.6, zorder=3)
+    # Bars are a neutral dark grey, NOT the coverage blue: the two encodings must not merge.
+    ax.bar(nx + 0.5, eps, width=0.72, color="#3a3a3a", linewidth=0, zorder=2)
+
+    ax.set_ylabel("episodes\ncontributed", fontsize=7)
+    ax.set_ylim(-strip_h, top * 1.42)
+    ax.set_yticks([0, 20, 40])
+    ax.text(nx[0] - 0.6, -strip_h / 2, "collected", fontsize=6.5, ha="right", va="center")
+
+    # Name the payload on the panel: a reader who does not notice the absent bars over solid
+    # blue has missed the only thing this panel is for.
+    #
+    # A SPAN BRACKET, not an arrow. What is being labelled is an ABSENCE of bars, so an arrow
+    # has nothing to land on and reads as floating text. The bracket names the range itself.
+    # 5 to 14 November are the ten days the collection obtained in full that yield no episode;
+    # 17 November also yields none but is partial, so it is outside the "in full" claim.
+    b0 = mdates.date2num(date(2025, 11, 5))
+    b1 = mdates.date2num(date(2025, 11, 15))
+    yb, yt = top * 0.13, top * 0.21
+    ax.plot([b0, b0, b1, b1], [yb, yt, yt, yb], color="0.25", lw=0.8,
+            solid_joinstyle="miter", zorder=4)
+    ax.text((b0 + b1) / 2, yt + top * 0.04, "collected in full, no episodes",
+            fontsize=6.5, ha="center", va="bottom", color="0.15")
     ax.set_xlim(nx[0], nx[-1] + 1)
     ax.xaxis.set_major_locator(mdates.DayLocator(interval=3))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d"))
     ax.set_xlabel("November 2025 (day of month)")
-    ax.set_title(f"November 2025: {HEAD['november_episodes']} of "
-                 f"{HEAD['episodes_test']:,} sealed-test episodes "
-                 f"({HEAD['november_share_of_test']}\\%), from "
-                 f"{len(HEAD['november_by_date'])} of 30 dates".replace("\\%", "%"),
-                 loc="left")
+    ax.spines["left"].set_visible(False)
+    ax.tick_params(axis="y", length=0)
+    ax.set_title(f"(b)  {HEAD['november_episodes']} of "
+                 f"{HEAD['episodes_test']:,} evaluation episodes "
+                 f"({HEAD['november_share_of_test']}%), from "
+                 f"{len(HEAD['november_by_date'])} of November's 30 days",
+                 loc="left", fontsize=8)
     save(fig, "figD1b_november")
 
 
@@ -202,11 +231,11 @@ def fig_d2() -> None:
     ax.legend(frameon=False, loc="upper right")
     cbs = V["counts_by_split_regime"]
     ax.set_title(
-        f"10-second build (headline). Training is {V['train_volatile_pct']}% volatile by "
+        f"10-second dataset. Training is {V['train_volatile_pct']}% volatile by "
         f"construction; the sealed test set is {V['test_volatile_pct']}% "
         f"({cbs['calm']['test']:,} calm, {cbs['volatile']['test']:,} volatile)",
         loc="left")
-    ax.annotate("same rule, different builds: "
+    ax.annotate("same rule, other datasets: "
                 + ", ".join(f"{k} {v:.5f}" for k, v in sorted(others.items())),
                 xy=(0.5, -0.30), xycoords="axes fraction", ha="center", fontsize=6.5,
                 color="0.35")
