@@ -101,7 +101,7 @@ def fig_d1() -> None:
     cs = [colour[state[d.isoformat()]] for d in span]
     ax.bar(xs, [1.0] * len(span), width=1.0, color=cs, linewidth=0, align="edge")
 
-    # Upper layer: dates inside the evaluation window that supply no episode at all.
+    # Upper layer: dates inside the test window that supply no episode at all.
     # The track is drawn full-width in pale grey FIRST. Without it the row is empty for 96%
     # of the span and its axis label reads as floating text beside blank paper.
     test_start = date.fromisoformat(HEAD["test_first_ts"][:10])
@@ -116,7 +116,7 @@ def fig_d1() -> None:
     ax.axvline(bx, color="black", linewidth=1.1, zorder=5)
     # The dataset qualification lives in the caption. Naming it here would forward-reference
     # the three dataset versions, which the reader does not meet until section 3.4.
-    ax.annotate(f"evaluation period begins {HEAD['test_first_ts'][:10]}",
+    ax.annotate(f"test period begins {HEAD['test_first_ts'][:10]}",
                 xy=(bx, 1.44), xytext=(bx - 330, 1.66), fontsize=7,
                 arrowprops=dict(arrowstyle="->", lw=0.7))
     ax.text(0.0, 1.0, "(a)", transform=ax.transAxes, fontsize=9, fontweight="bold",
@@ -191,7 +191,7 @@ def fig_d1() -> None:
     ax.spines["left"].set_visible(False)
     ax.tick_params(axis="y", length=0)
     ax.set_title(f"(b)  {HEAD['november_episodes']} of "
-                 f"{HEAD['episodes_test']:,} evaluation episodes "
+                 f"{HEAD['episodes_test']:,} test episodes "
                  f"({HEAD['november_share_of_test']}%), from "
                  f"{len(HEAD['november_by_date'])} of November's 30 days",
                  loc="left", fontsize=8)
@@ -213,16 +213,23 @@ def fig_d2() -> None:
     width = edges[1] - edges[0]
     thr = V["threshold"]
 
-    fig, ax = plt.subplots(figsize=(6.4, 2.6))
+    # Drawn NARROWER than the text block and taller than wide-and-short, then scaled up to
+    # \textwidth in the document: the scaling magnifies every label, so the figure reads
+    # at roughly 9pt on the page instead of 8, and stands about 10.5cm tall instead of 6.5.
+    fig, ax = plt.subplots(figsize=(5.8, 3.8))
     tr = np.array(V["train_hist"], dtype=float)
     te = np.array(V["test_hist"], dtype=float)
     ax.bar(centres, tr / tr.sum(), width=width, color=C_COMPLETE, alpha=0.75,
-           label=f"training episodes (n={V['train_vol']['n']:,})", linewidth=0)
+           label=f"training and validation episodes (n={V['train_vol']['n']:,})",
+           linewidth=0)
     ax.step(centres, te / te.sum(), where="mid", color=C_MISSING, linewidth=1.3,
-            label=f"evaluation episodes (n={V['test_vol']['n']:,})")
+            label=f"test episodes (n={V['test_vol']['n']:,})")
     ax.axvline(thr, color="black", linestyle="--", linewidth=1.1)
-    ax.annotate(f"threshold {thr:.5f}\nchosen as the median of the TRAINING split,\n"
-                f"then applied unchanged to the evaluation set",
+    # SIX decimal places, not five. At five, 0.00159636 prints as 0.00160 and 0.00163782 as
+    # 0.00164, so neither matches the 0.001596 and 0.001638 Table D2 and the chapter carry,
+    # and the two exhibits look like they disagree about the same quantity.
+    ax.annotate(f"threshold {thr:.6f}\nthe median of every episode BEFORE the test\n"
+                f"period, then applied unchanged to the test set",
                 xy=(thr, ax.get_ylim()[1] * 0.74),
                 xytext=(thr * 1.6, ax.get_ylim()[1] * 0.60), fontsize=7,
                 arrowprops=dict(arrowstyle="->", lw=0.7))
@@ -233,17 +240,28 @@ def fig_d2() -> None:
     ax.legend(frameon=False, loc="upper right")
     cbs = V["counts_by_split_regime"]
     ax.set_title(
-        f"10-second dataset. Training is {V['train_volatile_pct']}% volatile by "
-        f"construction; the evaluation set is {V['test_volatile_pct']}% "
+        # "Training is 50% volatile" was the same collision as the legend: the 50% is over
+        # the whole training file, validation included, while Table D3 defines training
+        # episodes as the 22,016 the agent learns on.
+        # WRAPPED. Set on one line the title ran wider than the axes, so bbox_inches="tight"
+        # widened the saved figure and the plot itself shrank once scaled to \textwidth.
+        f"10-second dataset. {V['train_volatile_pct']:.1f}% of the episodes before the "
+        f"test period are volatile\nby construction; the test set is "
+        f"{V['test_volatile_pct']:.1f}% "
         f"({cbs['calm']['test']:,} calm, {cbs['volatile']['test']:,} volatile)",
         loc="left")
     # Plain names, not folder names. "dataset_10s_10min" is an internal path and must not
     # appear in a report-facing figure; the labels match \Cref{tab:d3-partitions}.
     plain = {"dataset": "1-minute", "dataset_10s_10min": "10-second, shorter episode"}
+    # The shorter-episode version's threshold is roughly half the other two, which invites the
+    # question. A shorter window mechanically yields a lower realised volatility, so the clause
+    # goes here, where the three numbers first sit side by side.
     ax.annotate("same rule, other versions: "
-                + ", ".join(f"{plain.get(k, k)} {v:.5f}"
-                            for k, v in sorted(others.items(), key=lambda kv: plain.get(kv[0], kv[0]))),
-                xy=(0.5, -0.30), xycoords="axes fraction", ha="center", fontsize=6.5,
+                + ", ".join(f"{plain.get(k, k)} {v:.6f}"
+                            for k, v in sorted(others.items(), key=lambda kv: plain.get(kv[0], kv[0])))
+                + ".\nA shorter episode spans less time, so its realised volatility, and "
+                  "hence its threshold, is lower",
+                xy=(0.5, -0.22), xycoords="axes fraction", ha="center", va="top", fontsize=6.5,
                 color="0.35")
     save(fig, "figD2_regimes")
 

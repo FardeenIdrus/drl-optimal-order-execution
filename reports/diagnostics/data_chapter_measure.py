@@ -32,6 +32,12 @@ WHAT IT MEASURES, and why each piece is needed.
      whether the month's thin contribution is concentrated or spread, which changes what the
      thinness implies.
 
+  7. How the December per-order month was divided, for Table D3's Panel C. This is a THIRD
+     kind of division and had no exhibit before 2026-08-06: the snapshot record is split by
+     date, the simulator's episodes by random seed, and this month by HOUR. The split is
+     chronological WITHIN each volatility regime, so calendar dates appear on both sides
+     while no hour does; a table that implied a date cut would be wrong.
+
 INTEGRITY. Coverage states are asserted to be mutually exclusive and to exhaust the calendar
 span. Episode counts recovered per date are asserted to sum to each build's total. A failure
 in either is raised, not warned.
@@ -40,6 +46,8 @@ Sources: scratch_hyperliquid/manifest/BTC_2024-01-01_2025-12-31_{coverage.json,m
          scratch_hyperliquid/{dataset,dataset_10s,dataset_10s_10min}/{train,test}.parquet
          scratch_hyperliquid/{episodes,episodes_10s,episodes_10s_10min}/btc_episodes_*.parquet
          scratch_hyperliquid/minute/btc_minute_2024-2025.parquet
+         scratch_hyperliquid/oxford_l4/step3g/{regime_labels.parquet,regime_report.json}
+         scratch_hyperliquid/oxford_l4/book_05s_v2/*.parquet
 Output:  scratch_hyperliquid/oxford_l4/data_chapter_measurements.json
 """
 from __future__ import annotations
@@ -174,9 +182,27 @@ def build_measures(name: str) -> dict:
     te_nov = ep_te[ep_te["ts"].dt.strftime("%Y-%m").eq("2025-11")]
     nov_by_hour = te_nov["ts"].dt.hour.value_counts().sort_index().to_dict()
 
+    # THE BOUNDARY GAP, measured rather than asserted. Table D3 prints the last training bar
+    # and the first test bar; between them sits one whole episode plus one bar, in every
+    # version. That is a deliberate buffer so no episode straddles the split. Unexplained, the
+    # gap reads as missing data, which is the opposite of what it is.
+    steps = int(meta["rows"] / meta["episodes"])
+    first_ep = tr[tr["episode_id"] == tr["episode_id"].iloc[0]]
+    bar_seconds = float(np.median(np.diff(np.sort(first_ep["ts"].to_numpy()))) / 1000.0)
+    gap_seconds = (te_ts.min() - tr_ts.max()).total_seconds()
+    gap_bars = gap_seconds / bar_seconds
+    assert abs(gap_bars - round(gap_bars)) < 1e-6, gap_bars
+    buffer_episodes = (round(gap_bars) - 1) / steps
+    assert buffer_episodes == 1.0, (name, gap_bars, steps, buffer_episodes)
+
     return {
         "label": BUILDS[name]["label"],
-        "steps_per_episode": int(meta["rows"] / meta["episodes"]),
+        "steps_per_episode": steps,
+        "bar_seconds": bar_seconds,
+        "boundary_gap_seconds": gap_seconds,
+        "boundary_gap_bars": round(gap_bars),
+        "boundary_buffer_episodes": buffer_episodes,
+        "test_fraction_pct": round(100.0 * n_ep_te / meta["episodes"], 2),
         "episodes_total": int(meta["episodes"]),
         "episodes_train_parquet": n_ep_tr,
         "episodes_train_only": n_train_only,
@@ -304,6 +330,181 @@ def depth_by_hour() -> dict:
     }
 
 
+def december_partition() -> dict:
+    """How the December per-order month was divided, for Table D3 Panel C.
+
+    A THIRD kind of division, on a different unit from the other two. The snapshot record
+    labels each 30-minute EPISODE; this labels each HOUR, on the standard deviation of
+    one-second mid-price changes within it. The rule is the same in principle -- the median,
+    chosen and then applied -- but the two thresholds are not comparable and must never be
+    printed as though they were.
+
+    THE SPLIT IS NOT A DATE CUT, and describing it as one would be false. `step3g.label_regimes`
+    takes the earliest CAL_FRACTION of each REGIME's hours to fit the simulator and holds the
+    latest back. Calm and volatile hours interleave through the month, so calendar dates land on
+    both sides -- while no hour does, which is what keeps the holdout clean.
+
+    ONE HOUR OF 744 IS UNLABELLED, and it is the SAME exclusion section 3.3 already discloses,
+    not a second one. The reconstruction starts at 00:12:29 on 1 December, leaving that hour
+    below `MIN_SNAPSHOTS_PER_HOUR`. Measured here rather than asserted, because an earlier
+    version of the chapter plan called it a separate warm-up exclusion and that was wrong.
+    """
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
+    from execution.qrm.step3g import (BLOCK_LEN, CAL_FRACTION, MIN_SNAPSHOTS_PER_HOUR,
+                                      N_BLOCKS)
+
+    d = pd.read_parquet(S / "oxford_l4" / "step3g" / "regime_labels.parquet")
+    rep = json.loads((S / "oxford_l4" / "step3g" / "regime_report.json").read_text())
+
+    grid = d.groupby(["regime", "split"]).size().unstack(fill_value=0)
+    cells = {f"{r}/{s}": int(grid.loc[r, s]) for r in grid.index for s in grid.columns}
+    assert cells == {k: int(v) for k, v in rep["hours"].items()}, (cells, rep["hours"])
+
+    # The month's own calendar, so the shortfall is measured against what a full month holds.
+    n_days = d["date"].nunique()
+    hours_expected = 24 * n_days
+    assert len(d) == sum(cells.values())
+
+    # Dates on both sides of the split. Nine of them, and no hour is shared.
+    cal_dates = set(d[d["split"] == "calibrate"]["date"])
+    hold_dates = set(d[d["split"] == "holdout"]["date"])
+    both = sorted(cal_dates & hold_dates)
+    assert d.duplicated(subset=["date", "hour"]).sum() == 0
+
+    # The unlabelled hour, counted from the grid itself rather than assumed.
+    first_day = sorted(d["date"].unique())[0]
+    bk = pq.read_table(S / "oxford_l4" / "book_05s_v2" / f"{first_day}.parquet",
+                       columns=["ts"]).to_pandas()
+    day0 = int(pd.Timestamp(f"{first_day[:4]}-{first_day[4:6]}-{first_day[6:]}", tz="UTC").value)
+    hr = ((bk["ts"] - day0) // 3_600_000_000_000).astype(int)
+    hour0_snapshots = int((hr == 0).sum())
+    first_ts = str(pd.to_datetime(bk["ts"].min(), unit="ns", utc=True))
+    assert hour0_snapshots < MIN_SNAPSHOTS_PER_HOUR, hour0_snapshots
+    assert len(d) == hours_expected - 1, (len(d), hours_expected)
+
+    # THE SPLIT IS NOT THE CONSUMPTION, and the plan conflated them until 2026-08-06.
+    # 557 hours are AVAILABLE to fit; the fit of record drew five contiguous six-hour blocks
+    # from each regime. Counted from the bundle the trainer actually loads
+    # (`train_reactive.py:81` reads qrm_bundle_{regime}_b.npz, whose accumulators carry the
+    # hour list), not inferred from the code's defaults: an earlier, superseded run sampled
+    # 56 hours per regime by stride and would give the wrong figure.
+    fitted = {}
+    for reg in ("calm", "volatile"):
+        acc = np.load(S / "oxford_l4" / "step3g" / f"accumulators_{reg}_b.npz",
+                      allow_pickle=True)
+        hrs = acc["hours"].tolist()
+        assert len(hrs) == BLOCK_LEN * N_BLOCKS, (reg, len(hrs))
+        # every fitting hour must be inside that regime's calibrate split
+        cal = {(r.date, int(r.hour)) for r in
+               d[(d.regime == reg) & (d.split == "calibrate")].itertuples()}
+        assert all((h.split(":")[0], int(h.split(":")[1])) in cal for h in hrs), reg
+        fitted[reg] = {"hours": len(hrs), "first": hrs[0], "last": hrs[-1]}
+
+    return {
+        "source": "oxford_l4/step3g/{regime_labels.parquet,regime_report.json}",
+        "unit": "one calendar hour of the December per-order month",
+        "fit_of_record": {
+            "bundle": "oxford_l4/step3g/qrm_bundle_{calm,volatile}_b.npz",
+            "loaded_by": "src/execution/qrm/train_reactive.py:81",
+            "block_len_hours": int(BLOCK_LEN),
+            "n_blocks_per_regime": int(N_BLOCKS),
+            "hours_per_regime": fitted["calm"]["hours"],
+            "hours_total": fitted["calm"]["hours"] + fitted["volatile"]["hours"],
+            "by_regime": fitted,
+            "note": ("contiguous blocks nearest each regime's median volatility, drawn from "
+                     "the calibrating side only. The calibrating side holds 557 hours; the "
+                     "fit consumed 60 of them."),
+        },
+        "period": f"{first_day} to {sorted(d['date'].unique())[-1]}",
+        "days": int(n_days),
+        "hours_expected": int(hours_expected),
+        "hours_labelled": int(len(d)),
+        "threshold_vol_1s": rep["threshold_vol_1s"],
+        "threshold_definition": ("median over the month of the standard deviation of "
+                                 "one-second mid-price changes within an hour, in USD"),
+        "median_vol_calm": rep["median_vol"]["calm"],
+        "median_vol_volatile": rep["median_vol"]["volatile"],
+        "separation_ratio": rep["separation_ratio"],
+        "calibrate_fraction": float(CAL_FRACTION),
+        "cells": cells,
+        "calm_total": cells["calm/calibrate"] + cells["calm/holdout"],
+        "volatile_total": cells["volatile/calibrate"] + cells["volatile/holdout"],
+        "calibrate_total": cells["calm/calibrate"] + cells["volatile/calibrate"],
+        "holdout_total": cells["calm/holdout"] + cells["volatile/holdout"],
+        "calibrate_date_span": [min(cal_dates), max(cal_dates)],
+        "holdout_date_span": [min(hold_dates), max(hold_dates)],
+        "dates_on_both_sides": both,
+        "n_dates_on_both_sides": len(both),
+        "unlabelled_hour": {
+            "date": first_day, "hour": 0,
+            "snapshots": hour0_snapshots,
+            "snapshots_required": int(MIN_SNAPSHOTS_PER_HOUR),
+            "minutes_present": round(hour0_snapshots / 120.0, 2),
+            "reconstruction_first_timestamp": first_ts,
+            "cause": ("the same 12.48-minute shortfall at the start of the reconstruction that "
+                      "section 3.3 discloses; not a separate exclusion"),
+        },
+    }
+
+
+def coverage_bound(build: str = "dataset_10s") -> dict:
+    """What the days lost from the test period were like, for section 3.5.
+
+    WHY THIS EXISTS. The Data chapter's limitations rest on one measured claim: the days that
+    fell out of the test period were the BUSY ones, so the results generalise to a quieter
+    market than the venue's. Until 2026-08-08 those figures existed only as prose in an internal
+    log -- the one set of numbers in the chapter that no script produced. A limitations section
+    whose own numbers cannot be re-derived is the wrong place to be sloppy.
+
+    WHAT IT COMPARES. Every calendar date inside the test window, split into those that supplied
+    at least one episode and those that supplied none, against the venue's own daily traded
+    volume. The test is Mann-Whitney rather than a difference of means because daily volume is
+    heavily right-skewed and one excluded day is the largest of the two years -- a mean would be
+    dominated by it, which is the objection the test avoids.
+
+    DIRECTION MATTERS AND IS ASSERTED. If the excluded days were the QUIET ones the bound would
+    run the other way, so the sign is checked rather than assumed.
+    """
+    from scipy.stats import mannwhitneyu
+
+    b = build_measures(build)
+    adv = json.loads((S / "adv" / "btc_adv.json").read_text())
+    daily = adv["daily_volume_btc"]
+
+    excluded = [d for d in b["eval_zero_dates"] if d in daily]
+    contributing = [d for d in sorted(b["test_episodes_by_date"]) if d in daily]
+    assert len(excluded) == b["eval_dates_zero"], (len(excluded), b["eval_dates_zero"])
+    assert not set(excluded) & set(contributing)
+
+    ex = np.array([daily[d] for d in excluded], dtype=float)
+    inc = np.array([daily[d] for d in contributing], dtype=float)
+    med_ex, med_in = float(np.median(ex)), float(np.median(inc))
+    u = mannwhitneyu(ex, inc, alternative="two-sided")
+    assert med_ex > med_in, (med_ex, med_in)  # the excluded days are the BUSY ones
+
+    biggest = max(daily, key=lambda d: daily[d])
+    return {
+        "build": build,
+        "source": "adv/btc_adv.json daily volumes; excluded dates from this file's builds block",
+        "n_excluded_days": len(excluded),
+        "n_contributing_days": len(contributing),
+        "median_excluded_btc": round(med_ex, 0),
+        "median_contributing_btc": round(med_in, 0),
+        "ratio": round(med_ex / med_in, 2),
+        "mannwhitney_u": float(u.statistic),
+        "mannwhitney_p": float(u.pvalue),
+        "test": "Mann-Whitney U, two-sided; daily volume is right-skewed so a mean would be "
+                "dominated by the single largest day",
+        "largest_day_of_span": {"date": biggest, "btc": round(daily[biggest], 0),
+                                "is_excluded": biggest in excluded},
+        "excluded_dates": excluded,
+        "bearing": ("Internal validity is untouched: every policy and benchmark scores the same "
+                    "episodes under common random numbers. What is bounded is the market the "
+                    "results generalise to."),
+    }
+
+
 def main() -> None:
     res = {
         "generated_by": "reports/diagnostics/data_chapter_measure.py",
@@ -312,6 +513,8 @@ def main() -> None:
         "volatility": {name: volatility_distribution(cfg["episodes_dir"], name == "dataset")
                        for name, cfg in BUILDS.items()},
         "depth_by_hour": depth_by_hour(),
+        "december_partition": december_partition(),
+        "coverage_bound": coverage_bound(),
         "adv": json.loads((S / "adv" / "btc_adv.json").read_text()) | {"daily_volume_btc": "omitted, see source"},
     }
     OUT.write_text(json.dumps(res, indent=2))
@@ -323,6 +526,17 @@ def main() -> None:
     for n, b in res["builds"].items():
         print(f"{n:20s} test {b['episodes_test']:>6,}  boundary {b['train_last_ts']} -> "
               f"{b['test_first_ts']}  zero-days {b['eval_dates_zero']}  Nov {b['november_episodes']}")
+    cb = res["coverage_bound"]
+    print(f"coverage bound: {cb['n_excluded_days']} excluded days, median "
+          f"{cb['median_excluded_btc']:,.0f} vs {cb['median_contributing_btc']:,.0f} BTC, "
+          f"ratio {cb['ratio']}x, Mann-Whitney p = {cb['mannwhitney_p']:.4g}; largest day "
+          f"{cb['largest_day_of_span']['date']} excluded: {cb['largest_day_of_span']['is_excluded']}")
+    dp = res["december_partition"]
+    print(f"december: {dp['hours_labelled']}/{dp['hours_expected']} hours labelled  "
+          f"{dp['cells']}  threshold {dp['threshold_vol_1s']:.4f}  "
+          f"dates on both sides {dp['n_dates_on_both_sides']}  "
+          f"unlabelled hour {dp['unlabelled_hour']['snapshots']}/"
+          f"{dp['unlabelled_hour']['snapshots_required']} snapshots")
 
 
 if __name__ == "__main__":

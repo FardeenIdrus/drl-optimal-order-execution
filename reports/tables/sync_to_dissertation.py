@@ -30,7 +30,10 @@ WANTED = [
     # Data chapter
     "d1_sources.tex",                  # sources, instrument, scale of an order
     "d2_pipeline.tex",                 # processing steps and their checks
-    "d3_partitions.tex",               # how the data was divided
+    "d3_partitions.tex",               # how the data was divided, all three panels
+    "d3a_versions.tex",                # panel A alone, section 3.4 paragraph 1
+    "d3c_december.tex",                # panel C alone, section 3.4 paragraph 2
+    "d3b_seedsets.tex",                # panel B alone, section 3.4 paragraph 3
     # main body
     "t3_sealed_confirmations.tex",     # the two sealed reactive confirmations
     "t4_robustness_grid.tex",          # size x deadline grid

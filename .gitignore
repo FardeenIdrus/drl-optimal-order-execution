@@ -60,3 +60,4 @@ reports/methodology_defensibility.md
 reports/tables/rendered/
 
 reports/results_pack/
+reports/diagnostics/count_words.py

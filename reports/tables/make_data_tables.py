@@ -188,8 +188,12 @@ def table_d2() -> str:
          f"{n(s6['rows'])} $\\div$ {s6['rows'] // s6['episodes']} steps $=$ "
          f"{n(s6['episodes'])} episodes exactly"),
         ("labelling each episode calm or volatile",
-         f"the dividing line is {thr_1min:.6f}, the median volatility of the training episodes, "
-         f"so half of the training data is labelled volatile by construction",
+         # NOT "the training episodes". The median is taken over the whole training file,
+         # before validation is carved out of it (train.py:60), so it covers training AND
+         # validation. Table D3 defines training episodes as the 22,016 the agent learns
+         # on, which is the conventional usage, so the two would name different sets.
+         f"the dividing line is {thr_1min:.6f}, the median volatility of every episode "
+         f"before the test period, so half of those fall on each side",
          f"{n(s5['n_episodes'])} episodes labelled"),
         ("splitting into training and test",
          f"{n(s6['train_rows'])} training rows and {n(s6['test_rows'])} test rows, split by "
@@ -224,6 +228,12 @@ def table_d2() -> str:
 # Panel B literals. Source: qrm_step5_remediation.md addendum (Z), the two-pass partition
 # audit. Status is a licensing designation and has no machine-readable source; see the module
 # docstring. Numbers inside this panel are counts recorded by that audit.
+#
+# WIDTH. The two right-hand columns were shortened 2026-08-06: the panel measured 21.0cm
+# against a 16.0cm text width and lost the right of "standing now" off the page. "used up"
+# became "spent", the repeated "no advantage found" became "no advantage", and the clause
+# "no result was ever judged on them" moved into the description, where the same statement
+# already appears for 1e6. No designation changed.
 PANEL_B = [
     ("1e6", "development", "watching training progress. No result was ever judged on it",
      "many", "still available"),
@@ -232,23 +242,55 @@ PANEL_B = [
     ("18e6", "development", "the working set for the environment with the injected signal",
      "4 campaigns", "still available"),
     ("6e6", "reserve", "held back to check whether a development result repeated",
-     "1 comparison, 2 settings", "used up"),
-    ("19e6", "reserve", "reserve that expired unused, then spent on the pacing-drift test",
-     "1", "used up, did not confirm"),
+     "1 comparison", "spent"),
+    # 19e6 and 21e6 are extension-reserved blocks (qrm_step4_criteria.md:1020-1021; §8
+    # Amendment A2 at :1076). Both belong to the injected-signal simulator; neither row said so.
+    ("19e6", "reserve", "injected-signal reserve; the designation expired unused, then was "
+     "spent on the pacing-drift test", "1", "spent"),
     ("9e6", "confirmation", "first confirmation of the main comparison, one attempt only",
-     "1", "used up, no advantage found"),
+     "1", "spent"),
     ("13e6", "confirmation", "second confirmation of the main comparison, one attempt only",
-     "1", "used up, no advantage found"),
+     "1", "spent"),
     ("25e6", "confirmation", "created for the amended observation specification",
-     "1 pre-registration, 2 arms", "used up, no advantage found"),
+     "1, two arms", "spent"),
     ("17e6", "confirmation", "created for the injected-signal extension, one attempt only",
-     "1", "used up"),
-    ("21e6", "confirmation", "created to confirm the best attainable improvement, one attempt",
-     "1", "used up"),
+     "1", "spent"),
+    ("21e6", "confirmation", "created to confirm the best attainable improvement with the "
+     "injected signal, one attempt", "1", "spent"),
     ("3e6", "environment check", "certifying the simulator itself, never used to judge a method",
      "---", "not a comparison set"),
-    ("30e6, 31e6, 77M", "measurement", "diagnostic measurements only",
-     "---", "no result was ever judged on them"),
+    # CORRECTED 2026-08-06. This row read "30e6, 31e6, 77M" and omitted seven ranges that the
+    # partition audit (Z) declares at qrm_step5_remediation.md:2904-2909 -- 30.0/30.1/30.2M and
+    # 30.3/30.4/30.5/30.55M. In a table whose job is to say which seed sets exist, an omission
+    # is worse than a clumsy phrase. 30e6 IS 30.0M: it appears twice in (Z) because it was used
+    # for diagnostics and later for the power-analysis measurement, which is why neither it nor
+    # 31e6 may ever be called a fresh block.
+    ("30.0--30.55M, 31e6, 77M", "measurement",
+     "diagnostic measurements only. No result was ever judged on them",
+     "---", "not a comparison set"),
+]
+
+# Panel A's rows. The panel used to run one row per version across seven columns and measured
+# 21.7cm against a 16.0cm text width, losing its regime-mix column off the page. Turning it
+# ninety degrees fits the page and reads better: the headline version is a column the eye runs
+# down. The timestamp pair became two rows for the same reason.
+PANEL_A_ROWS = [
+    ("bar width", lambda b, k: {"dataset": "1 minute", "dataset_10s": "10 seconds",
+                                "dataset_10s_10min": "10 seconds"}[k]),
+    ("decisions per episode", lambda b, k: n(b["steps_per_episode"])),
+    ("episode length", lambda b, k: {"dataset": "30 minutes", "dataset_10s": "30 minutes",
+                                     "dataset_10s_10min": "10 minutes"}[k]),
+    ("training episodes", lambda b, k: n(b["episodes_train_only"])),
+    # "validation", not "tuning": the Results chapter's exhibits and prose already use
+    # validation for these same episodes, and one partition must not carry two names
+    # across chapters. Decided 2026-08-06. Line 236's "tuning" is an ACTIVITY a seed set
+    # was used for, not this partition's name, and stays.
+    ("validation episodes", lambda b, k: n(b["episodes_validation"])),
+    ("held-out test episodes", lambda b, k: n(b["episodes_test"])),
+    ("last training bar", lambda b, k: r"\scriptsize " + b["train_last_ts"][:19]),
+    ("first test bar", lambda b, k: r"\scriptsize " + b["test_first_ts"][:19]),
+    ("test episodes: calm / volatile",
+     lambda b, k: f"{n(b['test_regime']['calm'])} / {n(b['test_regime']['volatile'])}"),
 ]
 
 # "(main)" was removed 2026-08-06: it read as "the study's main track", which is the reactive
@@ -261,60 +303,149 @@ BUILD_ORDER = [("dataset_10s", r"\textbf{10-second}"),
 
 def table_d3() -> str:
     out = [r"% Auto-generated by reports/tables/make_data_tables.py. Do not edit.",
-           r"\begin{tabular}{@{}l l r r r l r@{}}",
-           r"\multicolumn{7}{@{}l}{\textbf{Panel A. Historical data: split by date, three "
-           r"versions of the dataset}} \\",
+           r"\begin{tabular}{@{}l r r r@{}}",
            r"\toprule",
-           r"version & bar width, steps, episode & training & tuning & held-out test & "
-           r"last training bar $\rightarrow$ first test bar & test: calm / volatile \\",
+           " & " + " & ".join(label for _, label in BUILD_ORDER) + r" \\",
            r"\midrule"]
-    for key, label in BUILD_ORDER:
-        b = B[key]
-        steps = b["steps_per_episode"]
-        bar = {"dataset": "1\\,min", "dataset_10s": "10\\,s", "dataset_10s_10min": "10\\,s"}[key]
-        horizon = {"dataset": "30\\,min", "dataset_10s": "30\\,min",
-                   "dataset_10s_10min": "10\\,min"}[key]
-        last = b["train_last_ts"][:19].replace(" ", "\\,")
-        first = b["test_first_ts"][:19].replace(" ", "\\,")
-        out.append(
-            f"{label} & {bar}, {steps}, {horizon} & {n(b['episodes_train_only'])} & "
-            f"{n(b['episodes_validation'])} & {n(b['episodes_test'])} & "
-            f"\\scriptsize {last} $\\rightarrow$ {first} & "
-            f"{n(b['test_regime']['calm'])}/{n(b['test_regime']['volatile'])} \\\\")
+    for label, cell in PANEL_A_ROWS:
+        out.append(f"{label} & " + " & ".join(cell(B[key], key) for key, _ in BUILD_ORDER)
+                   + r" \\")
     out += [r"\midrule",
-            r"\multicolumn{7}{@{}p{15.2cm}}{\footnotesize The three versions do not share a "
-            r"boundary. The split falls at the same fraction of each version's own row count, "
-            r"and the versions contain different numbers of rows, so that fraction lands on a "
-            r"different date in each. Tuning episodes are the last 15\% of the training file by "
-            r"date. In all three, every training bar is dated before every test bar. "
-            r"\textbf{Episode counts quoted elsewhere in this chapter are the 10-second "
-            r"version's.}} \\",
+            # The note NAMES the design fractions and EXPLAINS the boundary gap. Both were
+            # implicit before: "the same fraction" left the fraction unnamed, and the two
+            # timestamp rows showed a gap that reads as missing data unless the buffer is said.
+            r"\multicolumn{4}{@{}p{12.4cm}}{\footnotesize The held-out test is the last "
+            f"{B['dataset_10s']['test_fraction_pct']:.0f}\\% of each version's episodes and "
+            r"validation the last 15\% of what remains, so the versions differ only in where "
+            r"that fraction falls: they hold different numbers of rows, so it lands on a "
+            r"different date in each. Between the last training bar and the first test bar sits "
+            f"{B['dataset_10s']['boundary_buffer_episodes']:.0f} whole episode plus one bar, so "
+            r"no episode straddles the split. Both fractions were fixed before any training. "
+            r"\textbf{Episode counts quoted elsewhere in this "
+            r"chapter are the 10-second version's.}} \\",
             r"\bottomrule",
             r"\end{tabular}",
             r"",
             r"\vspace{0.6em}",
             r"",
-            r"\begin{tabular}{@{}l l p{6.0cm} l l@{}}",
-            r"\multicolumn{5}{@{}l}{\textbf{Panel B. Simulated data: sets of episodes drawn "
-            r"from separate random seeds, not dates}} \\",
+            # Ragged right, set inline rather than through \newcolumntype: d1_sources.tex
+            # already defines R, and \newcolumntype errors on a second definition if both
+            # tables are input into the same document.
+            r"\begin{tabular}{@{}>{\raggedright\arraybackslash}p{1.5cm} l >{\raggedright\arraybackslash}p{4.9cm} l l@{}}",
             r"\toprule",
             r"seed set & kind & what it was for & times used & standing now \\",
             r"\midrule"]
+    # Twelve rows, most of them wrapping to two or three lines. A rule under every row would be
+    # heavy and against booktabs practice; a rule under every KIND separates the five governance
+    # groups, which is the structure a reader is actually navigating by.
+    prev_kind = None
     for blk, kind, role, uses, status in PANEL_B:
+        if prev_kind is not None and kind != prev_kind:
+            out.append(r"\addlinespace[2pt]\cmidrule(lr){1-5}\addlinespace[2pt]")
+        prev_kind = kind
         out.append(f"{esc(blk)} & {esc(kind)} & {esc(role)} & {esc(uses)} & {esc(status)} \\\\")
     out += [r"\midrule",
-            r"\multicolumn{5}{@{}p{15.2cm}}{\footnotesize A confirmation set is opened once, "
-            r"scored once, and never reused, so that a result cannot be improved by retrying. "
-            r"None of the five confirmation sets appears in more than one result.} \\",
+            # The opening sentence used to define a confirmation set. Section 3.4's third
+            # paragraph now does that, so the note keeps only the integrity claim, which no
+            # prose carries, and spends the room on the term the table uses twice and nothing
+            # explained: the second version of the simulator.
+            r"\multicolumn{5}{@{}p{13.6cm}}{\footnotesize None of the five confirmation sets "
+            r"appears in more than one result. Two simulators are in use: the "
+            r"one fitted to the December records, and a second into which a signal whose "
+            r"strength was measured from those same records has been injected. The Methodology "
+            r"chapter describes both, and a set belongs to the fitted simulator unless its row says "
+            r"otherwise.} \\",
             r"\bottomrule",
-            r"\end{tabular}"]
+            r"\end{tabular}",
+            r"",
+            r"\vspace{0.6em}",
+            r"",
+            *panel_c()]
     return "\n".join(out) + "\n"
 
 
+def panel_c() -> list[str]:
+    """The December per-order month, split by hour. A THIRD kind of division.
+
+    Every cell is measured; `december_partition` in the measurement script asserts the grid
+    against the split report and the labelled hours against the month's calendar. The note
+    must NOT say the month was cut at a date: the split is chronological within each regime,
+    so nine dates supply hours to both sides.
+    """
+    D = M["december_partition"]
+    F = D["fit_of_record"]
+    c = D["cells"]
+    cal = round(100 * D["calibrate_fraction"])
+    u = D["unlabelled_hour"]
+    # Panel C is a 2x2 contingency table, not a wide listing like Panels A and B. Its note is
+    # set to the grid's own width rather than the 15.2cm those panels use: a wider note stretches
+    # the four columns across the page and strands the total column at the right margin, which
+    # is what the first build did.
+    return [
+        r"\begin{tabular}{@{}l r r r@{}}",
+        r"\toprule",
+        # "available to fit", not "used to fit". The split is not the consumption: the fit of
+        # record drew 60 of the 557 calibrating hours. Corrected 2026-08-06 after the examiner.
+        r" & available to fit the simulator & held back to test it & all hours \\",
+        r"\midrule",
+        f"calm hours & {n(c['calm/calibrate'])} & {n(c['calm/holdout'])} & "
+        f"{n(D['calm_total'])} \\\\",
+        f"volatile hours & {n(c['volatile/calibrate'])} & {n(c['volatile/holdout'])} & "
+        f"{n(D['volatile_total'])} \\\\",
+        r"\midrule",
+        f"all hours & {n(D['calibrate_total'])} & {n(D['holdout_total'])} & "
+        f"{n(D['hours_labelled'])} \\\\",
+        r"\midrule",
+        r"\multicolumn{4}{@{}p{11.6cm}}{\footnotesize An hour is volatile if the standard "
+        # "the month's median" did not say median OF WHAT, ACROSS WHAT, and was read as the
+        # median price change rather than the median across the month's hours. The line was
+        # placed to halve the month; the calm and volatile medians are the RESULT of that
+        # split, checked afterwards to see whether it separated anything, and now say so.
+        f"deviation of its one-second price changes reaches "
+        f"\\${D['threshold_vol_1s']:.2f}, the median across the month's "
+        f"{n(D['hours_labelled'])} hours. Splitting there leaves a median calm hour of "
+        f"\\${D['median_vol_calm']:.2f} against \\${D['median_vol_volatile']:.2f} for the "
+        f"volatile ones. Within each group the "
+        f"earliest {cal}\\% of hours are available and the latest {100 - cal}\\% held back, so no "
+        f"held-back hour precedes a fitting hour of its own group. \\textbf{{The first column is "
+        f"what the fit could draw on, not what it used}}: the simulator was built from "
+        f"{F['n_blocks_per_regime']} runs of {F['block_len_hours']} consecutive hours in each "
+        f"group, {F['hours_total']} hours in all. \\textbf{{The month is not cut at a date}}: "
+        f"the groups interleave, so {D['n_dates_on_both_sides']} December dates supply hours to "
+        f"both sides, though no hour supplies both. {n(D['hours_labelled'])} of the month's "
+        f"{n(D['hours_expected'])} hours are labelled; the hour beginning midnight on 1 December "
+        f"holds {u['minutes_present']:.0f} minutes of book data against the "
+        f"{u['snapshots_required'] // 120} required, because recording starts twelve and a half "
+        f"minutes into the month (\\Cref{{sec:data-coverage}})."
+        r"} \\",
+        r"\bottomrule",
+        r"\end{tabular}",
+    ]
+
+
+def split_d3(body: str) -> dict:
+    """D3's three panels, one file each.
+
+    The three panels stack to 820pt against 703pt of page height, so they cannot be one
+    float; and each belongs beside a different paragraph of section 3.4, so no paragraph
+    refers forward. d3_partitions.tex is still written, because the panels read as one
+    exhibit outside the dissertation.
+    """
+    parts = body.split(r"\begin{tabular}")
+    panels = [r"\begin{tabular}" + s.split(r"\end{tabular}")[0] + "\\end{tabular}\n"
+              for s in parts[1:]]
+    assert len(panels) == 3, len(panels)
+    hdr = "% Auto-generated by reports/tables/make_data_tables.py. Do not edit.\n"
+    return {"d3a_versions": hdr + panels[0],     # section 3.4, paragraph 1
+            "d3b_seedsets": hdr + panels[1],     # section 3.4, paragraph 3
+            "d3c_december": hdr + panels[2]}     # section 3.4, paragraph 2
+
+
 def main() -> None:
-    for name, body in (("d1_sources", table_d1()),
-                       ("d2_pipeline", table_d2()),
-                       ("d3_partitions", table_d3())):
+    d3 = table_d3()
+    outputs = {"d1_sources": table_d1(), "d2_pipeline": table_d2(), "d3_partitions": d3}
+    outputs.update(split_d3(d3))
+    for name, body in outputs.items():
         p = HERE / f"{name}.tex"
         p.write_text(body)
         print(f"wrote {p}  ({len(body.splitlines())} lines)")
