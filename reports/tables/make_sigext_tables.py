@@ -279,7 +279,7 @@ regime & follower vs adaptive TWAP (bps) & s.e. & $p$ \\
     body = r"""% Sealed exhibit on block 17e6 (MAIN). Predictions registered before unsealing.
 % Source: step5_signal_sealed/judgement.json (+ follower_context.json)
 \begin{table}[htbp]\centering
-\caption{Sealed-block replication. The predictions were recorded in the registration
+\caption[Sealed-block replication]{Sealed-block replication. The predictions were recorded in the registration
 ledger before the block was opened: no agent would pass, and the signal-reading rule
 would remain profitable beyond the materiality threshold in both regimes.}
 \label{tab:sigext-sealed}
@@ -341,7 +341,7 @@ def table_ts7_ceiling() -> None:
 % Sources: diagnostics_postnull/tune_follower_*.json, step5_signal_ceiling21e6/,
 % step5_signal_sealed/judgement.json. Registration: criteria section 8 Amendment A2.
 \begin{table}[htbp]\centering
-\caption{The attainable-edge ceiling. Upper panel: the registered seven-point tuning grid
+\caption[The attainable-edge ceiling]{The attainable-edge ceiling. Upper panel: the registered seven-point tuning grid
 on the exploration block (mean paired saving vs adaptive TWAP; the calm optimum is an
 interior peak, the volatile optimum sits at the grid edge, so both ceilings are lower
 bounds). Lower panel: the tuned rule confirmed once on a virgin block registered for this
@@ -400,7 +400,7 @@ def table_ts8_comparators() -> None:
                                                for x in f["frontier"]) + r" \\")
     body = r"""% A3 comparators + frontier (SUPPORTING). Sources: step5_comparators/*.json
 \begin{table}[htbp]\centering
-\caption{Comparator policies in both environments (mean difference versus adaptive TWAP,
+\caption[Comparator policies in both environments]{Comparator policies in both environments (mean difference versus adaptive TWAP,
 and per-episode cost standard deviation; $n=2000$ paired episodes each). Risk-neutral
 Almgren-Chriss reproduces uniform trading exactly, which is why adaptive TWAP is the
 benchmark of record. Urgency reliably reduces cost variance; its mean-cost penalty appears
@@ -472,7 +472,7 @@ def table_ts9_a4_observation() -> None:
     body = r"""% Amendment A4: observation variant (MAIN).
 % Sources: diagnostics_postnull/diag_learning{,_a4}.json, step5_signal_obsfix/
 \begin{table}[htbp]\centering
-\caption{The observation variant. The agents' state did not include the mid price relative to
+\caption[The observation variant]{The observation variant. The agents' state did not include the mid price relative to
 the arrival price, although they are scored on implementation shortfall against that price.
 Realised drift alone predicts 34\% of the variance in remaining cost, against 2--5\% for the
 whole observed vector, so the value function could not be fitted. Upper panel: adding that one

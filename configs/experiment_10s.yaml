@@ -18,8 +18,12 @@ env:
   initial_inventory: 96.57    # BTC = 0.50% of ADV (primary / headline)
   adv_btc: 19313.4
   order_size_pct_adv: 0.5
-  order_size_sweep_pct_adv: [0.1, 0.25, 0.5, 1.0]
-  order_size_sweep_btc: [19.31, 48.28, 96.57, 193.13]
+  # Descriptive only: no code reads these two fields. They list the sizes ACTUALLY
+  # trained for this dataset version; the authority is each run's meta.json.
+  # Corrected 2026-08-09 -- the field had listed a planned 0.1-1.0% ladder never run,
+  # and omitted 386.27, which was trained with five seeds on this version only.
+  order_size_sweep_pct_adv: [0.5, 1.0, 2.0]
+  order_size_sweep_btc: [96.57, 193.13, 386.27]
   n_steps: 180                # decisions per episode (30-min horizon, 10-sec steps)
   final_penalty: 1.0          # reward penalty per BTC of unexecuted inventory (training)
   # Action = MULTIPLE of the TWAP pace: qty = mult * (remaining inventory / steps_left).

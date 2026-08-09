@@ -28,8 +28,10 @@ DEST = REPO.parent / "Idrus_Fardeen_MSc_Dissertation" / "tables"
 # per-run tables the appendix carries. Keep this list in step with the chapter.
 WANTED = [
     # Data chapter
-    "d1_sources.tex",                  # sources, instrument, scale of an order
-    "d2_pipeline.tex",                 # processing steps and their checks
+    "d1a_sources.tex",                 # what was collected, one row per stream
+    "d1b_instrument.tex",              # what the instrument is like, and the scale of an order
+    "d2_pipeline.tex",                 # processing steps and their checks, snapshot record
+    "d2b_perorder.tex",                # processing steps and their checks, per-order record
     "d3_partitions.tex",               # how the data was divided, all three panels
     "d3a_versions.tex",                # panel A alone, section 3.4 paragraph 1
     "d3c_december.tex",                # panel C alone, section 3.4 paragraph 2

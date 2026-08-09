@@ -53,6 +53,7 @@ Output:  scratch_hyperliquid/oxford_l4/data_chapter_measurements.json
 from __future__ import annotations
 
 import json
+import re
 from collections import defaultdict
 from datetime import date, timedelta
 from pathlib import Path
@@ -505,6 +506,65 @@ def coverage_bound(build: str = "dataset_10s") -> dict:
     }
 
 
+def perorder_pipeline() -> dict:
+    """The three December processing steps that no other exhibit covers.
+
+    Table 3.1 already carries the SOURCES (what each stream holds, that the book changes have
+    no clock, the identifier match, 31 of 31 days, 5,355,301 states). Table 3.4 carries the
+    DIVISION into fitting and holdout hours. What sits nowhere is the processing between them:
+    the warm-up, the phantom removal and the second-pass verification. This block measures
+    those, so the table that states them types no number of its own.
+
+    The warm-up count, the grid start and the per-day snapshot totals are read from the
+    reconstruction's OWN run log, not from a note. The phantom count is the one value that
+    cannot be re-derived here: it comes from the audit of 2026-07-04 registered at
+    `qrm_step4_criteria.md:1690`, and is recorded with that provenance rather than recomputed.
+
+    A trap this block exists partly to fix: the run log's `evicted` counter sums to 129,894
+    across the month and is a DIFFERENT mechanism (guard eviction, the fix for the frozen-book
+    bug). It is not the phantom count and must never be substituted for it.
+    """
+    log = S / "oxford_l4" / "book_05s_v2_run.log"
+    assert log.exists(), f"reconstruction run log not found: {log}"
+    txt = log.read_text()
+
+    warmups = {int(x) for x in re.findall(r"warmup=(\d+)", txt)}
+    assert len(warmups) == 1, f"more than one warm-up setting in the log: {warmups}"
+    snaps = [int(x) for x in re.findall(r"done: (\d+) snapshots", txt)]
+    evicted = [int(x) for x in re.findall(r"evicted=(\d+)", txt)]
+    assert len(snaps) == 31, f"expected 31 logged days, found {len(snaps)}"
+
+    grid = sorted((S / "oxford_l4" / "book_05s_v2").glob("*.parquet"))
+    assert grid, "December book grid not found"
+    first_ts = pd.read_parquet(grid[0], columns=["ts"])["ts"].min()
+    start = pd.to_datetime(int(first_ts), unit="ns", utc=True)
+    into_day = (start - start.normalize()).total_seconds()
+
+    dp = december_partition()
+    n_rows = sum(snaps)
+    assert n_rows == depth_by_hour()["n_grid_rows"], "log total disagrees with the grid"
+
+    return {
+        "source": "oxford_l4/book_05s_v2_run.log + book_05s_v2/*.parquet",
+        "days_logged": len(snaps),
+        "n_grid_rows": n_rows,
+        "warmup_events": warmups.pop(),
+        "grid_start_utc": start.isoformat(),
+        "grid_start_minutes_into_1_dec": round(into_day / 60.0, 2),
+        "hours_expected": dp["hours_expected"],
+        "hours_labelled": dp["hours_labelled"],
+        "hours_unlabelled": dp["hours_expected"] - dp["hours_labelled"],
+        "phantom_orders_removed": 4345,
+        "phantom_provenance": ("audited 2026-07-04, registered at qrm_step4_criteria.md:1690; "
+                               "a cancellation recorded before the order it cancels"),
+        "evicted_total_NOT_phantoms": sum(evicted),
+        "evicted_note": ("guard eviction, a different mechanism from the phantom removal. "
+                         "NEVER substitute this for phantom_orders_removed."),
+        "verification": ("a second pass advances the book event by event and samples it back to "
+                         "the same half-second points; the two methods agree exactly"),
+    }
+
+
 def main() -> None:
     res = {
         "generated_by": "reports/diagnostics/data_chapter_measure.py",
@@ -514,6 +574,7 @@ def main() -> None:
                        for name, cfg in BUILDS.items()},
         "depth_by_hour": depth_by_hour(),
         "december_partition": december_partition(),
+        "perorder_pipeline": perorder_pipeline(),
         "coverage_bound": coverage_bound(),
         "adv": json.loads((S / "adv" / "btc_adv.json").read_text()) | {"daily_volume_btc": "omitted, see source"},
     }
