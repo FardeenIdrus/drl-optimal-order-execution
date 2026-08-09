@@ -326,8 +326,8 @@ def table_d3() -> str:
             # timestamp rows showed a gap that reads as missing data unless the buffer is said.
             r"\multicolumn{4}{@{}p{12.4cm}}{\footnotesize The held-out test is the last "
             f"{B['dataset_10s']['test_fraction_pct']:.0f}\\% of each version's episodes and "
-            r"validation the last 15\% of what remains, so the versions differ only in where "
-            r"that fraction falls: they hold different numbers of rows, so it lands on a "
+            r"validation the last 15\% of what remains. The rule is identical across the three; "
+            r"because they hold different numbers of episodes, the same fraction falls on a "
             r"different date in each. Between the last training bar and the first test bar sits "
             f"{B['dataset_10s']['boundary_buffer_episodes']:.0f} whole episode plus one bar, so "
             r"no episode straddles the split. Both fractions were fixed before any training. "
@@ -494,9 +494,10 @@ def table_d2b() -> str:
          (f"the first {n(P['warmup_events'])} changes are applied without being recorded. The replay "
           r"starts from an empty book, and learns of an order only when that order changes, so it "
           r"holds too little volume until the orders present at the start have gone"),
-         (f"recording begins {P['grid_start_minutes_into_1_dec']:.1f} minutes into 1 December. Hour 0 of that "
-          f"day is the {'one' if P['hours_unlabelled'] == 1 else n(P['hours_unlabelled'])} hour of the "
-          f"month's {n(P['hours_expected'])} that carries no label")),
+         (f"recording begins {P['grid_start_minutes_into_1_dec']:.1f} minutes into 1 December, leaving hour 0 "
+          f"of that day short of book data and outside the regime split, the "
+          f"{'only such hour' if P['hours_unlabelled'] == 1 else 'only such hours'} of the month's "
+          f"{n(P['hours_expected'])}")),
         (r"removing phantom orders",
          (f"{n(P['phantom_orders_removed'])} orders across the month are removed before they appear. In the "
           r"sub-second ordering of the two streams, a cancellation can be recorded before the order "

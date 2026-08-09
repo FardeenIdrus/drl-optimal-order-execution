@@ -3,7 +3,7 @@
 \toprule
 step & what it produced & what was checked \\
 \midrule
-warming up the replay & the first 1,500,000 changes are applied without being recorded. The replay starts from an empty book, and learns of an order only when that order changes, so it holds too little volume until the orders present at the start have gone & recording begins 12.5 minutes into 1 December. Hour 0 of that day is the one hour of the month's 744 that carries no label \\
+warming up the replay & the first 1,500,000 changes are applied without being recorded. The replay starts from an empty book, and learns of an order only when that order changes, so it holds too little volume until the orders present at the start have gone & recording begins 12.5 minutes into 1 December, leaving hour 0 of that day short of book data and outside the regime split, the only such hour of the month's 744 \\
 removing phantom orders & 4,345 orders across the month are removed before they appear. In the sub-second ordering of the two streams, a cancellation can be recorded before the order it cancels & audited 4 July 2026. One rule, applied uniformly across the month. Without it, such orders rest in the book indefinitely \\
 verifying the reconstruction & a second, independent pass over the same raw records, advancing the book event by event, and sampling it back to the same half-second points & the two methods agree exactly, across all 5,355,301 states \\
 \bottomrule
