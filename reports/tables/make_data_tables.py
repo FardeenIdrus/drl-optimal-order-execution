@@ -84,7 +84,10 @@ def table_d1() -> str:
          r"one transaction that actually took place, with its price, size and time",
          r"not turned into a book. The book changes say what was standing in the queues; the trades say what changed hands",
          f"December 2025, {TV['n_dates']} of {TV['n_dates']} days",
-         f"{n(TVALL['n_btc_trades'])} BTC trades",
+         # TV, not TVALL: TVALL['n_btc_trades'] counts all 33 archive dates, 2025-11-30 to
+         # 2026-01-01, while the period cell beside it says December. The spill is 27,495
+         # trades, 0.230%. december_only gained its own count on 2026-08-10 (audit T1).
+         f"{n(TV['n_btc_trades'])} BTC trades",
          r"every traded-volume figure in this chapter"),
     ]
 
@@ -108,7 +111,9 @@ def table_d1() -> str:
     inst = [
         ("tick size", r"\$1.00, constant across all " + f"{n_l4_days} days"),
         ("median mid", r"\$" + n(spread["median_mid"], 2)),
-        ("relative tick", f"{spread['relative_tick']:.3e}"),
+        # Typeset as the prose does. ":.3e" printed "1.131e-05", a machine literal in the one
+        # table a marker opens to check the prose's $1.13\times10^{-5}$ against.
+        ("relative tick", f"${spread['relative_tick'] * 1e5:.2f}" + r"\times10^{-5}$"),
         (r"P(spread $=$ 1 tick)", f"{100 * spread['p_spread_1_tick']:.1f}\\% "
                                   f"(first 7-day sample: {100 * seven['p_spread_1_tick']:.1f}\\%)"),
         ("mean spread", f"{spread['mean_spread_ticks']:.3f} ticks, "
@@ -330,7 +335,11 @@ def table_d3() -> str:
             r"because they hold different numbers of episodes, the same fraction falls on a "
             r"different date in each. Between the last training bar and the first test bar sits "
             f"{B['dataset_10s']['boundary_buffer_episodes']:.0f} whole episode plus one bar, so "
-            r"no episode straddles the split. Both fractions were fixed before any training. "
+            # "Both fractions were fixed before any training" asserted a chronology no artefact
+            # dates. The structural claim is verifiable and stronger: the split is baked into
+            # the dataset files the agents read.
+            r"no episode straddles the split. The split is written into the dataset files the "
+            r"agents read, so no training could have preceded it. "
             r"\textbf{Episode counts quoted elsewhere in this "
             r"chapter are the 10-second version's.}} \\",
             r"\bottomrule",
@@ -426,7 +435,8 @@ def panel_c() -> list[str]:
         f"{n(D['hours_expected'])} hours are labelled; the hour beginning midnight on 1 December "
         f"holds {u['minutes_present']:.0f} minutes of book data against the "
         f"{u['snapshots_required'] // 120} required, because recording starts twelve and a half "
-        f"minutes into the month (\\Cref{{sec:data-coverage}})."
+        # Points at Table 3.4, which states the warm-up. Section 3.3's PROSE never mentions it.
+        f"minutes into the month (\\Cref{{tab:d2b-perorder}})."
         r"} \\",
         r"\bottomrule",
         r"\end{tabular}",
@@ -451,7 +461,10 @@ def split_d1(body: str) -> dict:
     i = next(k for k, l in enumerate(L) if l.startswith(r"\multicolumn{6}{@{}l}{\emph{Instrument"))
     assert L[i - 1] == r"\midrule", L[i - 1]
 
-    sources = hdr + "\n".join(L[:i - 1] + [r"\bottomrule", r"\end{tabular}"]) + "\n"
+    # L[0] is already the generator header; prepending hdr to it printed the line twice.
+    body_lines = L[1:] if L[0].startswith("% Auto-generated") else L[:]
+    j = i - 1 - (1 if L[0].startswith("% Auto-generated") else 0)
+    sources = hdr + "\n".join(body_lines[:j] + [r"\bottomrule", r"\end{tabular}"]) + "\n"
     instrument = hdr + "\n".join(
         [col, r"\begin{tabular}{@{}R{2.2cm} R{3.0cm} R{3.1cm} R{2.0cm} R{2.0cm} R{1.9cm}@{}}",
          r"\toprule"] + L[i:]) + "\n"

@@ -40,6 +40,10 @@ def main() -> None:
     by_date: dict[str, float] = defaultdict(float)
     by_hour: dict[int, float] = defaultdict(float)
     trades_by_hour: dict[int, int] = defaultdict(int)
+    # Trade COUNT by date. Volume was already split December-from-spill; the count was not,
+    # so the only trade count in the file spanned all 33 archive dates while every period
+    # label beside it said December. Added 2026-08-10 after the audit's T1.
+    trades_by_date: dict[str, int] = defaultdict(int)
     n_btc = 0
     n_other = 0
     n_files = 0
@@ -72,6 +76,7 @@ def main() -> None:
                         by_date[date] += sz
                         by_hour[hour] += sz
                         trades_by_hour[hour] += 1
+                        trades_by_date[date] += 1
                         by_date_hour[(date, hour)] += sz
                         n_btc += 1
             except (EOFError, OSError) as exc:
@@ -96,6 +101,7 @@ def main() -> None:
     out = {
         "december_only": {
             "n_dates": len(dec),
+            "n_btc_trades": sum(trades_by_date[d] for d in dec),
             "date_first": dec[0],
             "date_last": dec[-1],
             "total_btc": dec_total,
@@ -108,6 +114,8 @@ def main() -> None:
             "mean_btc_per_hour_of_day": {str(h): dec_hour[h] / len(dec) for h in range(24)},
         },
         "spill_dates_excluded": {d: by_date[d] for d in dates if not d.startswith("2025-12")},
+        "spill_trades_excluded": {d: trades_by_date[d] for d in dates
+                                  if not d.startswith("2025-12")},
         "source": str(SRC),
         "n_files_read": n_files,
         "n_files_truncated": len(truncated),

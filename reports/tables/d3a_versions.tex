@@ -13,6 +13,6 @@ last training bar & \scriptsize 2025-07-14 03:29:50 & \scriptsize 2025-07-16 07:
 first test bar & \scriptsize 2025-07-14 04:00:00 & \scriptsize 2025-07-16 08:00:00 & \scriptsize 2025-07-15 03:10:00 \\
 test episodes: calm / volatile & 4,559 / 1,915 & 4,596 / 1,955 & 13,636 / 6,009 \\
 \midrule
-\multicolumn{4}{@{}p{12.4cm}}{\footnotesize The held-out test is the last 20\% of each version's episodes and validation the last 15\% of what remains. The rule is identical across the three; because they hold different numbers of episodes, the same fraction falls on a different date in each. Between the last training bar and the first test bar sits 1 whole episode plus one bar, so no episode straddles the split. Both fractions were fixed before any training. \textbf{Episode counts quoted elsewhere in this chapter are the 10-second version's.}} \\
+\multicolumn{4}{@{}p{12.4cm}}{\footnotesize The held-out test is the last 20\% of each version's episodes and validation the last 15\% of what remains. The rule is identical across the three; because they hold different numbers of episodes, the same fraction falls on a different date in each. Between the last training bar and the first test bar sits 1 whole episode plus one bar, so no episode straddles the split. The split is written into the dataset files the agents read, so no training could have preceded it. \textbf{Episode counts quoted elsewhere in this chapter are the 10-second version's.}} \\
 \bottomrule
 \end{tabular}
