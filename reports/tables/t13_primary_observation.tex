@@ -1,0 +1,35 @@
+% Auto-generated from diagnostics_primary/diag_learning_primary.json and
+% step5_v3 + step5_primary_v3_obsfix judgement/behaviour_audit. Do not edit by hand.
+\begin{tabular}{lrrrr}
+\toprule
+& \multicolumn{2}{c}{explained variance} & \multicolumn{2}{c}{corr($V$, return)} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+run & original & with feature & original & with feature \\
+\midrule
+ppo\_calm\_s0 & -0.0043 & +0.4711 & -0.027 & +0.697 \\
+ppo\_calm\_s1 & -0.0018 & +0.4321 & +0.000 & +0.697 \\
+ppo\_calm\_s2 & +0.0017 & +0.4393 & +0.042 & +0.705 \\
+ppo\_calm\_s3 & +0.0025 & +0.4353 & +0.060 & +0.709 \\
+ppo\_calm\_s4 & -0.0050 & +0.4775 & -0.004 & +0.707 \\
+ppo\_volatile\_s0 & +0.0008 & +0.3908 & +0.031 & +0.649 \\
+ppo\_volatile\_s1 & -0.0012 & +0.3767 & +0.018 & +0.645 \\
+ppo\_volatile\_s2 & -0.0108 & +0.3404 & -0.041 & +0.647 \\
+ppo\_volatile\_s3 & -0.0014 & +0.4314 & +0.004 & +0.657 \\
+ppo\_volatile\_s4 & -0.0091 & +0.4253 & -0.010 & +0.656 \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.6em}
+
+\begin{tabular}{llrrrrc}
+\toprule
+& & \multicolumn{2}{c}{original observation} & \multicolumn{2}{c}{with feature} & \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}
+algo & regime & vs TWAP (bps) & valid & vs TWAP (bps) & valid & edge \\
+\midrule
+ppo & calm & -0.0055 & 5/5 & +0.0066 & 5/5 & no \\
+ppo & volatile & -0.0470 & 5/5 & -0.0583 & 5/5 & no \\
+dqn & calm & -0.0015 & 1/5 & --- & 0/5 & no \\
+dqn & volatile & -0.0349 & 2/5 & --- & 0/5 & no \\
+\bottomrule
+\end{tabular}

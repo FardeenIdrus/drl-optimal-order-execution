@@ -509,6 +509,59 @@ def t12_ladder():
     write("t12_ladder.tex", "\n".join(lines))
 
 
+# ---------------------------------------------------------------- T13
+def t13_primary_observation():
+    """Amendment A4.3: the observation specification on the PRIMARY track. Upper panel is the
+    mechanism (critic explained variance, measured by reports/diagnostics/diag_learning_primary.py);
+    lower panel is the verdict (cost, from the two campaigns' judgement files).
+
+    DQN is absent from the upper panel by construction: explained variance of a critic is a
+    policy-gradient quantity and DQN has no separate value head fitted against returns. It IS in
+    the lower panel, where its 10/10 audit failure is the finding."""
+    diag = json.load(open(S / "diagnostics_primary" / "diag_learning_primary.json"))
+    dm = {(d["arm"], d["run"]): d for d in diag}
+    jo, ao = _load("step5_v3")
+    jn, an = _load("step5_primary_v3_obsfix")
+
+    lines = [
+        r"% Auto-generated from diagnostics_primary/diag_learning_primary.json and",
+        r"% step5_v3 + step5_primary_v3_obsfix judgement/behaviour_audit. Do not edit by hand.",
+        r"\begin{tabular}{lrrrr}", r"\toprule",
+        r"& \multicolumn{2}{c}{explained variance} & \multicolumn{2}{c}{corr($V$, return)} \\",
+        r"\cmidrule(lr){2-3}\cmidrule(lr){4-5}",
+        r"run & original & with feature & original & with feature \\", r"\midrule",
+    ]
+    for regime in ("calm", "volatile"):
+        for seed in range(5):
+            run = f"ppo_{regime}_s{seed}"
+            o, n = dm[("original", run)]["critic"], dm[("obsfix", run)]["critic"]
+            lines.append(
+                f"{esc(run)} & {o['explained_variance']:+.4f} & {n['explained_variance']:+.4f} & "
+                f"{o['corr_V_return']:+.3f} & {n['corr_V_return']:+.3f} \\\\")
+    lines += [r"\bottomrule", r"\end{tabular}", "", r"\vspace{0.6em}", "",
+              r"\begin{tabular}{llrrrrc}", r"\toprule",
+              r"& & \multicolumn{2}{c}{original observation} & "
+              r"\multicolumn{2}{c}{with feature} & \\",
+              r"\cmidrule(lr){3-4}\cmidrule(lr){5-6}",
+              r"algo & regime & vs TWAP (bps) & valid & vs TWAP (bps) & valid & edge \\",
+              r"\midrule"]
+    for algo in ("ppo", "dqn"):
+        for regime in ("calm", "volatile"):
+            g = f"{algo}_{regime}"
+            o = [r["mean_vs_adaptive_bps"] for r in jo["per_run"]
+                 if r["algo"] == algo and r["regime"] == regime
+                 and _tag_of(r["run"], r["seed"]) == "" and ao[r["run"]]["valid"]]
+            n = [r["mean_vs_adaptive_bps"] for r in jn["per_run"]
+                 if r["algo"] == algo and r["regime"] == regime and an[r["run"]]["valid"]]
+            fo = f"{np.mean(o):+.4f}" if o else "---"
+            fn = f"{np.mean(n):+.4f}" if n else "---"
+            edge = "no" if not (jo["verdicts"][g]["EDGE"] or jn["verdicts"][g]["EDGE"]) else "YES"
+            lines.append(f"{algo} & {regime} & {fo} & {len(o)}/5 & {fn} & {len(n)}/5 & "
+                         f"{edge} \\\\")
+    lines += [r"\bottomrule", r"\end{tabular}"]
+    write("t13_primary_observation.tex", "\n".join(lines))
+
+
 if __name__ == "__main__":
     t1_primary()
     t2_tuning()
@@ -522,4 +575,5 @@ if __name__ == "__main__":
     t10_tuning_perrun()
     t11_dqn_probe()
     t12_ladder()
+    t13_primary_observation()
     print("ALL TABLES DONE ->", OUT)

@@ -45,7 +45,8 @@ WANTED = [
     "ts6_sigext_sealed.tex",           # sealed exhibit, injected environment
     "ts7_sigext_ceiling.tex",          # attainable-edge ceiling, one-shot confirmed
     "ts8_sigext_comparators.tex",      # AC + oracle VWAP, both environments
-    "ts9_sigext_a4_observation.tex",   # observation specification
+    "ts9_sigext_a4_observation.tex",   # observation specification, injected track
+    "t13_primary_observation.tex",     # observation specification, PRIMARY track (A4.3)
     # appendix
     "t1_primary_campaign.tex",
     "t2_tuning_selection.tex",
