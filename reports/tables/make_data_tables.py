@@ -329,9 +329,14 @@ def table_d3() -> str:
             # The note NAMES the design fractions and EXPLAINS the boundary gap. Both were
             # implicit before: "the same fraction" left the fraction unnamed, and the two
             # timestamp rows showed a gap that reads as missing data unless the buffer is said.
-            r"\multicolumn{4}{@{}p{12.4cm}}{\footnotesize The held-out test is the last "
-            f"{B['dataset_10s']['test_fraction_pct']:.0f}\\% of each version's episodes and "
-            r"validation the last 15\% of what remains. The rule is identical across the three; "
+            # The order of the two carves was not stated, so a reader could not tell which was
+            # taken first. It is test first, then validation out of what is left, which is what
+            # puts validation directly against the test boundary.
+            r"\multicolumn{4}{@{}p{12.4cm}}{\footnotesize The last "
+            f"{B['dataset_10s']['test_fraction_pct']:.0f}\\% of each version's episodes are held "
+            r"out as the test set; validation is then the last 15\% of what remains, so the "
+            r"three run train, validation, test in time order. "
+            r"The rule is identical across the three; "
             r"because they hold different numbers of episodes, the same fraction falls on a "
             r"different date in each. Between the last training bar and the first test bar sits "
             f"{B['dataset_10s']['boundary_buffer_episodes']:.0f} whole episode plus one bar, so "

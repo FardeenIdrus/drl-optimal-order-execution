@@ -150,7 +150,7 @@ def fig_d1() -> None:
     # but daily counts are discrete; and the line competed with the colour for the same space,
     # so neither encoding read cleanly. Now the counts are BARS and the coverage colour is a
     # thin strip beneath the axis. The panel's payload then reads directly: a run of absent
-    # bars sitting above unbroken blue is exactly "collected in full, no episodes".
+    # bars sitting above unbroken blue is exactly what the span bracket below names.
     nov = _dates("2025-11-01", "2025-11-30")
     fig, ax = plt.subplots(figsize=(7.4, 1.9))
     nx = np.array([mdates.date2num(d) for d in nov], dtype=float)
@@ -182,7 +182,10 @@ def fig_d1() -> None:
     yb, yt = top * 0.13, top * 0.21
     ax.plot([b0, b0, b1, b1], [yb, yt, yt, yb], color="0.25", lw=0.8,
             solid_joinstyle="miter", zorder=4)
-    ax.text((b0 + b1) / 2, yt + top * 0.04, "collected in full, no episodes",
+    # The label must not say "no episodes": this figure appears BEFORE section 3.3 defines
+    # "episode", so the annotation would use the term before the reader meets it. It names
+    # the cause instead -- complete hours, but no gap-free window inside them.
+    ax.text((b0 + b1) / 2, yt + top * 0.04, "collected in full; no gap-free 30-minute window",
             fontsize=6.5, ha="center", va="bottom", color="0.15")
     ax.set_xlim(nx[0], nx[-1] + 1)
     ax.xaxis.set_major_locator(mdates.DayLocator(interval=3))
