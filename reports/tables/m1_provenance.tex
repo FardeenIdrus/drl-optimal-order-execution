@@ -1,0 +1,18 @@
+\begin{tabular}{@{}p{0.15\linewidth}p{0.34\linewidth}p{0.44\linewidth}@{}}
+\toprule
+\textbf{} & \textbf{Espa\~na et al. (2025)} & \textbf{This study} \\
+\midrule
+Calibrated on & France T\'el\'ecom, Euronext Paris, Jan 2010 to Mar 2012 & Hyperliquid BTC perpetual, December 2025, per-order records \\
+Book depth & $K = 3$ per side & $K = 10$ per side ($20$ queue sizes observed) \\
+Queue symmetry & bid--ask symmetry assumed & asymmetric: per-side intensities and invariant distributions, $Q=59$ calm / $66$ volatile \\
+Observation & 5 variables & 7 recorded books; 27 reacting; 28 injected ($+1$ each simulator under the registered amendment) \\
+Actions & 3: 0, 0.5, 1.0 of the volume at best ask & 7 pace multiples of TWAP: 0.0, 0.5, 0.8, 1.0, 1.2, 1.5, 2.0; $1.0$ \emph{is} adaptive TWAP \\
+Learner & DDQN & PPO and DQN \\
+Episode & 600\,s horizon, one decision every 25\,s, 25 shares & 300\,s horizon, one decision every 1\,s (300 decisions), 25\,BTC; ladder {5, 12.5, 25, 50}\,BTC and horizons {150, 300, 600, 1200}\,s \\
+Reward & terminal-penalised shortfall, $\alpha = 1$ & negative implementation shortfall against the arrival mid, bps, forced completion \\
+Benchmarks & TWAP, POPV1--4 & plain and adaptive TWAP, Almgren--Chriss family, expected-volume and oracle VWAP \\
+Evaluation & no seed protocol, sealed block or registration reported & registered rules, materiality floor, five seeds, common random numbers, behaviour audit, three-rung ladder, one-shot sealed confirmations \\
+Agents trained & not reported & \textbf{429} (70 / 283 / 76 by environment) \\
+\bottomrule
+\multicolumn{3}{@{}p{\linewidth}@{}}{\footnotesize The left column describes \emph{both} the paper and its released implementation. Rows parsed from the authors' own configuration file (\texttt{src/qrm\_rl/configs/default.yaml}, MIT licence, vendored at commit \texttt{c066726}, working tree clean): book depth, observation, actions, learner, episode and reward penalty. The book depth in particular is \emph{not} stated numerically in the paper and is verifiable only from that file.} \\
+\end{tabular}
