@@ -296,6 +296,58 @@ run & vs fixed TWAP (bps) & $p$ & vs adaptive TWAP (bps) & $p$ \\
     _w("ts6_sigext_sealed", body)
 
 
+def table_ts10_obsfix_per_run() -> None:
+    """APPENDIX. Every run in the three injected-market campaigns trained WITH the arrival
+    price among the agent's inputs: A4 (10 base PPO), A4.1 (18 PPO variants), A4.2 (10 DQN).
+
+    WHY THIS EXISTS. TS9 reports these campaigns as group means only, while every other
+    campaign in the appendix is published run by run (TS3, T1, T10, T11, T12, T9). Thirty-eight
+    evaluations had no per-run disclosure. The three folder names differ by a few characters and
+    are three DIFFERENT campaigns -- they are labelled in the table and must never be pooled.
+
+    The DQN rows are ALL behaviour-audit invalid. Their costs describe policies that did not
+    finish the order, so the audit column is what those rows are for -- not the cost."""
+    src = [("A4", "step5_signal_obsfix"), ("A4.1", "step5_signal_obsfix_var"),
+           ("A4.2", "step5_signal_obsfix_dqn")]
+    rows = []
+    for tag, d in src:
+        j = json.loads((S / d / "judgement.json").read_text())
+        aud = {e["run"]: e for e in json.loads((S / d / "behaviour_audit.json").read_text())}
+        for r in sorted(j["per_run"], key=lambda r: (r.get("algo", ""), r["regime"], r["seed"],
+                                                     r["run"])):
+            a = aud[r["run"]]
+            rows.append(
+                f"{tag} & {r['run'].replace('_', chr(92)+'_')} & "
+                f"{r['mean_vs_fixed_bps']:+.4f} & {_p(r['p_fixed'])} & "
+                f"{r['mean_vs_adaptive_bps']:+.4f} & {_p(r['p_adaptive'])} & "
+                f"{a['top_share']:.0%} & {a['deadline_residual_frac']:.0%} & "
+                f"{'valid' if a['valid'] else chr(92)+'textbf{no}'} \\\\".replace("%", r"\%"))
+        rows.append(r"\midrule")
+    rows = rows[:-1]
+    body = r"""% Per-run results for the three arrival-price campaigns, injected market (APPENDIX).
+% Source: step5_signal_obsfix / _var / _dqn -- judgement.json + behaviour_audit.json
+\begin{table}[htbp]\centering
+\caption{Every run in the injected market trained with the arrival price among the agent's
+inputs, against both benchmarks ($n=2000$ paired episodes each), on the development block.
+A4 is the base configuration, A4.1 three pre-planned variants, A4.2 the value-based algorithm;
+these are three separate campaigns and are not pooled. Runs marked \textbf{no} failed the
+behavioural audit, which is applied before any cost comparison and independently of outcome, so
+their costs describe policies that did not finish the order.}
+\label{tab:sigext-obsfix-per-run}
+\scriptsize
+\begin{tabular}{llrlrlrrl}
+\toprule
+ & run & vs fixed TWAP & $p$ & vs adaptive TWAP & $p$ & top & deadline & audit \\
+ & & (bps) & & (bps) & & action & residual & \\
+\midrule
+""" + "\n".join(rows) + r"""
+\bottomrule
+\end{tabular}
+\end{table}
+"""
+    _w("ts10_sigext_obsfix_per_run", body)
+
+
 def main() -> None:
     print("building measured-signal extension tables ->", OUT)
     print(" MAIN:")
@@ -303,6 +355,7 @@ def main() -> None:
     table_ts4_exploiter()
     table_ts7_ceiling()
     table_ts9_a4_observation()
+    table_ts10_obsfix_per_run()
     populate_sealed()
     print(" SUPPORTING:")
     table_ts5_base_env()
@@ -485,7 +538,7 @@ under the variant, so the valid-seed count is reported alongside each figure.}
 \toprule
 & \multicolumn{2}{c}{explained variance} & \multicolumn{2}{c}{corr($V$, return)} \\
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}
-run & original & with feature & original & with feature \\
+run & without & with & without & with \\
 \midrule
 """ + "\n".join(ev_rows) + r"""
 \bottomrule
@@ -494,7 +547,7 @@ run & original & with feature & original & with feature \\
 \vspace{0.6em}
 \begin{tabular}{lrrrrl}
 \toprule
-& \multicolumn{2}{c}{original observation} & \multicolumn{2}{c}{with feature} & \\
+& \multicolumn{2}{c}{without the arrival price} & \multicolumn{2}{c}{with the arrival price} & \\
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}
 regime & vs TWAP (bps) & valid & vs TWAP (bps) & valid & meets edge rule \\
 \midrule

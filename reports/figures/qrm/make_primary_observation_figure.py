@@ -75,8 +75,8 @@ def main() -> None:
     ax.axvline(0.0, color=INK, lw=1.0, ls="--", zorder=0)
     ax.set_yticks(np.arange(len(runs)))
     ax.set_yticklabels([r.replace("ppo_", "").replace("_", " ") for r in runs], fontsize=8)
-    ax.set_xlabel("critic explained variance   [higher = the value function predicts]")
-    ax.set_title("The mechanism: the critic becomes learnable")
+    ax.set_xlabel("how much of the outcome the value function predicts   [higher is better]")
+    ax.set_title("How well the value function predicts the outcome")
     om = np.mean([dm[("original", r)]["critic"]["explained_variance"] for r in runs])
     nm = np.mean([dm[("obsfix", r)]["critic"]["explained_variance"] for r in runs])
     ax.set_ylim(-0.9, len(runs) - 0.3)
@@ -117,20 +117,20 @@ def main() -> None:
     ax.set_xticklabels([f"{lab}\nvalid {a}/5 $\\rightarrow$ {b}/5"
                         for lab, a, b in zip(labels, on_, nn_)], fontsize=8.5)
     ax.set_ylabel("cost vs adaptive TWAP (bps)")
-    ax.set_title("The verdict: performance is unchanged")
+    ax.set_title("Execution cost against TWAP")
     lo = min([v for v in om_ + nm_ if not np.isnan(v)] + [-0.05])
     hi = max([v for v in om_ + nm_ if not np.isnan(v)] + [0.05])
     ax.set_ylim(lo - 0.018, hi + 0.072)
 
     handles = [Line2D([], [], color=MUTED, marker="o", mfc="white", ls="none", ms=6,
-                      label="original observation (27 inputs)"),
+                      label="without the arrival price (27 inputs)"),
                Line2D([], [], color=OI_VERM, marker="o", ls="none", ms=6,
-                      label="with price-vs-arrival (28 inputs)"),
+                      label="with the arrival price (28 inputs)"),
                Patch(facecolor=MUTED, alpha=0.12, label="+/-0.05 bps materiality band")]
     fig.legend(handles=handles, loc="lower center", ncol=3, frameon=False,
                bbox_to_anchor=(0.5, -0.13))
-    fig.suptitle("The primary reacting market: making the value function learnable does not "
-                 "make the agents competitive", y=1.02, fontsize=11)
+    fig.suptitle("In the primary market, adding the arrival price to the agent's inputs "
+                 "improves the value function but not execution cost", y=1.02, fontsize=11)
     fig.tight_layout()
     for ext in ("pdf", "png"):
         fig.savefig(OUT / f"fig26_primary_observation.{ext}")

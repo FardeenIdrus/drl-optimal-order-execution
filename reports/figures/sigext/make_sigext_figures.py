@@ -162,13 +162,16 @@ def fig_s1_injection_fidelity() -> None:
         ax.set_title(f"{regime}  (gated horizons shaded)")
         if ax is axes[0]:
             ax.set_ylabel("predictive slope (bps per unit imbalance)")
-    handles = [Line2D([], [], color=INK, marker="o", lw=1.8, label="real venue data (L4 measurement)"),
+    handles = [Line2D([], [], color=INK, marker="o", lw=1.8, label="measured from venue data"),
                Line2D([], [], color=BLUE, marker="s", ls="--", lw=1.8, label="injected simulator (calm)"),
                Line2D([], [], color=RED, marker="s", ls="--", lw=1.8, label="injected simulator (volatile)"),
                Patch(facecolor=MUTED, alpha=0.18, label="registered +/-20% acceptance band")]
     fig.legend(handles=handles, loc="lower center", ncol=2, frameon=False,
                bbox_to_anchor=(0.5, -0.19))
-    fig.suptitle("Injected predictability reproduces the measured venue signal (all gated horizons pass)",
+    # Title states what the figure shows, not the verdict. The verdict is a methods
+    # certification and belongs in the caption, where it can carry its band. Author's
+    # labelling rule, 2026-08-12: short, specific, no internal names, no outcomes.
+    fig.suptitle("Injected signal against the measured venue signal",
                  y=1.02, fontsize=11)
     fig.tight_layout()
     save(fig, "s1_injection_fidelity", "main_body")
@@ -730,8 +733,8 @@ def fig_s11_a4_observation() -> None:
     ax.axvline(0.0, color=INK, lw=1.0, ls="--", zorder=0)
     ax.set_yticks(y)
     ax.set_yticklabels([r.replace("ppo_", "").replace("_", " ") for r in runs], fontsize=8)
-    ax.set_xlabel("critic explained variance   [higher = the value function predicts]")
-    ax.set_title("The mechanism: the critic becomes learnable")
+    ax.set_xlabel("how much of the outcome the value function predicts   [higher is better]")
+    ax.set_title("How well the value function predicts the outcome")
 
     # ---- right: the verdict ----
     ax = axes[1]
@@ -745,9 +748,9 @@ def fig_s11_a4_observation() -> None:
         labels.append(reg); orig_m.append(np.mean(o)); new_m.append(np.mean(n))
         orig_n.append(len(o)); new_n.append(len(n))
     x = np.arange(len(labels)); w = 0.34
-    b1 = ax.bar(x - w / 2, orig_m, w, color=MUTED, label="original observation",
+    b1 = ax.bar(x - w / 2, orig_m, w, color=MUTED, label="without the arrival price",   # NOT rendered: the legend is built from Line2D handles below. Kept in step with them so the two can never disagree.
                 edgecolor="white", linewidth=1.0)
-    b2 = ax.bar(x + w / 2, new_m, w, color=OI_VERM, label="with price-vs-arrival",
+    b2 = ax.bar(x + w / 2, new_m, w, color=OI_VERM, label="with the arrival price",
                 edgecolor="white", linewidth=1.0)
     for b, m, k in list(zip(b1, orig_m, orig_n)) + list(zip(b2, new_m, new_n)):
         ax.text(b.get_x() + b.get_width() / 2, m + 0.0015, f"{m:+.4f}\n({k}/5 valid)",
@@ -757,15 +760,19 @@ def fig_s11_a4_observation() -> None:
     ax.set_xticks(x); ax.set_xticklabels(labels)
     ax.set_ylabel("cost vs adaptive TWAP (bps)")
     ax.set_ylim(-0.055, max(max(orig_m), max(new_m)) * 1.9 + 0.02)
-    ax.set_title("The verdict: performance is unchanged")
+    ax.set_title("Execution cost against TWAP")
     handles = [Line2D([], [], color=MUTED, marker="o", mfc="white", ls="none", ms=6,
-                      label="original observation (28 inputs)"),
+                      label="without the arrival price (28 inputs)"),
                Line2D([], [], color=OI_VERM, marker="o", ls="none", ms=6,
-                      label="with price-vs-arrival (29 inputs)"),
+                      label="with the arrival price (29 inputs)"),
                Patch(facecolor=MUTED, alpha=0.12, label="+/-0.05 bps materiality band")]
     fig.legend(handles=handles, loc="lower center", ncol=3, frameon=False,
                bbox_to_anchor=(0.5, -0.13))
-    fig.suptitle("Making the value function learnable does not make the agents competitive",
+    # TITLE RULE: name what was ADDED, never "repairing"/"making learnable" -- those concede a
+    # defect where the accurate statement is a specification test. See F23/F26/F27 for the
+    # matching wording; the four titles must stay consistent.
+    fig.suptitle("Adding the arrival price to the agent's inputs improves the value function "
+                 "but not execution cost",
                  y=1.02, fontsize=11)
     fig.tight_layout()
     save(fig, "s11_a4_observation", "main_body")

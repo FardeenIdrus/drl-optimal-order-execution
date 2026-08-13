@@ -14,7 +14,7 @@ under the variant, so the valid-seed count is reported alongside each figure.}
 \toprule
 & \multicolumn{2}{c}{explained variance} & \multicolumn{2}{c}{corr($V$, return)} \\
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}
-run & original & with feature & original & with feature \\
+run & without & with & without & with \\
 \midrule
 ppo\_calm\_s0 & +0.0009 & +0.4109 & +0.040 & +0.679 \\
 ppo\_calm\_s1 & -0.0036 & +0.3575 & +0.032 & +0.669 \\
@@ -32,7 +32,7 @@ ppo\_volatile\_s4 & -0.0069 & +0.4687 & +0.016 & +0.699 \\
 \vspace{0.6em}
 \begin{tabular}{lrrrrl}
 \toprule
-& \multicolumn{2}{c}{original observation} & \multicolumn{2}{c}{with feature} & \\
+& \multicolumn{2}{c}{without the arrival price} & \multicolumn{2}{c}{with the arrival price} & \\
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}
 regime & vs TWAP (bps) & valid & vs TWAP (bps) & valid & meets edge rule \\
 \midrule

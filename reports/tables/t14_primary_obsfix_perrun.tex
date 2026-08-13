@@ -1,0 +1,28 @@
+% Auto-generated from step5_primary_v3_obsfix. Do not edit by hand.
+\begin{tabular}{llrrlrrl}
+\toprule
+algo & run & vs fixed & $p$ & vs adaptive & top & deadline & audit \\
+ & & TWAP (bps) & & TWAP (bps) & action & residual & \\
+\midrule
+dqn & dqn\_calm\_s0 & +0.0919 & 0.727 & +0.0920 & 47\% & 58\% & \textbf{no} \\
+dqn & dqn\_calm\_s1 & +0.1973 & 0.000 & +0.1974 & 79\% & 94\% & \textbf{no} \\
+dqn & dqn\_calm\_s2 & +0.2376 & 0.001 & +0.2376 & 74\% & 81\% & \textbf{no} \\
+dqn & dqn\_calm\_s3 & +0.1383 & 0.000 & +0.1383 & 64\% & 80\% & \textbf{no} \\
+dqn & dqn\_calm\_s4 & +0.1290 & 0.043 & +0.1291 & 53\% & 85\% & \textbf{no} \\
+dqn & dqn\_volatile\_s0 & +0.0932 & 0.037 & +0.0926 & 52\% & 66\% & \textbf{no} \\
+dqn & dqn\_volatile\_s1 & +0.0828 & 0.007 & +0.0821 & 51\% & 60\% & \textbf{no} \\
+dqn & dqn\_volatile\_s2 & +0.3298 & 0.079 & +0.3292 & 89\% & 92\% & \textbf{no} \\
+dqn & dqn\_volatile\_s3 & +0.0432 & 0.042 & +0.0425 & 47\% & 84\% & \textbf{no} \\
+dqn & dqn\_volatile\_s4 & +0.0695 & 0.008 & +0.0689 & 40\% & 59\% & \textbf{no} \\
+ppo & ppo\_calm\_s0 & +0.0058 & 0.870 & +0.0059 & 18\% & 4\% & valid \\
+ppo & ppo\_calm\_s1 & -0.0062 & 0.623 & -0.0061 & 18\% & 8\% & valid \\
+ppo & ppo\_calm\_s2 & +0.0074 & 0.751 & +0.0075 & 19\% & 1\% & valid \\
+ppo & ppo\_calm\_s3 & +0.0131 & 0.651 & +0.0132 & 22\% & 10\% & valid \\
+ppo & ppo\_calm\_s4 & +0.0127 & 0.890 & +0.0128 & 22\% & 0\% & valid \\
+ppo & ppo\_volatile\_s0 & -0.0469 & 0.117 & -0.0476 & 23\% & 8\% & valid \\
+ppo & ppo\_volatile\_s1 & -0.0709 & 0.046 & -0.0715 & 26\% & 2\% & valid \\
+ppo & ppo\_volatile\_s2 & -0.0603 & 0.198 & -0.0610 & 24\% & 1\% & valid \\
+ppo & ppo\_volatile\_s3 & -0.0565 & 0.056 & -0.0572 & 18\% & 8\% & valid \\
+ppo & ppo\_volatile\_s4 & -0.0536 & 0.164 & -0.0542 & 23\% & 6\% & valid \\
+\bottomrule
+\end{tabular}

@@ -4,7 +4,7 @@
 \toprule
 & \multicolumn{2}{c}{explained variance} & \multicolumn{2}{c}{corr($V$, return)} \\
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}
-run & original & with feature & original & with feature \\
+run & without & with & without & with \\
 \midrule
 ppo\_calm\_s0 & -0.0043 & +0.4711 & -0.027 & +0.697 \\
 ppo\_calm\_s1 & -0.0018 & +0.4321 & +0.000 & +0.697 \\
@@ -23,7 +23,7 @@ ppo\_volatile\_s4 & -0.0091 & +0.4253 & -0.010 & +0.656 \\
 
 \begin{tabular}{llrrrrc}
 \toprule
-& & \multicolumn{2}{c}{original observation} & \multicolumn{2}{c}{with feature} & \\
+& & \multicolumn{2}{c}{without the arrival price} & \multicolumn{2}{c}{with the arrival price} & \\
 \cmidrule(lr){3-4}\cmidrule(lr){5-6}
 algo & regime & vs TWAP (bps) & valid & vs TWAP (bps) & valid & edge \\
 \midrule

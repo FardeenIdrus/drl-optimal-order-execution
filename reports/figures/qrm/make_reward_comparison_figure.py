@@ -132,16 +132,16 @@ def main() -> None:
                     fontsize=8.2, color=INK)
 
     handles = [Line2D([], [], color=MUTED, lw=2,
-                      label="original observation — critic explains nothing"),
+                      label="without the arrival price in the inputs"),
                Line2D([], [], color=OI_VERM, lw=2,
-                      label="with price-vs-arrival — critic explains ~0.4"),
+                      label="with the arrival price in the inputs"),
                Line2D([], [], color=INK, lw=2.6, dashes=(4, 3), label="fitted trend (dashed)"),
                Line2D([], [], color=MUTED, lw=6, alpha=0.20,
                       label="+/- 1 sd across 10 seeds")]
     fig.legend(handles=handles, loc="lower center", ncol=4, frameon=False,
                bbox_to_anchor=(0.5, -0.10))
-    fig.suptitle("Repairing the value function does not make the agents learn: average episode "
-                 "reward falls either way", y=1.01, fontsize=12)
+    fig.suptitle("Average episode reward does not improve, with or without the arrival price "
+                 "in the agent's inputs", y=1.01, fontsize=12)
     fig.tight_layout()
     for ext in ("pdf", "png"):
         fig.savefig(OUT / f"fig27_reward_comparison.{ext}")

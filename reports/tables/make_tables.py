@@ -40,6 +40,20 @@ def write(name: str, body: str):
     print(f"wrote {name}")
 
 
+def _perrun_row(r: dict, e: dict, lead: str) -> str:
+    """One appendix row: both benchmarks, then the two behaviour-audit quantities.
+
+    Percentages are written as `\\%` directly rather than formatted with `{:.0%}` and then
+    string-replaced. The replace approach was used first and was wrong twice over: it also
+    escaped the `%` inside the format spec, and it was applied to the return value of
+    `list.append`, which is None."""
+    return (f"{lead} & {esc(r['run'])} & {r['mean_vs_fixed_bps']:+.4f} & "
+            f"{r['p_fixed']:.3f} & {r['mean_vs_adaptive_bps']:+.4f} & "
+            f"{e['top_share'] * 100:.0f}" + r"\% & "
+            f"{e['deadline_residual_frac'] * 100:.0f}" + r"\% & "
+            f"{'valid' if e['valid'] else chr(92) + 'textbf{no}'} " + r"\\")
+
+
 # ---------------------------------------------------------------- T1
 def t1_primary():
     j, a = _load("step5_v3")
@@ -529,7 +543,7 @@ def t13_primary_observation():
         r"\begin{tabular}{lrrrr}", r"\toprule",
         r"& \multicolumn{2}{c}{explained variance} & \multicolumn{2}{c}{corr($V$, return)} \\",
         r"\cmidrule(lr){2-3}\cmidrule(lr){4-5}",
-        r"run & original & with feature & original & with feature \\", r"\midrule",
+        r"run & without & with & without & with \\", r"\midrule",
     ]
     for regime in ("calm", "volatile"):
         for seed in range(5):
@@ -540,8 +554,8 @@ def t13_primary_observation():
                 f"{o['corr_V_return']:+.3f} & {n['corr_V_return']:+.3f} \\\\")
     lines += [r"\bottomrule", r"\end{tabular}", "", r"\vspace{0.6em}", "",
               r"\begin{tabular}{llrrrrc}", r"\toprule",
-              r"& & \multicolumn{2}{c}{original observation} & "
-              r"\multicolumn{2}{c}{with feature} & \\",
+              r"& & \multicolumn{2}{c}{without the arrival price} & "
+              r"\multicolumn{2}{c}{with the arrival price} & \\",
               r"\cmidrule(lr){3-4}\cmidrule(lr){5-6}",
               r"algo & regime & vs TWAP (bps) & valid & vs TWAP (bps) & valid & edge \\",
               r"\midrule"]
@@ -562,6 +576,52 @@ def t13_primary_observation():
     write("t13_primary_observation.tex", "\n".join(lines))
 
 
+# ---------------------------------------------------------------- T14
+def t14_primary_obsfix_perrun():
+    """APPENDIX. Every run of Amendment A4.3 -- the primary market with the arrival price added
+    to the agent's inputs. T13 reports this campaign as four group means; every other campaign
+    in the appendix is published run by run, so twenty evaluations had no per-run disclosure.
+
+    All ten DQN rows are behaviour-audit invalid. Their costs describe policies that never
+    finished the order; the audit column is what those rows carry, not the cost."""
+    j, a = _load("step5_primary_v3_obsfix")
+    lines = [
+        r"% Auto-generated from step5_primary_v3_obsfix. Do not edit by hand.",
+        r"\begin{tabular}{llrrlrrl}", r"\toprule",
+        r"algo & run & vs fixed & $p$ & vs adaptive & top & deadline & audit \\",
+        r" & & TWAP (bps) & & TWAP (bps) & action & residual & \\", r"\midrule",
+    ]
+    for r in sorted(j["per_run"], key=lambda r: (r["algo"], r["regime"], r["seed"])):
+        lines.append(_perrun_row(r, a[r["run"]], r["algo"]))
+    lines += [r"\bottomrule", r"\end{tabular}"]
+    write("t14_primary_obsfix_perrun.tex", "\n".join(lines))
+
+
+# ---------------------------------------------------------------- T15
+def t15_a5_sealed_perrun():
+    """APPENDIX. The one-shot sealed test on block 25,000,000, both arms, every evaluation.
+
+    ARM B trained five FRESH seeds (20-24). ARM A re-scored the SAME twenty A4.3 agents,
+    weights untouched, on the same new block -- so arm A isolates the block from the seeds.
+    Both arms are reported; the escalated candidate failed in both."""
+    lines = [
+        r"% Auto-generated from step5_a5_armB_freshseeds + step5_a5_armA_sameagents.",
+        r"% Block 25,000,000 -- SPENT. One shot, no re-runs.",
+        r"\begin{tabular}{llrrlrrl}", r"\toprule",
+        r"arm & run & vs fixed & $p$ & vs adaptive & top & deadline & audit \\",
+        r" & & TWAP (bps) & & TWAP (bps) & action & residual & \\", r"\midrule",
+    ]
+    for tag, d in [("B (fresh seeds)", "step5_a5_armB_freshseeds"),
+                   ("A (same agents)", "step5_a5_armA_sameagents")]:
+        j, a = _load(d)
+        for r in sorted(j["per_run"], key=lambda r: (r["algo"], r["regime"], r["seed"])):
+            lines.append(_perrun_row(r, a[r["run"]], tag))
+        lines.append(r"\midrule")
+    lines[-1] = r"\bottomrule"
+    lines.append(r"\end{tabular}")
+    write("t15_a5_sealed_perrun.tex", "\n".join(lines))
+
+
 if __name__ == "__main__":
     t1_primary()
     t2_tuning()
@@ -576,4 +636,6 @@ if __name__ == "__main__":
     t11_dqn_probe()
     t12_ladder()
     t13_primary_observation()
+    t14_primary_obsfix_perrun()
+    t15_a5_sealed_perrun()
     print("ALL TABLES DONE ->", OUT)

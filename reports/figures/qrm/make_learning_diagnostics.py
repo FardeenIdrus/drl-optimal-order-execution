@@ -155,8 +155,12 @@ def main() -> None:
                Line2D([], [], color=INK, lw=1.1, ls="--", label="critic explains nothing")]
     fig.legend(handles=handles, loc="lower center", ncol=4, frameon=False,
                bbox_to_anchor=(0.5, -0.04))
-    fig.suptitle("Training runs to completion, and average episode reward does not improve "
-                 "over the entire budget", y=1.005, fontsize=12)
+    # TITLE RULE, applied across S11/F23/F26/F27: name the SETTING and the FINDING, and never
+    # a reference point a first-time reader cannot resolve. "The original agents" is meaningless
+    # to an examiner meeting the figure once. Which inputs these agents had belongs in the
+    # caption, not the title -- see the manifest's caption obligation for F23.
+    fig.suptitle("In the injected market, average episode reward does not improve over the "
+                 "full training budget", y=1.005, fontsize=12)
     fig.tight_layout()
     for ext in ("pdf", "png"):
         fig.savefig(OUT / f"fig23_learning_diagnostics.{ext}")
