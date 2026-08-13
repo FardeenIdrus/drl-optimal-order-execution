@@ -28,7 +28,11 @@ DEST = REPO.parent / "Idrus_Fardeen_MSc_Dissertation" / "tables"
 # per-run tables the appendix carries. Keep this list in step with the chapter.
 WANTED = [
     # Data chapter
-    "d1a_sources.tex",                 # what was collected, one row per stream
+    # d1a_sources.tex is NOT synced. The table was withdrawn on 2026-08-13 (Carlo: "takes too
+    # much space and can be reduced to a paragraph, also because most of it is plain text
+    # anyways"). Section 3.1's prose now carries what it held. The builder still writes the
+    # file, because the two D1 halves read as one exhibit outside the dissertation; syncing it
+    # would put an uncited table back into the repo.
     "d1b_instrument.tex",              # what the instrument is like, and the scale of an order
     "d2_pipeline.tex",                 # processing steps and their checks, snapshot record
     "d2b_perorder.tex",                # processing steps and their checks, per-order record
