@@ -323,7 +323,10 @@ def fig_d3() -> None:
 
 
 def main() -> None:
-    fig_d1()
+    # fig_d1 is NOT called. The coverage figure was withdrawn from the Data chapter on
+    # 2026-08-13: its content is stated numerically in the prose, and the bias claim it
+    # illustrated is made statistically in section 3.5. The builder is kept because the
+    # measurement behind it is still the source for those numbers.
     fig_d2()
     fig_d3()
 

@@ -227,7 +227,10 @@ def table_d1b_instrument() -> str:
          r"\midrule"]
     for s, q, v in panel_a:
         L.append(f"{s} & {q} & {v} \\\\")
-    L += [note + r"{\footnotesize Measured on the reconstructed half-second book, "
+    # "reconstructed half-second book" did not say reconstructed FROM WHAT, so a marker reading
+    # the float alone could not place Panel A's basis. Named 2026-08-13.
+    L += [note + r"{\footnotesize Measured on the December book reconstructed from the "
+          r"per-order records at half-second intervals, "
           + n(sp["n_samples"]) + r" observations. The mid-quote is the median across the "
           + f"month's {sp['n_days']} daily medians, and the relative tick follows from it."
           + r"} \\",
@@ -282,8 +285,7 @@ def table_d2() -> str:
          f"change from the previous {p['return_lookback']}. If any minute inside either stretch "
          f"is absent, the variable cannot be computed and the minute is discarded rather than "
          f"estimated by interpolation",
-         f"no {p['vol_window']}-minute window is ever completed across absent minutes; "
-         "\\Cref{fig:d1-coverage} shows where the loss falls"),
+         f"no {p['vol_window']}-minute window is ever completed across absent minutes"),
         ("cutting the data into episodes",
          f"{n(s4['feature_valid_rows'])} usable minutes became {n(s6['rows'])}. The "
          f"{n(dropped)} difference is minutes left over at the ends, too few to complete an "
