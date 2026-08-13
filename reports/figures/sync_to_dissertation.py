@@ -35,6 +35,7 @@ SRC_DIRS = [
     SRC_ROOT / "l2",
     SRC_ROOT / "sigext" / "main_body",
     SRC_ROOT / "sigext" / "appendix",
+    SRC_ROOT / "methodology",
 ]
 
 

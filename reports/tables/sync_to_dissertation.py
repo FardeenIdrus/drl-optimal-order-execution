@@ -40,6 +40,12 @@ WANTED = [
     "t3_sealed_confirmations.tex",     # the two sealed reactive confirmations
     "t4_robustness_grid.tex",          # size x deadline grid
     "t5_env_validation.tex",           # environment validation gates
+    # Methodology chapter
+    "m1_provenance.tex",               # inherited implementation against what this study built
+    "m2_tracks.tex",                   # the three environments: design and scale
+    "m3_injected_gates.tex",           # the injected environment's certification
+    "m4_register.tex",                 # what was registered, and what happened
+    "a1_observation.tex",              # APPENDIX: every observation input, all three environments
     "t7_l2_summary.tex",               # frozen-replay arms, validation + sealed exam
     "ts4_sigext_exploiter.tex",        # exploiter ceiling
     "ts6_sigext_sealed.tex",           # sealed exhibit, injected environment
@@ -60,6 +66,11 @@ WANTED = [
     "ts2_sigext_dev_verdicts.tex",
     "ts3_sigext_per_run.tex",
     "ts5_sigext_base_env.tex",
+    # Per-run disclosure for the arrival-price campaigns. Every other campaign in the appendix
+    # is published run by run; these three were reported as group means only until 2026-08-12.
+    "ts10_sigext_obsfix_per_run.tex",   # injected market, 38 runs (A4 + A4.1 + A4.2)
+    "t14_primary_obsfix_perrun.tex",    # primary market, 20 runs (A4.3)
+    "t15_a5_sealed_perrun.tex",         # sealed block 25e6, 25 evaluations (A5 arms A and B)
 ]
 
 

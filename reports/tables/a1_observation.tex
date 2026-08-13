@@ -1,0 +1,38 @@
+\begin{tabular}{@{}p{0.06\linewidth}p{0.12\linewidth}p{0.20\linewidth}p{0.50\linewidth}@{}}
+\toprule
+\multicolumn{4}{@{}l}{\textbf{Panel A. Recorded order books, 7 inputs}} \\
+\midrule
+\# & \multicolumn{2}{l}{Input} & Definition \\
+\midrule
+1 & \multicolumn{2}{l}{Inventory remaining} & $2\,(\text{remaining} / \text{initial}) - 1$ \\
+2 & \multicolumn{2}{l}{Time remaining} & $2\,(\text{decisions left} / \text{total}) - 1$ \\
+3 & \multicolumn{2}{l}{Spread} & mean spread $/$ mid-quote $\times 10^{4}$, in basis points \\
+4 & \multicolumn{2}{l}{Queue imbalance} & (bid $-$ ask size) $/$ (bid $+$ ask size), mean sizes over the top five levels \\
+5 & \multicolumn{2}{l}{Recent return} & log change in the mid-quote over the preceding five minutes \\
+6 & \multicolumn{2}{l}{Rolling volatility} & square root of the realised variance accumulated over the preceding thirty minutes \\
+7 & \multicolumn{2}{l}{Ask depth} & mean ask size over the top five levels \\
+\multicolumn{4}{@{}p{\dimexpr0.88\linewidth+6\tabcolsep}@{}}{\footnotesize Inputs 3 to 7 are standardised by a normaliser fitted on the training split alone. Window lengths are specified in clock time and converted to a bar count for each dataset, so the same interval applies at both resolutions.} \\
+\addlinespace[0.6em]
+\midrule
+\multicolumn{4}{@{}l}{\textbf{Panel B. Reacting simulator, 27 inputs}} \\
+\midrule
+\# & Group & Input & Definition \\
+\midrule
+1 & Inventory & Quantity remaining & remaining $/$ order size \\
+2 & Time & Time remaining & $1 - (\text{decisions taken} / \text{total})$ \\
+3--22 & Book & Queue sizes & $\log(1 + \text{size})$ at each of 10 price levels per side, in queue units \\
+23 & Book & Spread & spread in ticks $/\,10$ \\
+24 & Own fills & Last fill & queue units bought at the previous decision \\
+25 & Own fills & Cumulative fills & fraction of the parent order bought so far \\
+26 & Market flow & Traded volume & $\log(1 + \text{units traded})$ over the preceding thirty seconds \\
+27 & Market flow & Net buying pressure & signed log of net units bought less sold, same window \\
+\multicolumn{4}{@{}p{\dimexpr0.88\linewidth+6\tabcolsep}@{}}{\footnotesize A queue unit is the average order size measured at the level concerned, so its size in BTC differs by level. The accumulation threshold in \Cref{sec:meth-problem} is one unit at the best price.} \\
+\addlinespace[0.6em]
+\midrule
+\multicolumn{4}{@{}l}{\textbf{Panel C. Injected simulator, 28 inputs}} \\
+\midrule
+\multicolumn{4}{@{}p{\dimexpr0.88\linewidth+6\tabcolsep}@{}}{Inputs 1 to 27 exactly as Panel B, plus:} \\
+28 & Signal & Injected signal & value at the current step, in basis points \\
+\bottomrule
+\multicolumn{4}{@{}p{\dimexpr0.88\linewidth+6\tabcolsep}@{}}{\footnotesize The registered amendment adds one input to each simulator, giving 28 and 29: the price relative to arrival, (mid-quote $-$ arrival mid-quote) $/$ arrival mid-quote $\times 10^{4}$, in basis points. The recorded-book environment was never re-trained under it and remains at 7.} \\
+\end{tabular}

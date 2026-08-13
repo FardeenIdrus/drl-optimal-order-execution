@@ -235,9 +235,15 @@ def injected_gates() -> None:
              f"{f['background_drift_ticks_per_ep']:.2f}; "
              f"{f['background_drift_bps']:.3f}; $t={f['background_drift_t']:.2f}$",
              r"$|t|<2$ \textbf{or} $|\mathrm{mean}|\leq0.5$", tick(f["drift_pass"])],
+            # BAND LABEL CORRECTED 2026-08-12. It read "none material", which is FALSE for
+            # volatile: its best pace is -0.0859 bps, 1.7x the 0.05 materiality floor. The
+            # gate requires an advantage to be BOTH material AND significant, and volatile
+            # passes on the second clause only. Stating the wrong reason for a pass is the
+            # same defect the drift row two lines above is built to avoid.
             [reg, "no fixed pace beats TWAP (best of seven paces, bps vs TWAP)",
              f"{best['cost_vs_twap_bps']:+.4f} at ${best['mult']:g}\\times$ "
-             f"($t={best['t']:.2f}$)", "none material", tick(f["gradient_pass"])],
+             f"($t={best['t']:.2f}$)",
+             r"none both material \emph{and} significant", tick(f["gradient_pass"])],
             [reg, "the injected signal reproduces the real slope (worst gated horizon)",
              f"{worst['rel_gap']:.1%} at {worst_h}\\,s".replace("%", r"\%"),
              r"$\leq 20\%$, all gated horizons",
@@ -251,7 +257,13 @@ def injected_gates() -> None:
             r"omitted --- in the volatile regime a $0.5$-tick bound is below the resolution of "
             r"any feasible episode count (noise floor ${\sim}1.6$ ticks at $n=8{,}000$), so "
             r"certification rests on the significance clause together with the pace-gradient "
-            r"row, which tests exploitability directly. Absolute simulated costs are "
+            r"row, which tests exploitability directly. \textbf{The constant-pace row passes "
+            r"on the second clause, not the first:} the largest advantage any fixed pace holds "
+            r"is $-0.086$ bps in the volatile regime, which exceeds the $0.05$ bps materiality "
+            r"floor but is not statistically distinguishable from zero, so no fixed timing rule "
+            r"profits. \Cref{tab:t5} is the base environment's counterpart; the "
+            r"signal-matching row has no equivalent there, because there is no injected signal "
+            r"to match. Absolute simulated costs are "
             r"understated ${\sim}2.2\times$ against real book-walking; the cost-growth row "
             r"measures the \emph{slope}, which matches, not the level, which does not.")
     _w("m3_injected_gates.tex", _tabular(
@@ -259,11 +271,96 @@ def injected_gates() -> None:
         ["Regime", "What the check asks", "Measured", "Registered band", "Pass"], rows, note))
 
 
+# --------------------------------------------------------------- tab:m-register
+# DECLARED EXCEPTION (see the module docstring). A registration's MEANING -- what it fixed,
+# whether the prediction it carried came true -- is a human designation recorded in the frozen
+# ledger, not derivable from any file. Every row therefore carries the ledger line that
+# settles it, and the ledger is under version control so the dates are checkable by someone
+# other than its author. Numeric thresholds quoted in the rows are the ledger's own.
+REGISTER_ROWS = [
+    # (what was fixed, when relative to the data, the written prediction, outcome, source)
+    ("The definition of an edge: all four conditions together",
+     "before any evaluation data were seen", "---", "applied unchanged",
+     "criteria section 3, lines 60--64"),
+    ("Materiality floor of $0.05$ bps on the mean saving",
+     "before any evaluation data were seen", "---", "applied unchanged",
+     "criteria section 3, line 63"),
+    ("Significance level of $0.01$ on the paired test",
+     "before any evaluation data were seen", "---", "applied unchanged",
+     "criteria section 3, line 61"),
+    ("Six simulator validation checks and their pass bands",
+     "before any agent was trained", "all six pass", "held; all six passed",
+     "criteria section 2"),
+    ("Behaviour audit: exclusion above one unit left to the deadline in more than "
+     "one episode in ten",
+     "before any agent was scored", "plain TWAP itself passes at every order size",
+     "held; worst case $0.010$ against a $0.10$ cap",
+     "criteria sections 4, 4b, 7.4"),
+    ("Which episode pool serves which purpose, and one-shot use of each sealed pool",
+     "before any pool was opened", "---", "applied unchanged; every sealed pool spent once",
+     "criteria section 3; seed-disjointness audit"),
+    ("Injected signal must reproduce the measured venue slope within $\\pm20\\%$",
+     "before the injection was certified", "the band is reachable at every gated horizon",
+     "held; worst gated horizon $17.6\\%$", "criteria section 8"),
+    ("First sealed confirmation, agents",
+     "before the pool was opened",
+     "no agent meets the edge rule; pooled difference within noise of zero",
+     "\\textbf{held}", "criteria A1; results log (K)"),
+    ("First sealed confirmation, the rule-based follower",
+     "before the pool was opened",
+     "cheaper than the benchmark beyond the materiality floor, both regimes",
+     "\\textbf{held}", "criteria A1; results log (L)"),
+    ("Adding the arrival price to the observation, policy-gradient learner",
+     "before the agents were re-trained",
+     "the predicted-score estimate improves above $0.10$; the cost verdict does not change",
+     "\\textbf{both held} ($0.42$ against a bar of $0.10$)",
+     "criteria A4; results log (Y23)"),
+    ("Adding the arrival price to the observation, value learner",
+     "before the agents were re-trained",
+     "the spread between action values at least doubles; invalid runs fall to 4--7 of 10",
+     "\\textbf{value spread held; the invalid-run prediction FAILED} --- 10 of 10, "
+     "marginally worse",
+     "criteria A4.2; results log at 2101"),
+    ("Comparator schedules lose on cost by construction once risk aversion is positive",
+     "stated in advance of the comparator runs", "every such schedule is costlier",
+     "\\textbf{FAILED} --- all differences statistically indistinguishable from zero; "
+     "recorded as a correction, not amended away",
+     "criteria A3.2"),
+    ("Identity check between the zero-urgency schedule and adaptive TWAP",
+     "before the check was run",
+     "costs agree within $0.02$ bps and actions agree at $95\\%$",
+     "\\textbf{cost held by two orders of magnitude; the action clause FAILED at "
+     "$94.6/94.8\\%$} and the bar was amended after the achievable ceiling was measured "
+     "at $94.67/94.78\\%$, labelled post hoc wherever cited",
+     "criteria A3.1, lines 1230--1239"),
+]
+
+
+def register() -> None:
+    rows = [[w, when, pred, out] for (w, when, pred, out, _src) in REGISTER_ROWS]
+    held = sum(1 for r in REGISTER_ROWS if "FAILED" not in r[3])
+    failed = len(REGISTER_ROWS) - held
+    note = (rf"Every entry was written down and dated before the run it governs, in a ledger "
+            rf"held under version control, so the ordering is checkable by someone other than "
+            rf"its author. {failed} of {len(REGISTER_ROWS)} predictions were falsified by their "
+            rf"own tests and are recorded here as such, with the diagnosis attached rather than "
+            rf"the threshold moved. The one exception, the action-agreement clause, was amended "
+            rf"only after the mechanically achievable maximum was measured and found to lie "
+            rf"below the registered bar; it is labelled post hoc wherever it is cited. "
+            rf"\textbf{{The research questions were not part of this registration}}: the "
+            rf"decision rules, thresholds, pool assignments and per-amendment predictions were.")
+    _w("m4_register.tex", _tabular(
+        "@{}p{0.26\\linewidth}p{0.16\\linewidth}p{0.26\\linewidth}p{0.28\\linewidth}@{}",
+        ["What was fixed", "When", "The written prediction", "What happened"], rows, note))
+    print(f"    ({held} held, {failed} falsified -- the falsified ones are the point)")
+
+
 def main() -> None:
     print("Methodology tables:")
     provenance()
     tracks()
     injected_gates()
+    register()
     print("\nCAPTION OBLIGATIONS -- copy into the chapter, do not paraphrase:")
     print("  m1 provenance : the left column describes the paper AND its released code; the")
     print("                  book depth is not in the paper and comes from default.yaml.")
@@ -271,6 +368,8 @@ def main() -> None:
           f"{CEN['directories_overstate_by']}; the recorded-book budget is not uniform.")
     print("  m3 inj. gates : print the 25% band beside the volatile cost-growth gap; the drift")
     print("                  row must carry BOTH statistics and the disjunction; caveat C6.")
+    print("  m4 register   : the falsified predictions are the evidence the protocol is real;")
+    print("                  the caption must say the research questions were NOT registered.")
 
 
 if __name__ == "__main__":

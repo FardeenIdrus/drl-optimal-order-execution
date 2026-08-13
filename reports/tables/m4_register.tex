@@ -1,0 +1,20 @@
+\begin{tabular}{@{}p{0.26\linewidth}p{0.16\linewidth}p{0.26\linewidth}p{0.28\linewidth}@{}}
+\toprule
+\textbf{What was fixed} & \textbf{When} & \textbf{The written prediction} & \textbf{What happened} \\
+\midrule
+The definition of an edge: all four conditions together & before any evaluation data were seen & --- & applied unchanged \\
+Materiality floor of $0.05$ bps on the mean saving & before any evaluation data were seen & --- & applied unchanged \\
+Significance level of $0.01$ on the paired test & before any evaluation data were seen & --- & applied unchanged \\
+Six simulator validation checks and their pass bands & before any agent was trained & all six pass & held; all six passed \\
+Behaviour audit: exclusion above one unit left to the deadline in more than one episode in ten & before any agent was scored & plain TWAP itself passes at every order size & held; worst case $0.010$ against a $0.10$ cap \\
+Which episode pool serves which purpose, and one-shot use of each sealed pool & before any pool was opened & --- & applied unchanged; every sealed pool spent once \\
+Injected signal must reproduce the measured venue slope within $\pm20\%$ & before the injection was certified & the band is reachable at every gated horizon & held; worst gated horizon $17.6\%$ \\
+First sealed confirmation, agents & before the pool was opened & no agent meets the edge rule; pooled difference within noise of zero & \textbf{held} \\
+First sealed confirmation, the rule-based follower & before the pool was opened & cheaper than the benchmark beyond the materiality floor, both regimes & \textbf{held} \\
+Adding the arrival price to the observation, policy-gradient learner & before the agents were re-trained & the predicted-score estimate improves above $0.10$; the cost verdict does not change & \textbf{both held} ($0.42$ against a bar of $0.10$) \\
+Adding the arrival price to the observation, value learner & before the agents were re-trained & the spread between action values at least doubles; invalid runs fall to 4--7 of 10 & \textbf{value spread held; the invalid-run prediction FAILED} --- 10 of 10, marginally worse \\
+Comparator schedules lose on cost by construction once risk aversion is positive & stated in advance of the comparator runs & every such schedule is costlier & \textbf{FAILED} --- all differences statistically indistinguishable from zero; recorded as a correction, not amended away \\
+Identity check between the zero-urgency schedule and adaptive TWAP & before the check was run & costs agree within $0.02$ bps and actions agree at $95\%$ & \textbf{cost held by two orders of magnitude; the action clause FAILED at $94.6/94.8\%$} and the bar was amended after the achievable ceiling was measured at $94.67/94.78\%$, labelled post hoc wherever cited \\
+\bottomrule
+\multicolumn{4}{@{}p{\linewidth}@{}}{\footnotesize Every entry was written down and dated before the run it governs, in a ledger held under version control, so the ordering is checkable by someone other than its author. 3 of 13 predictions were falsified by their own tests and are recorded here as such, with the diagnosis attached rather than the threshold moved. The one exception, the action-agreement clause, was amended only after the mechanically achievable maximum was measured and found to lie below the registered bar; it is labelled post hoc wherever it is cited. \textbf{The research questions were not part of this registration}: the decision rules, thresholds, pool assignments and per-amendment predictions were.} \\
+\end{tabular}
