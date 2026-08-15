@@ -1,4 +1,9 @@
-# L2 TRACK — SEALED TEST-SET EVALUATION PROTOCOL (pre-registered 2026-07-14; NOT YET RUN)
+# L2 TRACK — SEALED TEST-SET EVALUATION PROTOCOL (pre-registered 2026-07-14; EXECUTED ONCE 2026-07-30, BLOCK SPENT)
+
+**STATUS.** The exam ran once on 2026-07-30 and the block is spent. The result is the
+`SEALED EXAM RESULT` section below, with sources at `scratch_hyperliquid/l2_test_results`.
+Every "NOT RUN" statement earlier in this file sits inside a dated entry that predates the
+exam; those are left exactly as written, because the file is append-only.
 
 Written BEFORE the evaluation executes, per the project's standing rule (rules first, results
 after). Execution slot per the agreed order: AFTER the 66-run QRM grid is trained and judged,

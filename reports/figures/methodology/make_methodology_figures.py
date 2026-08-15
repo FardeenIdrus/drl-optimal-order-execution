@@ -1,6 +1,6 @@
 """The Methodology chapter's two diagrams and one rebuild.
 
-  fig:m-problem       the decision problem and the policy network, one schematic
+  fig:m-problem       the decision problem and the network, one schematic
   fig:m-architecture  the evaluation ladder (rebuild: the outcome box is removed and the
                       episode-pool panel is widened from one environment to three)
   fig:m-signal        handled by the existing injection-fidelity builder; not redrawn here
@@ -60,7 +60,7 @@ def _arrow(ax, x1, y1, x2, y2, text="", fs=7.6, dx=0.10, style="-|>"):
 
 # ------------------------------------------------------------------- fig:m-problem
 def problem_and_network() -> None:
-    """What the agent sees, what it may do, and how the two are connected.
+    """The observation, the action set, and how the two are connected.
 
     The diagram has to do analytical work, not decorate. Two things it shows that prose
     cannot: the benchmark sits INSIDE the action set (the 1.0 rung is labelled as such and
@@ -69,12 +69,12 @@ def problem_and_network() -> None:
     """
     g = OBS["groups"]
     total = OBS["reacting_simulator"]["base"]
-    fig, ax = plt.subplots(figsize=(10.4, 5.0))
+    fig, ax = plt.subplots(figsize=(10.4, 5.9))
     ax.set_xlim(0, 10); ax.set_ylim(1.20, 9.95); ax.axis("off")
 
     # --- observation, drawn to scale so the queue block visibly dominates ---------------
-    ax.text(1.6, 9.42, "What the agent sees", fontsize=9.8, weight="bold", ha="center")
-    ax.text(1.6, 9.04, f"{total} numbers, each decision", fontsize=8.0, ha="center")
+    ax.text(1.6, 9.42, "Observation", fontsize=10.6, weight="bold", ha="center")
+    ax.text(1.6, 9.04, f"{total} inputs per decision", fontsize=8.8, ha="center")
     order = ["queue sizes", "own fills", "trailing market flow",
              "inventory", "time remaining", "spread"]
     y, TOP = 8.62, 8.62
@@ -82,49 +82,47 @@ def problem_and_network() -> None:
         n = g[name]
         h = max(0.30, 3.0 * n / total)
         _box(ax, 0.30, y - h, 2.60, h, f"{name}  ({n})", BLUE if n > 2 else GREY,
-             fs=8.2 if n > 2 else 7.5)
+             fs=8.8 if n > 2 else 8.2)
         y -= h + 0.13
     OBS_BOT = y + 0.13
-    ax.text(1.6, OBS_BOT - 0.26, "boxes drawn to scale", fontsize=7.0, ha="center",
-            style="italic", color="#555555")
 
     # --- network -------------------------------------------------------------------------
     NET_MID = (TOP + OBS_BOT) / 2
-    ax.text(4.75, 7.92, "Inherited shape", fontsize=9.0, weight="bold", ha="center")
+    ax.text(4.75, 7.92, "Hidden layers, from Espa\u00f1a et al.", fontsize=10.0, weight="bold", ha="center")
     _box(ax, 3.50, NET_MID - 1.05, 2.50, 2.10,
-         "Policy network\n5 layers of 30 units\n\nalso tested\n2 layers of 64\n2 layers of 128",
-         GREY, fs=8.2)
+         "Shared by both agents\n5 layers of 30 units\n\nalso tested\n2 layers of 64\n2 layers of 128",
+         GREY, fs=8.8)
     _arrow(ax, 2.98, NET_MID, 3.44, NET_MID)
 
     # --- actions: the grid, with the benchmark rung marked -------------------------------
-    ax.text(8.15, 9.42, "What the agent may do", fontsize=9.8, weight="bold", ha="center")
-    ax.text(8.15, 9.04, "one choice per decision", fontsize=8.0, ha="center")
+    ax.text(8.15, 9.42, "Action set", fontsize=10.6, weight="bold", ha="center")
+    ax.text(8.15, 9.04, "one choice per decision", fontsize=8.8, ha="center")
     mult = GRID["multiples"]
     x0, w, rh = 6.62, 3.06, 0.47
     for i, m in enumerate(mult):
         yy = TOP - i * rh
         is_twap = m == GRID["twap_action"]
         _box(ax, x0, yy - rh + 0.05, w, rh - 0.05,
-             f"{m:g} x the even pace" + ("      the benchmark" if is_twap else ""),
-             GREEN if is_twap else GREY, fs=8.2,
+             f"{m:g} x the TWAP pace" + ("      the benchmark" if is_twap else ""),
+             GREEN if is_twap else GREY, fs=8.8,
              weight="bold" if is_twap else "normal")
     ACT_BOT = TOP - len(mult) * rh + 0.05
     ax.text(8.15, ACT_BOT - 0.40, "the benchmark is one of the choices",
-            fontsize=8.0, ha="center", weight="bold", color=INK)
+            fontsize=8.6, ha="center", weight="bold", color=INK)
     _arrow(ax, 6.06, NET_MID, 6.56, NET_MID)
 
     # --- the loop, on its own row so nothing overlaps -------------------------------------
     LY, LH = 1.55, 1.05
-    _box(ax, 6.62, LY, 3.06, LH, "Market\nthe order book responds", BLUE, fs=8.6)
-    _box(ax, 3.50, LY, 2.50, LH, "Score\ncost against the price\nat the moment of arrival",
-         GREEN, fs=8.4)
-    _box(ax, 0.30, LY, 2.60, LH, "Next decision\nthe book has moved on", GREY, fs=8.4)
+    _box(ax, 6.62, LY, 3.06, LH, "Order book\nabsorbs the trade and moves", BLUE, fs=9.0)
+    _box(ax, 3.50, LY, 2.50, LH, "Reward\nnegative shortfall against\nthe arrival mid-quote",
+         GREEN, fs=9.0)
+    _box(ax, 0.30, LY, 2.60, LH, "Next decision\none second later", GREY, fs=9.0)
     _arrow(ax, 8.15, ACT_BOT - 0.70, 8.15, LY + LH + 0.04)
     _arrow(ax, 6.56, LY + LH / 2, 6.06, LY + LH / 2)
     _arrow(ax, 3.44, LY + LH / 2, 2.96, LY + LH / 2)
     _arrow(ax, 1.60, LY + LH + 0.04, 1.60, OBS_BOT - 0.48)
 
-    ax.set_title("The decision problem and the policy network", fontsize=11.5, color=INK)
+    # No in-figure title: the caption carries it, and printing both repeats the words.
     _save(fig, "fig_m_problem")
 
 

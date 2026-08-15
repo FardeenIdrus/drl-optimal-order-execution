@@ -1,0 +1,39 @@
+\begin{tabular}{@{}p{0.18\linewidth}p{0.12\linewidth}p{0.12\linewidth}p{0.15\linewidth}p{0.29\linewidth}@{}}
+\toprule
+\multicolumn{5}{@{}l}{\textbf{Panel A. DQN, the value-based agent}} \\
+\midrule
+Setting & Library & Espa\~na et al. & Used here & Source \\
+\midrule
+hidden layers & $64\times2$ & $30\times5$ & $30\times5$ & Espa\~na et al. \\
+activation & ReLU & LeakyReLU & LeakyReLU & Espa\~na et al. \\
+learning rate & 0.0001 & 0.0001 & 0.0001 & Espa\~na et al., matching the library \\
+replay buffer & 1{,}000{,}000 & 1{,}000{,}000 & 1{,}000{,}000 & Espa\~na et al., matching the library \\
+batch size & 32 & 1{,}024 & 1{,}024 & Espa\~na et al. \\
+learning starts & 100 & 40{,}000 & 40{,}000 & Espa\~na et al. \\
+update frequency & 4 & 100 & 100 & Espa\~na et al. \\
+gradient steps & 1 & 1 & 1 & Espa\~na et al., matching the library \\
+target update & 10{,}000 & 1{,}000 & 1{,}000 & Espa\~na et al. \\
+n-step returns & 1 & 1 & 1 & Espa\~na et al., matching the library \\
+initial exploration & 1.0 & 1.0 & 1.0 & Espa\~na et al., matching the library \\
+final exploration & 0.05 & 0.01 & 0.01 & Espa\~na et al. \\
+exploration anneal & 0.1 & 0.03 & 0.25 & \textbf{this study} \\
+discount factor & 0.99 & 0.995 & 0.999916 & Espa\~na et al.'s rate, converted here \\
+\addlinespace[0.6em]
+\midrule
+\multicolumn{5}{@{}l}{\textbf{Panel B. PPO, the policy-gradient agent}} \\
+\midrule
+Setting & Library & Espa\~na et al. & Used here & Source \\
+\midrule
+hidden layers & $64\times2$ & $30\times5$ & $30\times5$ & Espa\~na et al. \\
+activation & Tanh & LeakyReLU & LeakyReLU & Espa\~na et al. \\
+learning rate & 0.0003 & -- & 0.0003 & library \\
+rollout length & 2{,}048 & -- & 2{,}048 & library \\
+batch size & 64 & -- & 64 & library \\
+epochs & 10 & -- & 10 & library \\
+GAE lambda & 0.95 & -- & 0.95 & library \\
+clipping range & 0.2 & -- & 0.2 & library \\
+entropy coefficient & 0.0 & -- & 0.01 & \textbf{this study} \\
+discount factor & 0.99 & 0.995 & 0.999916 & Espa\~na et al.'s rate, converted here \\
+\bottomrule
+\multicolumn{5}{@{}p{\dimexpr0.86\linewidth+8\tabcolsep}@{}}{\footnotesize Library values are Stable-Baselines3 2.9.0's; a dash means the parameter does not exist for that agent. The discount shown is the one-second simulators'. The exploration anneal is a share of the post-warm-up budget, not the library parameter of the same name.} \\
+\end{tabular}
