@@ -139,7 +139,7 @@ def provenance() -> None:
     note = (r"The left column describes \emph{both} the paper and its released implementation. "
             r"Rows parsed from the authors' own configuration file "
             r"(\texttt{src/qrm\_rl/configs/default.yaml}, MIT licence, vendored at commit "
-            r"\texttt{c066726}, working tree clean): book depth, observation, actions, learner, "
+            r"\texttt{c066726}, working tree clean): book depth, observation, actions, agent, "
             r"episode and reward penalty. The book depth in particular is \emph{not} stated "
             r"numerically in the paper and is verifiable only from that file.")
     _w("m1_provenance.tex", _tabular("@{}p{0.15\\linewidth}p{0.34\\linewidth}p{0.44\\linewidth}@{}",
@@ -207,18 +207,18 @@ def injected_gates() -> None:
         best = min(grad, key=lambda p: p["cost_vs_twap_bps"])
         tick = lambda ok: r"\checkmark" if ok else r"$\times$"  # noqa: E731
         rows += [
-            [reg, "the agent's own buying moves the price (2nd dump / 1st, cost ratio)",
+            [reg, "a purchase moves the price, and the move persists (second immediate purchase / first, cost ratio)",
              f"{g1['self_impact_ratio_primary']:.2f}", r"$\geq 1.25$", tick(g1["pass"])],
-            [reg, "and moves it more with size (Spearman $\\rho$ over the size ladder)",
+            [reg, "cost of an immediate purchase rises with its size (Spearman $\\rho$)",
              f"{g1['spearman_rho']:.2f}", r"$> 0$", tick(g1["pass"])],
-            [reg, "cost grows with size as in the real book (sim vs real $1\\to10$u ratio)",
+            [reg, "cost rises with size as it does on Hyperliquid (simulator vs Hyperliquid ratio)",
              f"{g2['growth_ratio_sim']:.2f} vs {g2['growth_ratio_real']:.2f} "
              f"({g2['rel_gap']:.1%} apart)".replace("%", r"\%"),
              r"within $25\%$", tick(g2["pass"])],
             [reg, "fixed TWAP completes every episode",
              f"{g3['twap_completion_rate']:.0%}".replace("%", r"\%"), r"$\geq 99\%$",
              tick(g3["pass"])],
-            [reg, "no background drift (ticks/episode; bps; $t$)",
+            [reg, "no background price drift (ticks per episode; bps; $t$)",
              f"{f['background_drift_ticks_per_ep']:.2f}; "
              f"{f['background_drift_bps']:.3f}; $t={f['background_drift_t']:.2f}$",
              r"$|t|<2$ \textbf{or} $|\mathrm{mean}|\leq0.5$", tick(f["drift_pass"])],
@@ -227,7 +227,10 @@ def injected_gates() -> None:
             # gate requires an advantage to be BOTH material AND significant, and volatile
             # passes on the second clause only. Stating the wrong reason for a pass is the
             # same defect the drift row two lines above is built to avoid.
-            [reg, "no fixed pace beats TWAP (best of seven paces, bps vs TWAP)",
+            # COUNT CORRECTED 2026-08-18: SIX paces are tested, not seven.
+            # step3g.py:544 mults = [0.5, 0.8, 1.0, 1.2, 1.5, 2.0]; the seventh action,
+            # 0.0, never trades and so cannot be a completing constant-pace policy.
+            [reg, "no constant pace beats TWAP (best of six paces, bps vs TWAP)",
              f"{best['cost_vs_twap_bps']:+.4f} at ${best['mult']:g}\\times$ "
              f"($t={best['t']:.2f}$)",
              r"none both material \emph{and} significant", tick(f["gradient_pass"])],
@@ -236,26 +239,15 @@ def injected_gates() -> None:
              r"$\leq 20\%$, all gated horizons",
              tick(all(v["pass"] for v in gated.values()))],
         ]
-    note = (r"Every check was specified, with its pass band, before any agent was trained in "
-            r"this environment; all pass. \textbf{Two bands need reading with the number.} "
-            r"The cost-growth band is $25\%$ relative, so the volatile gap sits inside it. "
-            r"The drift criterion is a disjunction: calm meets both clauses, volatile meets "
-            r"the significance clause only, and its magnitude is disclosed above rather than "
-            r"omitted --- in the volatile regime a $0.5$-tick bound is below the resolution of "
-            r"any feasible episode count (noise floor ${\sim}1.6$ ticks at $n=8{,}000$), so "
-            r"certification rests on the significance clause together with the pace-gradient "
-            r"row, which tests exploitability directly. \textbf{The constant-pace row passes "
-            r"on the second clause, not the first:} the largest advantage any fixed pace holds "
-            r"is $-0.086$ bps in the volatile regime, which exceeds the $0.05$ bps materiality "
-            r"floor but is not statistically distinguishable from zero, so no fixed timing rule "
-            r"profits. \Cref{tab:t5} is the base environment's counterpart; the "
-            r"signal-matching row has no equivalent there, because there is no injected signal "
-            r"to match. Absolute simulated costs are "
-            r"understated ${\sim}2.2\times$ against real book-walking; the cost-growth row "
-            r"measures the \emph{slope}, which matches, not the level, which does not.")
+    # FOOTER DELETED 2026-08-18. It ran to ~200 words and ARGUED: the disjunction defence,
+    # the materiality-vs-significance point, the tab:t5 comparison and the cost-level caveat
+    # are all body prose for the injected-signal section. Captions describe; the argument goes
+    # in the text (CARLO_REVISION_PASS.md:41-44). It also printed the cost gap as "~2.2x",
+    # which step4_gates_v3.json measures at 2.72 calm / 2.35 volatile, and used "dump", now
+    # removed document-wide.
     _w("m3_injected_gates.tex", _tabular(
-        "@{}llp{0.26\\linewidth}p{0.2\\linewidth}c@{}",
-        ["Regime", "What the check asks", "Measured", "Registered band", "Pass"], rows, note))
+        "@{}lp{0.33\\linewidth}p{0.21\\linewidth}p{0.18\\linewidth}c@{}",
+        ["Regime", "What the check asks", "Measured", "Registered band", "Pass"], rows))
 
 
 # --------------------------------------------------------------- tab:m-register
@@ -297,12 +289,12 @@ REGISTER_ROWS = [
      "before the pool was opened",
      "cheaper than the benchmark beyond the materiality floor, both regimes",
      "\\textbf{held}", "criteria A1; results log (L)"),
-    ("Adding the arrival price to the observation, policy-gradient learner",
+    ("Adding the arrival price to the observation, policy-gradient agent",
      "before the agents were re-trained",
      "the predicted-score estimate improves above $0.10$; the cost verdict does not change",
      "\\textbf{both held} ($0.42$ against a bar of $0.10$)",
      "criteria A4; results log (Y23)"),
-    ("Adding the arrival price to the observation, value learner",
+    ("Adding the arrival price to the observation, value-based agent",
      "before the agents were re-trained",
      "the spread between action values at least doubles; invalid runs fall to 4--7 of 10",
      "\\textbf{value spread held; the invalid-run prediction FAILED} --- 10 of 10, "

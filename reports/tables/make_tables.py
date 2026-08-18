@@ -338,7 +338,7 @@ def t5_env_validation():
             (reg, "no background price drift (ticks per episode; $t$)",
              f"{f['background_drift_ticks_per_ep']:.2f} ($t$={f['background_drift_t']:.2f})",
              "$t$ not significant", f["drift_pass"]),
-            (reg, "no constant pace beats TWAP (largest $|t|$ across paces)",
+            (reg, "no constant pace beats TWAP (largest $|t|$ across the six paces)",
              f"{grad_max_t:.2f}", "none significant", f["gradient_pass"]),
         ]
     lines = [

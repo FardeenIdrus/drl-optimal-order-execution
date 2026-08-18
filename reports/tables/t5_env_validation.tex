@@ -10,7 +10,7 @@ calm & cost rises with size as it does on Hyperliquid (simulator vs Hyperliquid 
 calm & fixed TWAP completes every episode & 100\% & $\geq 99\%$ & PASS \\
 calm & buying all at once costs more than scheduling (immediate / TWAP, bps) & 0.40 / 0.20 & immediate $\geq$ TWAP & PASS \\
 calm & no background price drift (ticks per episode; $t$) & 0.12 ($t$=0.27) & $t$ not significant & PASS \\
-calm & no constant pace beats TWAP (largest $|t|$ across paces) & 1.42 & none significant & PASS \\
+calm & no constant pace beats TWAP (largest $|t|$ across the six paces) & 1.42 & none significant & PASS \\
 volatile & a purchase moves the price, and the move persists (second immediate purchase / first, cost ratio) & 2.35 & $\geq 1.25$ & PASS \\
 volatile & cost of an immediate purchase rises with its size (Spearman $\rho$) & 1.00 & $> 0$ & PASS \\
 volatile & the book refills after a purchase (probe cost 30\,s later vs 1\,s later, bps) & -0.23 vs 0.14 & lower at 30\,s & PASS \\
@@ -18,6 +18,6 @@ volatile & cost rises with size as it does on Hyperliquid (simulator vs Hyperliq
 volatile & fixed TWAP completes every episode & 100\% & $\geq 99\%$ & PASS \\
 volatile & buying all at once costs more than scheduling (immediate / TWAP, bps) & 0.24 / 0.05 & immediate $\geq$ TWAP & PASS \\
 volatile & no background price drift (ticks per episode; $t$) & 0.07 ($t$=0.06) & $t$ not significant & PASS \\
-volatile & no constant pace beats TWAP (largest $|t|$ across paces) & 1.77 & none significant & PASS \\
+volatile & no constant pace beats TWAP (largest $|t|$ across the six paces) & 1.77 & none significant & PASS \\
 \bottomrule
 \end{tabular}

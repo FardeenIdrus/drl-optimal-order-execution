@@ -162,7 +162,7 @@ def fig_s1_injection_fidelity() -> None:
         ax.set_title(f"{regime}  (gated horizons shaded)")
         if ax is axes[0]:
             ax.set_ylabel("predictive slope (bps per unit imbalance)")
-    handles = [Line2D([], [], color=INK, marker="o", lw=1.8, label="measured from venue data"),
+    handles = [Line2D([], [], color=INK, marker="o", lw=1.8, label="measured on Hyperliquid"),
                Line2D([], [], color=BLUE, marker="s", ls="--", lw=1.8, label="injected simulator (calm)"),
                Line2D([], [], color=RED, marker="s", ls="--", lw=1.8, label="injected simulator (volatile)"),
                Patch(facecolor=MUTED, alpha=0.18, label="registered +/-20% acceptance band")]
@@ -171,7 +171,7 @@ def fig_s1_injection_fidelity() -> None:
     # Title states what the figure shows, not the verdict. The verdict is a methods
     # certification and belongs in the caption, where it can carry its band. Author's
     # labelling rule, 2026-08-12: short, specific, no internal names, no outcomes.
-    fig.suptitle("Injected signal against the measured venue signal",
+    fig.suptitle("Injected signal against Hyperliquid's BTC perpetual",
                  y=1.02, fontsize=11)
     fig.tight_layout()
     save(fig, "s1_injection_fidelity", "main_body")

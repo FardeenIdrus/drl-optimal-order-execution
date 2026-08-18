@@ -1,21 +1,20 @@
-\begin{tabular}{@{}llp{0.26\linewidth}p{0.2\linewidth}c@{}}
+\begin{tabular}{@{}lp{0.33\linewidth}p{0.21\linewidth}p{0.18\linewidth}c@{}}
 \toprule
 \textbf{Regime} & \textbf{What the check asks} & \textbf{Measured} & \textbf{Registered band} & \textbf{Pass} \\
 \midrule
-calm & the agent's own buying moves the price (2nd dump / 1st, cost ratio) & 2.41 & $\geq 1.25$ & \checkmark \\
-calm & and moves it more with size (Spearman $\rho$ over the size ladder) & 1.00 & $> 0$ & \checkmark \\
-calm & cost grows with size as in the real book (sim vs real $1\to10$u ratio) & 2.45 vs 2.46 (0.3\% apart) & within $25\%$ & \checkmark \\
+calm & a purchase moves the price, and the move persists (second immediate purchase / first, cost ratio) & 2.41 & $\geq 1.25$ & \checkmark \\
+calm & cost of an immediate purchase rises with its size (Spearman $\rho$) & 1.00 & $> 0$ & \checkmark \\
+calm & cost rises with size as it does on Hyperliquid (simulator vs Hyperliquid ratio) & 2.45 vs 2.46 (0.3\% apart) & within $25\%$ & \checkmark \\
 calm & fixed TWAP completes every episode & 100\% & $\geq 99\%$ & \checkmark \\
-calm & no background drift (ticks/episode; bps; $t$) & -0.32; -0.032; $t=-0.55$ & $|t|<2$ \textbf{or} $|\mathrm{mean}|\leq0.5$ & \checkmark \\
-calm & no fixed pace beats TWAP (best of seven paces, bps vs TWAP) & -0.0446 at $0.5\times$ ($t=-1.47$) & none both material \emph{and} significant & \checkmark \\
+calm & no background price drift (ticks per episode; bps; $t$) & -0.32; -0.032; $t=-0.55$ & $|t|<2$ \textbf{or} $|\mathrm{mean}|\leq0.5$ & \checkmark \\
+calm & no constant pace beats TWAP (best of six paces, bps vs TWAP) & -0.0446 at $0.5\times$ ($t=-1.47$) & none both material \emph{and} significant & \checkmark \\
 calm & the injected signal reproduces the real slope (worst gated horizon) & 17.6\% at 10\,s & $\leq 20\%$, all gated horizons & \checkmark \\
-volatile & the agent's own buying moves the price (2nd dump / 1st, cost ratio) & 2.35 & $\geq 1.25$ & \checkmark \\
-volatile & and moves it more with size (Spearman $\rho$ over the size ladder) & 1.00 & $> 0$ & \checkmark \\
-volatile & cost grows with size as in the real book (sim vs real $1\to10$u ratio) & 2.44 vs 1.99 (22.9\% apart) & within $25\%$ & \checkmark \\
+volatile & a purchase moves the price, and the move persists (second immediate purchase / first, cost ratio) & 2.35 & $\geq 1.25$ & \checkmark \\
+volatile & cost of an immediate purchase rises with its size (Spearman $\rho$) & 1.00 & $> 0$ & \checkmark \\
+volatile & cost rises with size as it does on Hyperliquid (simulator vs Hyperliquid ratio) & 2.44 vs 1.99 (22.9\% apart) & within $25\%$ & \checkmark \\
 volatile & fixed TWAP completes every episode & 100\% & $\geq 99\%$ & \checkmark \\
-volatile & no background drift (ticks/episode; bps; $t$) & -2.17; -0.217; $t=-1.31$ & $|t|<2$ \textbf{or} $|\mathrm{mean}|\leq0.5$ & \checkmark \\
-volatile & no fixed pace beats TWAP (best of seven paces, bps vs TWAP) & -0.0859 at $0.5\times$ ($t=-1.43$) & none both material \emph{and} significant & \checkmark \\
+volatile & no background price drift (ticks per episode; bps; $t$) & -2.17; -0.217; $t=-1.31$ & $|t|<2$ \textbf{or} $|\mathrm{mean}|\leq0.5$ & \checkmark \\
+volatile & no constant pace beats TWAP (best of six paces, bps vs TWAP) & -0.0859 at $0.5\times$ ($t=-1.43$) & none both material \emph{and} significant & \checkmark \\
 volatile & the injected signal reproduces the real slope (worst gated horizon) & 11.9\% at 10\,s & $\leq 20\%$, all gated horizons & \checkmark \\
 \bottomrule
-\multicolumn{5}{@{}p{\linewidth}@{}}{\footnotesize Every check was specified, with its pass band, before any agent was trained in this environment; all pass. \textbf{Two bands need reading with the number.} The cost-growth band is $25\%$ relative, so the volatile gap sits inside it. The drift criterion is a disjunction: calm meets both clauses, volatile meets the significance clause only, and its magnitude is disclosed above rather than omitted --- in the volatile regime a $0.5$-tick bound is below the resolution of any feasible episode count (noise floor ${\sim}1.6$ ticks at $n=8{,}000$), so certification rests on the significance clause together with the pace-gradient row, which tests exploitability directly. \textbf{The constant-pace row passes on the second clause, not the first:} the largest advantage any fixed pace holds is $-0.086$ bps in the volatile regime, which exceeds the $0.05$ bps materiality floor but is not statistically distinguishable from zero, so no fixed timing rule profits. \Cref{tab:t5} is the base environment's counterpart; the signal-matching row has no equivalent there, because there is no injected signal to match. Absolute simulated costs are understated ${\sim}2.2\times$ against real book-walking; the cost-growth row measures the \emph{slope}, which matches, not the level, which does not.} \\
 \end{tabular}
