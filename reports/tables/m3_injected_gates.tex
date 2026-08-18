@@ -5,14 +5,14 @@
 calm & the agent's own buying moves the price (2nd dump / 1st, cost ratio) & 2.41 & $\geq 1.25$ & \checkmark \\
 calm & and moves it more with size (Spearman $\rho$ over the size ladder) & 1.00 & $> 0$ & \checkmark \\
 calm & cost grows with size as in the real book (sim vs real $1\to10$u ratio) & 2.45 vs 2.46 (0.3\% apart) & within $25\%$ & \checkmark \\
-calm & plain TWAP completes every episode & 100\% & $\geq 99\%$ & \checkmark \\
+calm & fixed TWAP completes every episode & 100\% & $\geq 99\%$ & \checkmark \\
 calm & no background drift (ticks/episode; bps; $t$) & -0.32; -0.032; $t=-0.55$ & $|t|<2$ \textbf{or} $|\mathrm{mean}|\leq0.5$ & \checkmark \\
 calm & no fixed pace beats TWAP (best of seven paces, bps vs TWAP) & -0.0446 at $0.5\times$ ($t=-1.47$) & none both material \emph{and} significant & \checkmark \\
 calm & the injected signal reproduces the real slope (worst gated horizon) & 17.6\% at 10\,s & $\leq 20\%$, all gated horizons & \checkmark \\
 volatile & the agent's own buying moves the price (2nd dump / 1st, cost ratio) & 2.35 & $\geq 1.25$ & \checkmark \\
 volatile & and moves it more with size (Spearman $\rho$ over the size ladder) & 1.00 & $> 0$ & \checkmark \\
 volatile & cost grows with size as in the real book (sim vs real $1\to10$u ratio) & 2.44 vs 1.99 (22.9\% apart) & within $25\%$ & \checkmark \\
-volatile & plain TWAP completes every episode & 100\% & $\geq 99\%$ & \checkmark \\
+volatile & fixed TWAP completes every episode & 100\% & $\geq 99\%$ & \checkmark \\
 volatile & no background drift (ticks/episode; bps; $t$) & -2.17; -0.217; $t=-1.31$ & $|t|<2$ \textbf{or} $|\mathrm{mean}|\leq0.5$ & \checkmark \\
 volatile & no fixed pace beats TWAP (best of seven paces, bps vs TWAP) & -0.0859 at $0.5\times$ ($t=-1.43$) & none both material \emph{and} significant & \checkmark \\
 volatile & the injected signal reproduces the real slope (worst gated horizon) & 11.9\% at 10\,s & $\leq 20\%$, all gated horizons & \checkmark \\

@@ -158,8 +158,10 @@ def tracks() -> None:
         ["Market", "recorded order books, replayed", "queue-reactive simulator",
          "queue-reactive simulator"],
         ["Does the book react?", "no", "yes", "yes"],
-        ["Predictable signal", "whatever the record contains",
-         "endogenous only", "measured venue signal, injected"],
+        # "endogenous" is defined nowhere in the document; say what it means instead.
+        ["Predictable signal", "whatever the real data held",
+         "only what the simulator's own dynamics produce",
+         "a measured Hyperliquid signal, injected"],
         ["Decision cadence", r"10\,s and 1\,min (three builds)",
          rf"{CEN['primary_design']['cadence_s']}\,s", rf"{CEN['primary_design']['cadence_s']}\,s"],
         ["Decisions per episode", "30, 60, 180 (by build)",
@@ -171,37 +173,22 @@ def tracks() -> None:
                                              for s in b["order_sizes_btc"]})),
          ", ".join(f"{s:g}" for s in re_["order_sizes_btc"]),
          ", ".join(f"{s:g}" for s in inj["order_sizes_btc"])],
+        ["Training budget (steps)",
+         budgets(sorted({b for v in rb["builds"].values() for b in v["training_budget_steps"]})),
+         budgets(re_["training_budget_steps"]), budgets(inj["training_budget_steps"])],
         ["Observation width",
-         rf"{ow['recorded_books']['base']} (never amended)",
+         rf"{ow['recorded_books']['base']}",
          rf"{ow['reacting_simulator']['base']} / {ow['reacting_simulator']['with_arrival_price']}",
          rf"{ow['injected_simulator']['base']} / {ow['injected_simulator']['with_arrival_price']}"],
         # LITERAL (designation, l2_test_protocol.md:97-98 and criteria section 3).
-        ["Benchmark", "plain TWAP", "adaptive TWAP", "adaptive TWAP"],
+        ["Benchmark", "fixed TWAP", "adaptive TWAP", "adaptive TWAP"],
     ]
-    scale = [
-        ["Agents trained", str(rb["agents"]), str(re_["agents"]), str(inj["agents"])],
-        ["Training budget (steps)",
-         budgets(sorted({b for v in rb["builds"].values() for b in v["training_budget_steps"]}))
-         + r" \emph{(not uniform)}",
-         budgets(re_["training_budget_steps"]), budgets(inj["training_budget_steps"])],
-        ["Campaigns", str(len(rb["builds"])), str(re_["campaigns"]), str(inj["campaigns"])],
-        ["Learners"] + [", ".join(a.upper() for a in ("ppo", "dqn") if a in set(av))
-                        for av in ([a for b in rb["builds"].values() for a in b["algos"]],
-                                   re_["algos"], inj["algos"])],
-    ]
-    rows = ([[r"\multicolumn{4}{@{}l}{\textbf{Panel A: design}}"]] + design +
-            [[r"\addlinespace[2pt]\multicolumn{4}{@{}l}{\textbf{Panel B: scale}}"]] + scale +
-            [[r"\midrule\textbf{Total agents of record}", "", "",
-              rf"\textbf{{{CEN['TOTAL_agents_of_record']}}}"]])
-    note = (rf"Agents of record, counted from every run's own \texttt{{meta.json}}. "
-            rf"{CEN['TOTAL_directories']} directories hold one, of which "
-            rf"{CEN['directories_overstate_by']} are reproduction-gated logging copies or "
-            rf"byte-identical duplicates of agents already counted; counting directories "
-            rf"therefore overstates the census by that many. The recorded-book training budget "
-            rf"is not uniform across its three builds and is given as the set of values used.")
+    # Settings only. The census (agents, campaigns, learners, the 429 total) is scope, not a
+    # setting, and left this table on 2026-08-18; it belongs to the research-design section or
+    # the appendix. The in-table note went with it: captions describe, they do not argue.
     _w("m2_tracks.tex", _tabular(
         "@{}p{0.2\\linewidth}p{0.24\\linewidth}p{0.24\\linewidth}p{0.24\\linewidth}@{}",
-        ["", "Recorded books", "Reacting simulator", "Injected simulator"], rows, note))
+        ["", "Recorded books", "Reacting simulator", "Injected simulator"], design))
 
 
 # ---------------------------------------------------------------- tab:m-injgates
@@ -228,7 +215,7 @@ def injected_gates() -> None:
              f"{g2['growth_ratio_sim']:.2f} vs {g2['growth_ratio_real']:.2f} "
              f"({g2['rel_gap']:.1%} apart)".replace("%", r"\%"),
              r"within $25\%$", tick(g2["pass"])],
-            [reg, "plain TWAP completes every episode",
+            [reg, "fixed TWAP completes every episode",
              f"{g3['twap_completion_rate']:.0%}".replace("%", r"\%"), r"$\geq 99\%$",
              tick(g3["pass"])],
             [reg, "no background drift (ticks/episode; bps; $t$)",
@@ -293,7 +280,7 @@ REGISTER_ROWS = [
      "criteria section 2"),
     ("Behaviour audit: exclusion above one unit left to the deadline in more than "
      "one episode in ten",
-     "before any agent was scored", "plain TWAP itself passes at every order size",
+     "before any agent was scored", "fixed TWAP itself passes at every order size",
      "held; worst case $0.010$ against a $0.10$ cap",
      "criteria sections 4, 4b, 7.4"),
     ("Which episode pool serves which purpose, and one-shot use of each sealed pool",

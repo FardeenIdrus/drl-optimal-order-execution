@@ -2,21 +2,14 @@
 \toprule
 \textbf{} & \textbf{Recorded books} & \textbf{Reacting simulator} & \textbf{Injected simulator} \\
 \midrule
-\multicolumn{4}{@{}l}{\textbf{Panel A: design}} \\
 Market & recorded order books, replayed & queue-reactive simulator & queue-reactive simulator \\
 Does the book react? & no & yes & yes \\
-Predictable signal & whatever the record contains & endogenous only & measured venue signal, injected \\
+Predictable signal & whatever the real data held & only what the simulator's own dynamics produce & a measured Hyperliquid signal, injected \\
 Decision cadence & 10\,s and 1\,min (three builds) & 1\,s & 1\,s \\
 Decisions per episode & 30, 60, 180 (by build) & 300 primary; {150, 300, 600, 1200} across the horizon grid & 300 \\
 Order sizes (BTC) & 96.57, 193.13, 386.27 & 5, 12.5, 25, 50 & 25 \\
-Observation width & 7 (never amended) & 27 / 28 & 28 / 29 \\
-Benchmark & plain TWAP & adaptive TWAP & adaptive TWAP \\
-\addlinespace[2pt]\multicolumn{4}{@{}l}{\textbf{Panel B: scale}} \\
-Agents trained & 70 & 283 & 76 \\
-Training budget (steps) & 2M, 12M \emph{(not uniform)} & 2M, 10M & 2M \\
-Campaigns & 3 & 27 & 4 \\
-Learners & PPO, DQN & PPO, DQN & PPO, DQN \\
-\midrule\textbf{Total agents of record} &  &  & \textbf{429} \\
+Training budget (steps) & 2M, 12M & 2M, 10M & 2M \\
+Observation width & 7 & 27 / 28 & 28 / 29 \\
+Benchmark & fixed TWAP & adaptive TWAP & adaptive TWAP \\
 \bottomrule
-\multicolumn{4}{@{}p{\linewidth}@{}}{\footnotesize Agents of record, counted from every run's own \texttt{meta.json}. 489 directories hold one, of which 60 are reproduction-gated logging copies or byte-identical duplicates of agents already counted; counting directories therefore overstates the census by that many. The recorded-book training budget is not uniform across its three builds and is given as the set of values used.} \\
 \end{tabular}

@@ -320,32 +320,32 @@ def t5_env_validation():
         f = fair[reg]
         grad_max_t = max(abs(p["t"]) for p in f["pace_gradient"])
         rows += [
-            (reg, "own impact is real and persists (2nd immediate dump / 1st, cost ratio)", f"{g1['self_impact_ratio_primary']:.2f}",
+            (reg, "a purchase moves the price, and the move persists (second immediate purchase / first, cost ratio)", f"{g1['self_impact_ratio_primary']:.2f}",
              r"$\geq 1.25$", g1["pass"]),
-            (reg, "dump cost increases with order size (Spearman $\\rho$)", f"{g1['spearman_rho']:.2f}",
+            (reg, "cost of an immediate purchase rises with its size (Spearman $\\rho$)", f"{g1['spearman_rho']:.2f}",
              r"$> 0$", g1["pass"]),
-            (reg, "book refills after impact (probe cost $+30$s vs $+1$s, bps)",
-             f"{g1['probe_bps_t30']:.2f} vs {g1['probe_bps_t1']:.2f}", "lower at $+30$s", g1["pass"]),
-            (reg, "cost-vs-size growth matches the real book (sim vs real ratio)",
+            (reg, "the book refills after a purchase (probe cost 30\\,s later vs 1\\,s later, bps)",
+             f"{g1['probe_bps_t30']:.2f} vs {g1['probe_bps_t1']:.2f}", "lower at 30\\,s", g1["pass"]),
+            (reg, "cost rises with size as it does on Hyperliquid (simulator vs Hyperliquid ratio)",
              f"{g2['growth_ratio_sim']:.2f} vs {g2['growth_ratio_real']:.2f}",
-             "within band", g2["pass"]),
-            (reg, "fixed-TWAP completes every episode",
+             "within 25\\%", g2["pass"]),
+            (reg, "fixed TWAP completes every episode",
              f"{g3['twap_completion_rate']:.0%}".replace("%", r"\%"),
              r"$\geq 99\%$", g3["pass"]),
-            (reg, "dumping costs more than scheduling (dump / TWAP, drift-free, bps)",
+            (reg, "buying all at once costs more than scheduling (immediate / TWAP, bps)",
              f"{g3['driftfree_true_dump_mean_bps']:.2f} / {g3['driftfree_twap_mean_bps']:.2f}",
-             "dump $\\geq$ TWAP", g3["pass"]),
-            (reg, "no residual background drift (ticks/episode; $t$)",
+             "immediate $\\geq$ TWAP", g3["pass"]),
+            (reg, "no background price drift (ticks per episode; $t$)",
              f"{f['background_drift_ticks_per_ep']:.2f} ($t$={f['background_drift_t']:.2f})",
-             "$t$ n.s.", f["drift_pass"]),
-            (reg, "no constant-pace policy beats TWAP (max $|t|$ across paces)",
+             "$t$ not significant", f["drift_pass"]),
+            (reg, "no constant pace beats TWAP (largest $|t|$ across paces)",
              f"{grad_max_t:.2f}", "none significant", f["gradient_pass"]),
         ]
     lines = [
         r"% Auto-generated from step4_gates_v3.json + step3g/fairness_verdict_*.json.",
         # The check column is a sentence, not a token: it needs a p{} column or it
         # overflows the text block (it did: 107pt).
-        r"\begin{tabular}{l p{6.6cm} l l c}", r"\toprule",
+        r"\begin{tabular}{l p{6.1cm} l l c}", r"\toprule",
         r"regime & check & measured & pass band & verdict \\", r"\midrule",
     ]
     for reg, check, meas, band, ok in rows:

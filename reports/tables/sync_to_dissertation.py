@@ -50,6 +50,7 @@ WANTED = [
     "m3_injected_gates.tex",           # the injected environment's certification
     "m4_register.tex",                 # what was registered, and what happened
     "m5_agent_provenance.tex",         # every agent setting and where it came from
+    "m6_fidelity.tex",                 # the calibrated simulator against the real book
     "a1_observation.tex",              # APPENDIX: every observation input, all three environments
     "t7_l2_summary.tex",               # frozen-replay arms, validation + sealed exam
     "ts4_sigext_exploiter.tex",        # exploiter ceiling

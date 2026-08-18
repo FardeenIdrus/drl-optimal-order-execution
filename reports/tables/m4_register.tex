@@ -6,7 +6,7 @@ The definition of an edge: all four conditions together & before any evaluation 
 Materiality floor of $0.05$ bps on the mean saving & before any evaluation data were seen & --- & applied unchanged \\
 Significance level of $0.01$ on the paired test & before any evaluation data were seen & --- & applied unchanged \\
 Six simulator validation checks and their pass bands & before any agent was trained & all six pass & held; all six passed \\
-Behaviour audit: exclusion above one unit left to the deadline in more than one episode in ten & before any agent was scored & plain TWAP itself passes at every order size & held; worst case $0.010$ against a $0.10$ cap \\
+Behaviour audit: exclusion above one unit left to the deadline in more than one episode in ten & before any agent was scored & fixed TWAP itself passes at every order size & held; worst case $0.010$ against a $0.10$ cap \\
 Which episode pool serves which purpose, and one-shot use of each sealed pool & before any pool was opened & --- & applied unchanged; every sealed pool spent once \\
 Injected signal must reproduce the measured venue slope within $\pm20\%$ & before the injection was certified & the band is reachable at every gated horizon & held; worst gated horizon $17.6\%$ \\
 First sealed confirmation, agents & before the pool was opened & no agent meets the edge rule; pooled difference within noise of zero & \textbf{held} \\
