@@ -159,7 +159,7 @@ def fig_s1_injection_fidelity() -> None:
         ax.set_xticks(x)
         ax.set_xticklabels(hs)
         ax.set_xlabel("forward horizon (s)")
-        ax.set_title(f"{regime}  (gated horizons shaded)")
+        ax.set_title(f"{regime}  (band applies where shaded)")
         if ax is axes[0]:
             ax.set_ylabel("predictive slope (bps per unit imbalance)")
     handles = [Line2D([], [], color=INK, marker="o", lw=1.8, label="measured on Hyperliquid"),

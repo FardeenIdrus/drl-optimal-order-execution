@@ -342,9 +342,9 @@ def table_d2() -> str:
 PANEL_B = [
     ("1e6", "development", "watching training progress. No result was ever judged on it",
      "many", "still available"),
-    ("5e6", "development", "the working set: tuning, screening and everyday comparisons",
+    ("5e6", "development", "the working block: tuning, screening and everyday comparisons",
      "27 campaigns", "still available"),
-    ("18e6", "development", "the working set for the environment with the injected signal",
+    ("18e6", "development", "the working block for the environment with the injected signal",
      "4 campaigns", "still available"),
     ("6e6", "reserve", "held back to check whether a development result repeated",
      "1 comparison", "spent"),
@@ -363,7 +363,7 @@ PANEL_B = [
     ("21e6", "confirmation", "created to confirm the best attainable improvement with the "
      "injected signal, one attempt", "1", "spent"),
     ("3e6", "environment check", "certifying the simulator itself, never used to judge a method",
-     "---", "not a comparison set"),
+     "---", "not a comparison block"),
     # CORRECTED 2026-08-06. This row read "30e6, 31e6, 77M" and omitted seven ranges that the
     # partition audit (Z) declares at qrm_step5_remediation.md:2904-2909 -- 30.0/30.1/30.2M and
     # 30.3/30.4/30.5/30.55M. In a table whose job is to say which seed sets exist, an omission
@@ -372,7 +372,7 @@ PANEL_B = [
     # 31e6 may ever be called a fresh block.
     ("30.0--30.55M, 31e6, 77M", "measurement",
      "diagnostic measurements only. No result was ever judged on them",
-     "---", "not a comparison set"),
+     "---", "not a comparison block"),
 ]
 
 # Panel A's rows. The panel used to run one row per version across seven columns and measured
@@ -445,9 +445,9 @@ def table_d3() -> str:
             # Ragged right, set inline rather than through \newcolumntype: d1_sources.tex
             # already defines R, and \newcolumntype errors on a second definition if both
             # tables are input into the same document.
-            r"\begin{tabular}{@{}>{\raggedright\arraybackslash}p{1.5cm} l >{\raggedright\arraybackslash}p{4.9cm} l l@{}}",
+            r"\begin{tabular}{@{}>{\raggedright\arraybackslash}p{1.5cm} l >{\raggedright\arraybackslash}p{4.55cm} l l@{}}",
             r"\toprule",
-            r"seed set & kind & what it was for & times used & standing now \\",
+            r"block & kind & what it was for & times used & standing now \\",
             r"\midrule"]
     # Twelve rows, most of them wrapping to two or three lines. A rule under every row would be
     # heavy and against booktabs practice; a rule under every KIND separates the five governance
@@ -463,11 +463,11 @@ def table_d3() -> str:
             # paragraph now does that, so the note keeps only the integrity claim, which no
             # prose carries, and spends the room on the term the table uses twice and nothing
             # explained: the second version of the simulator.
-            r"\multicolumn{5}{@{}p{13.6cm}}{\footnotesize None of the five confirmation sets "
-            r"appears in more than one result. Two simulators are in use: the "
+            r"\multicolumn{5}{@{}p{13.6cm}}{\footnotesize None of the five confirmation blocks "
+            r"appear in more than one result. Two simulators are in use: the "
             r"one fitted to the December records, and a second into which a signal whose "
             r"strength was measured from those same records has been injected. The Methodology "
-            r"chapter describes both, and a set belongs to the fitted simulator unless its row says "
+            r"chapter describes both, and a block belongs to the fitted simulator unless its row says "
             r"otherwise.} \\",
             r"\bottomrule",
             r"\end{tabular}",

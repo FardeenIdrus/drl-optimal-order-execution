@@ -138,52 +138,46 @@ def evaluation_architecture() -> None:
        covers three. WIDENED: all three environments, and the recorded-book column states
        its different protocol rather than being left blank.
     """
-    fig, ax = plt.subplots(figsize=(10.4, 5.2))
-    ax.set_xlim(0, 10); ax.set_ylim(0.20, 9.95); ax.axis("off")
+    fig, ax = plt.subplots(figsize=(7.2, 4.9))
+    ax.set_xlim(0, 10); ax.set_ylim(1.55, 9.95); ax.axis("off")
 
-    # --- left: episode pools, all three environments ------------------------------------
-    ax.text(2.35, 9.5, "Episode pools", fontsize=9.8, weight="bold", ha="center")
-    ax.text(2.35, 9.13, "no episode appears in two of them", fontsize=7.8, ha="center")
+    # --- left: the blocks ----------------------------------------------------------------
+    ax.text(2.35, 9.55, "Episode blocks", fontsize=10.2, weight="bold", ha="center")
+    ax.text(2.35, 9.18, "no episode is used for two purposes", fontsize=8.2, ha="center")
     pools = [
-        ("Training", "private to each agent", GREY),
-        ("Monitoring", "learning curves only\nnever used to judge", GREY),
-        ("Development", "screening and tuning", BLUE),
-        ("Reserve", "does a result repeat?", GREEN),
-        ("Confirmation", "opened once, then spent", RED),
+        ("Training", "episodes the agent learns from", GREY),
+        ("Monitoring", "learning curves only; never judged", GREY),
+        ("Development", "configurations compared, best chosen", BLUE),
+        ("Reserve", "does the chosen result repeat?", GREEN),
+        ("Confirmation", "the final verdict", RED),
     ]
-    y = 8.55
+    y = 8.80
     for name, sub, fc in pools:
-        _box(ax, 0.3, y - 0.80, 4.1, 0.80, f"{name}\n{sub}", fc, fs=8.0)
-        y -= 1.02
+        _box(ax, 0.30, y - 0.92, 4.15, 0.92, f"{name}\n{sub}", fc, fs=8.6)
+        y -= 1.16
 
-    # --- right: the ladder ----------------------------------------------------------------
-    ax.text(7.6, 9.5, "How a candidate is tested", fontsize=9.8, weight="bold", ha="center")
-    ax.text(7.6, 9.13, "each stage removes a different false positive", fontsize=7.8,
-            ha="center")
+    # --- right: the ladder ---------------------------------------------------------------
+    ax.text(7.65, 9.55, "How a candidate is tested", fontsize=10.2, weight="bold", ha="center")
+    ax.text(7.65, 9.18, "each rung rules out a different error", fontsize=8.2, ha="center")
     rungs = [
-        ("Screen", "on the development pool", BLUE),
-        ("Replicate", "five independent seeds,\nthen the reserve pool", GREEN),
-        ("Confirm", "one shot, on a confirmation pool", RED),
+        ("Screen", "rank configurations that pass the audit", BLUE),
+        ("Replicate", "five seeds, then the reserve block", GREEN),
+        ("Confirm", "one attempt, opened once", RED),
     ]
-    yy = 8.5
+    yy = 8.80
     for i, (name, sub, fc) in enumerate(rungs):
-        _box(ax, 5.6, yy - 1.15, 4.0, 1.15, f"{name}\n{sub}", fc, fs=8.4)
+        _box(ax, 5.55, yy - 0.92, 4.15, 0.92, f"{name}\n{sub}", fc, fs=8.6)
         if i < len(rungs) - 1:
-            _arrow(ax, 7.6, yy - 1.15, 7.6, yy - 1.75,
-                   " survivors only" if i else " candidates only")
-        yy -= 1.75
+            _arrow(ax, 7.65, yy - 0.92, 7.65, yy - 1.86,
+                   " only if both hold" if i else " candidates that clear the bar", fs=8.0)
+        yy -= 1.86
 
-    # --- bottom: what differs by environment. NO OUTCOMES. --------------------------------
-    rb, rea, inj = (CEN["recorded_books"], CEN["reacting_simulator"],
-                    CEN["injected_simulator"])
-    _box(ax, 0.3, 0.45, 9.3, 1.75,
-         "By environment\n"
-         f"Recorded books, {rb['agents']} agents:  one exam for every agent, no screening "
-         "stage, arms corrected for\n"
-         f"Both simulators, {rea['agents']} and {inj['agents']} agents:  the full ladder "
-         "above\n"
-         "Simulator pools can be created at will, so their scarcity is a rule, not a limit",
-         "#fbfbfb", fs=8.4)
+    rb = CEN["recorded_books"]
+    # --- one line, not a box: what the recorded-book track does instead --------------------
+    ax.text(5.0, 1.95,
+            f"Recorded books: no ladder. One exam, all {rb['agents']} agents, "
+            "on a test period that cannot be regenerated.",
+            fontsize=8.6, ha="center", color=INK)
 
     ax.set_title("Evaluation architecture", fontsize=11, color=INK)
     _save(fig, "fig_m_architecture")
