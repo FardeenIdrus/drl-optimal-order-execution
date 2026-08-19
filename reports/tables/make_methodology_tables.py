@@ -275,18 +275,18 @@ REGISTER_ROWS = [
      "before any agent was scored", "fixed TWAP itself passes at every order size",
      "held; worst case $0.010$ against a $0.10$ cap",
      "criteria sections 4, 4b, 7.4"),
-    ("Which episode pool serves which purpose, and one-shot use of each sealed pool",
-     "before any pool was opened", "---", "applied unchanged; every sealed pool spent once",
+    ("Which episode block serves which purpose, and each sealed block to be opened once",
+     "before any block was opened", "---", "applied unchanged; every sealed block spent once",
      "criteria section 3; seed-disjointness audit"),
-    ("Injected signal must reproduce the measured venue slope within $\\pm20\\%$",
-     "before the injection was certified", "the band is reachable at every gated horizon",
+    ("Injected signal must reproduce the measured Hyperliquid slope within $\\pm20\\%$",
+     "before the certification run", "the band is reachable at every gated horizon",
      "held; worst gated horizon $17.6\\%$", "criteria section 8"),
     ("First sealed confirmation, agents",
-     "before the pool was opened",
+     "before the block was opened",
      "no agent meets the edge rule; pooled difference within noise of zero",
      "\\textbf{held}", "criteria A1; results log (K)"),
     ("First sealed confirmation, the rule-based follower",
-     "before the pool was opened",
+     "before the block was opened",
      "cheaper than the benchmark beyond the materiality floor, both regimes",
      "\\textbf{held}", "criteria A1; results log (L)"),
     ("Adding the arrival price to the observation, policy-gradient agent",
@@ -310,7 +310,7 @@ REGISTER_ROWS = [
      "costs agree within $0.02$ bps and actions agree at $95\\%$",
      "\\textbf{cost held by two orders of magnitude; the action clause FAILED at "
      "$94.6/94.8\\%$} and the bar was amended after the achievable ceiling was measured "
-     "at $94.67/94.78\\%$, labelled post hoc wherever cited",
+     "at $94.66/94.81\\%$, labelled post hoc wherever cited",
      "criteria A3.1, lines 1230--1239"),
 ]
 
@@ -319,18 +319,17 @@ def register() -> None:
     rows = [[w, when, pred, out] for (w, when, pred, out, _src) in REGISTER_ROWS]
     held = sum(1 for r in REGISTER_ROWS if "FAILED" not in r[3])
     failed = len(REGISTER_ROWS) - held
-    note = (rf"Every entry was written down and dated before the run it governs, in a ledger "
-            rf"held under version control, so the ordering is checkable by someone other than "
-            rf"its author. {failed} of {len(REGISTER_ROWS)} predictions were falsified by their "
-            rf"own tests and are recorded here as such, with the diagnosis attached rather than "
-            rf"the threshold moved. The one exception, the action-agreement clause, was amended "
-            rf"only after the mechanically achievable maximum was measured and found to lie "
-            rf"below the registered bar; it is labelled post hoc wherever it is cited. "
-            rf"\textbf{{The research questions were not part of this registration}}: the "
-            rf"decision rules, thresholds, pool assignments and per-amendment predictions were.")
+    # Four rows are definitions, thresholds or block assignments and carry no prediction, so
+    # the denominator is the rows that made a testable claim, not every row. Counted, not typed.
+    predicted = sum(1 for r in REGISTER_ROWS if r[2].strip() != "---")
+    # The three argumentative statements this note used to carry -- checkability, the count of
+    # falsifications, and the one post hoc amendment -- are in the body of the registration
+    # section. Per CARLO_REVISION_PASS.md:41-44 the note keeps only what bounds the exhibit.
+    note = (rf"\textbf{{The research questions were not part of this registration}}: the "
+            rf"decision rules, thresholds, block assignments and per-amendment predictions were.")
     _w("m4_register.tex", _tabular(
-        "@{}p{0.26\\linewidth}p{0.16\\linewidth}p{0.26\\linewidth}p{0.28\\linewidth}@{}",
-        ["What was fixed", "When", "The written prediction", "What happened"], rows, note))
+        "@{}>{\\raggedright\\arraybackslash}p{0.235\\linewidth}>{\\raggedright\\arraybackslash}p{0.13\\linewidth}>{\\raggedright\\arraybackslash}p{0.25\\linewidth}>{\\raggedright\\arraybackslash}p{0.295\\linewidth}@{}",
+        ["Rule fixed", "Fixed relative to", "Prediction", "Outcome"], rows, note))
     print(f"    ({held} held, {failed} falsified -- the falsified ones are the point)")
 
 

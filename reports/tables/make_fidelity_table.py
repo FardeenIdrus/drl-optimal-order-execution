@@ -73,7 +73,7 @@ def main() -> None:
 \\toprule
 & \\multicolumn{{3}}{{c}}{{calm}} & \\multicolumn{{3}}{{c}}{{volatile}} \\\\
 \\cmidrule(lr){{2-4}}\\cmidrule(lr){{5-7}}
-measure & simulator & venue (band) & & simulator & venue (band) & \\\\
+measure & simulator & Hyperliquid (band) & & simulator & Hyperliquid (band) & \\\\
 \\midrule
 {body}
 \\bottomrule
