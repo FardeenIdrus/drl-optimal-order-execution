@@ -41,6 +41,11 @@ REPO = HERE.parent.parent
 VENDORED = REPO.parent / "qrm_optimal_execution"
 
 M = json.loads((OX / "methodology_measurements.json").read_text())
+# Order sizes are set as fractions of daily volume against two denominators: the two-year
+# average for the recorded books, December's for the simulators. Both are read, never typed.
+ADV_2Y = json.loads((SCRATCH / "adv" / "btc_adv.json").read_text())["adv_btc"]
+ADV_DEC = json.loads(
+    (OX / "trade_volume_202512.json").read_text())["december_only"]["mean_daily_btc"]
 G = json.loads((OX / "signal" / "gates" / "sigext_gates_v4c_PASS.json").read_text())
 CEN, OBS = M["census"], M["observation_widths"]
 
@@ -140,8 +145,7 @@ def provenance() -> None:
             r"Rows parsed from the authors' own configuration file "
             r"(\texttt{src/qrm\_rl/configs/default.yaml}, MIT licence, vendored at commit "
             r"\texttt{c066726}, working tree clean): book depth, observation, actions, agent, "
-            r"episode and reward penalty. The book depth in particular is \emph{not} stated "
-            r"numerically in the paper and is verifiable only from that file.")
+            r"episode and reward penalty.")
     _w("m1_provenance.tex", _tabular("@{}p{0.15\\linewidth}p{0.34\\linewidth}p{0.44\\linewidth}@{}",
                                      ["", "Espa\\~na et al. (2025)", "This study"], rows, note))
 
@@ -169,9 +173,13 @@ def tracks() -> None:
          rf"{{{', '.join(str(d) for d in re_['decisions_per_episode'])}}} across the horizon grid",
          ", ".join(str(d) for d in inj["decisions_per_episode"])],
         ["Order sizes (BTC)",
-         ", ".join(f"{s:g}" for s in sorted({s for b in rb["builds"].values()
-                                             for s in b["order_sizes_btc"]})),
-         ", ".join(f"{s:g}" for s in re_["order_sizes_btc"]),
+         (lambda v: rf"{', '.join(f'{s:g}' for s in v)} "
+                    rf"({', '.join(f'{100*s/ADV_2Y:.3g}' for s in v)}\% of the two-year "
+                    rf"daily average)")(sorted({s for b in rb["builds"].values()
+                                                for s in b["order_sizes_btc"]})),
+         (lambda v: rf"{', '.join(f'{s:g}' for s in v)} "
+                    rf"({100*min(v)/ADV_DEC:.3f} to {100*max(v)/ADV_DEC:.3f}\% "
+                    rf"of December's)")(re_["order_sizes_btc"]),
          ", ".join(f"{s:g}" for s in inj["order_sizes_btc"])],
         ["Training budget (steps)",
          budgets(sorted({b for v in rb["builds"].values() for b in v["training_budget_steps"]})),
@@ -340,8 +348,7 @@ def main() -> None:
     injected_gates()
     register()
     print("\nCAPTION OBLIGATIONS -- copy into the chapter, do not paraphrase:")
-    print("  m1 provenance : the left column describes the paper AND its released code; the")
-    print("                  book depth is not in the paper and comes from default.yaml.")
+    print("  m1 provenance : the left column describes the paper AND its released code.")
     print("  m2 tracks     : counting directories overstates the census by "
           f"{CEN['directories_overstate_by']}; the recorded-book budget is not uniform.")
     print("  m3 inj. gates : print the 25% band beside the volatile cost-growth gap; the drift")
