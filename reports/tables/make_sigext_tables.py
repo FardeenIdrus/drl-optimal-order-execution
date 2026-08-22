@@ -161,8 +161,7 @@ def table_ts4_exploiter() -> None:
 \caption{What the injected signal was worth to a rule that simply reads it. All three
 rules act inside the agents' own action grid and use only the observation feature the
 agents received, evaluated on the same episodes with common random numbers. The
-registered follower captures several times the materiality threshold in both regimes,
-against pooled agent results of $+0.005$\,bps (calm) and $+0.043$\,bps (volatile).}
+registered rule captures several times the materiality threshold in both regimes.}
 \label{tab:sigext-exploiter}
 \small
 \begin{tabular}{llrrlr}
@@ -369,8 +368,9 @@ def main() -> None:
 
 
 def table_ts7_ceiling() -> None:
-    """MAIN. Amendment A2 Test 2: tuning grid (dev, exploration) + one-shot confirmed
-    ceiling (virgin 21e6) + captured fraction vs the sealed agent results."""
+    """MAIN. Amendment A2 Test 2: tuning grid on the 18e6 development block + one-shot
+    confirmed ceiling on the 21e6 confirmation block + captured fraction vs the agents'
+    results on the 17e6 confirmation block. Block kinds follow Table D3."""
     tune = {r: json.loads((DIAG / f"tune_follower_{r}.json").read_text())
             for r in ("calm", "volatile")}
     conf = json.loads((S / "step5_signal_ceiling21e6" / "ceiling_confirmation.json").read_text())
@@ -387,19 +387,19 @@ def table_ts7_ceiling() -> None:
     conf_rows = []
     for reg in ("calm", "volatile"):
         e = conf["regimes"][reg]["vs_adaptive"]
+        captured = 100.0 * pooled[reg] / e['mean_diff_bps']
         conf_rows.append(f"{reg} & {conf['regimes'][reg]['c_star']:g} & "
                          f"{e['mean_diff_bps']:+.4f} & {e['se']:.4f} & {_p(e['wilcoxon_p'])} & "
-                         f"{pooled[reg]:+.4f} & $\\approx$0\\% \\\\")
+                         f"{pooled[reg]:+.4f} & {captured:+.1f}\\% \\\\")
     body = r"""% Amendment A2 Test 2: tuned attainable-edge ceiling (MAIN).
 % Sources: diagnostics_postnull/tune_follower_*.json, step5_signal_ceiling21e6/,
 % step5_signal_sealed/judgement.json. Registration: criteria section 8 Amendment A2.
 \begin{table}[htbp]\centering
-\caption[The attainable-edge ceiling]{The attainable-edge ceiling. Upper panel: the registered seven-point tuning grid
-on the exploration block (mean paired saving vs adaptive TWAP; the calm optimum is an
-interior peak, the volatile optimum sits at the grid edge, so both ceilings are lower
-bounds). Lower panel: the tuned rule confirmed once on a virgin block registered for this
-purpose, against the agents' sealed-block results. The tuned coefficients were selected
-before the confirmation block was touched.}
+\caption[The attainable-edge ceiling]{\textbf{The attainable-edge ceiling and the fraction
+captured.} Upper panel: mean paired saving against adaptive TWAP for each coefficient in the
+registered grid, on the development block. Lower panel: the tuned rule confirmed once on a
+held-out confirmation block, against the agents' results on their own sealed block, and the
+fraction of the ceiling captured.}
 \label{tab:sigext-ceiling}
 \small
 \begin{tabular}{lrr}
@@ -453,18 +453,10 @@ def table_ts8_comparators() -> None:
                                                for x in f["frontier"]) + r" \\")
     body = r"""% A3 comparators + frontier (SUPPORTING). Sources: step5_comparators/*.json
 \begin{table}[htbp]\centering
-\caption[Comparator policies in both environments]{Comparator policies in both environments (mean difference versus adaptive TWAP,
-and per-episode cost standard deviation; $n=2000$ paired episodes each). Risk-neutral
-Almgren--Chriss reproduces uniform trading exactly, which is why adaptive TWAP is the
-benchmark of record. Urgency reliably reduces cost variance; its mean-cost penalty appears
-only once a predictable signal is present, because a fixed schedule ignores information
-precisely when there is information to ignore. Oracle VWAP has look-ahead access to realised
-volume and still loses in three of four cells, with higher variance in all four: volume
-weighting produces uneven child orders that pay the measured concave impact. Lower panel:
-how many trained agents are strictly dominated (lower cost \emph{and} lower risk available
-from a feasible benchmark). The dominance gaps lie below the 0.05\,bps materiality floor and
-are individually insignificant; the calm pattern, consistent across all five seeds, is the
-defensible claim.}
+\caption[Comparator policies in both environments]{\textbf{Comparator policies in both
+environments.} Mean difference against adaptive TWAP and per-episode cost standard deviation,
+$n=2000$ paired episodes per cell. Lower panel, injected environment: how many trained agents
+are strictly dominated, meaning a feasible benchmark offers both lower cost and lower risk.}
 \label{tab:sigext-comparators}
 % NINE columns: \small overflows the portrait text block by ~26pt. \scriptsize fits without
 % resizebox (which would scale the font non-uniformly against surrounding text).
@@ -525,13 +517,11 @@ def table_ts9_a4_observation() -> None:
     body = r"""% Amendment A4: observation variant (MAIN).
 % Sources: diagnostics_postnull/diag_learning{,_a4}.json, step5_signal_obsfix/
 \begin{table}[htbp]\centering
-\caption[The observation variant]{The observation variant. The agents' state did not include the mid price relative to
-the arrival price, although they are scored on implementation shortfall against that price.
-Realised drift alone predicts 34\% of the variance in remaining cost, against 2--5\% for the
-whole observed vector, so the value function could not be fitted. Upper panel: adding that one
-feature, with training, seeds and market otherwise identical, makes the critic learnable in
-every run. Lower panel: it does not change performance. Fewer runs pass the behavioural audit
-under the variant, so the valid-seed count is reported alongside each figure.}
+\caption[The observation variant]{\textbf{The observation variant.} The agents' state omitted
+the price relative to arrival, against which their cost is measured. Upper panel: adding that
+one feature, with training, seeds and market otherwise identical, makes the value function
+learnable in every run. Lower panel: it does not change cost. Valid-seed counts are reported
+alongside each figure, since fewer runs pass the behavioural audit under the variant.}
 \label{tab:sigext-a4}
 \small
 \begin{tabular}{lrrrr}

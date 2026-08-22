@@ -2,12 +2,11 @@
 % Sources: diagnostics_postnull/tune_follower_*.json, step5_signal_ceiling21e6/,
 % step5_signal_sealed/judgement.json. Registration: criteria section 8 Amendment A2.
 \begin{table}[htbp]\centering
-\caption[The attainable-edge ceiling]{The attainable-edge ceiling. Upper panel: the registered seven-point tuning grid
-on the exploration block (mean paired saving vs adaptive TWAP; the calm optimum is an
-interior peak, the volatile optimum sits at the grid edge, so both ceilings are lower
-bounds). Lower panel: the tuned rule confirmed once on a virgin block registered for this
-purpose, against the agents' sealed-block results. The tuned coefficients were selected
-before the confirmation block was touched.}
+\caption[The attainable-edge ceiling]{\textbf{The attainable-edge ceiling and the fraction
+captured.} Upper panel: mean paired saving against adaptive TWAP for each coefficient in the
+registered grid, on the development block. Lower panel: the tuned rule confirmed once on a
+held-out confirmation block, against the agents' results on their own sealed block, and the
+fraction of the ceiling captured.}
 \label{tab:sigext-ceiling}
 \small
 \begin{tabular}{lrr}
@@ -29,8 +28,8 @@ tilt coefficient $c$ & calm (bps) & volatile (bps) \\
 \toprule
 regime & $c^*$ & confirmed ceiling (bps) & s.e. & $p$ & agents (sealed) & captured \\
 \midrule
-calm & 1.25 & -0.3127 & 0.0282 & $<10^{-15}$ & +0.0047 & $\approx$0\% \\
-volatile & 2 & -0.6250 & 0.0396 & $<10^{-15}$ & +0.0252 & $\approx$0\% \\
+calm & 1.25 & -0.3127 & 0.0282 & $<10^{-15}$ & +0.0047 & -1.5\% \\
+volatile & 2 & -0.6250 & 0.0396 & $<10^{-15}$ & +0.0252 & -4.0\% \\
 \bottomrule
 \end{tabular}
 \end{table}

@@ -1,13 +1,11 @@
 % Amendment A4: observation variant (MAIN).
 % Sources: diagnostics_postnull/diag_learning{,_a4}.json, step5_signal_obsfix/
 \begin{table}[htbp]\centering
-\caption[The observation variant]{The observation variant. The agents' state did not include the mid price relative to
-the arrival price, although they are scored on implementation shortfall against that price.
-Realised drift alone predicts 34\% of the variance in remaining cost, against 2--5\% for the
-whole observed vector, so the value function could not be fitted. Upper panel: adding that one
-feature, with training, seeds and market otherwise identical, makes the critic learnable in
-every run. Lower panel: it does not change performance. Fewer runs pass the behavioural audit
-under the variant, so the valid-seed count is reported alongside each figure.}
+\caption[The observation variant]{\textbf{The observation variant.} The agents' state omitted
+the price relative to arrival, against which their cost is measured. Upper panel: adding that
+one feature, with training, seeds and market otherwise identical, makes the value function
+learnable in every run. Lower panel: it does not change cost. Valid-seed counts are reported
+alongside each figure, since fewer runs pass the behavioural audit under the variant.}
 \label{tab:sigext-a4}
 \small
 \begin{tabular}{lrrrr}

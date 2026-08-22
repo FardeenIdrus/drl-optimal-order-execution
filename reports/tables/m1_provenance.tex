@@ -11,8 +11,8 @@ Learner & DDQN & PPO and DQN \\
 Episode & 600\,s horizon, one decision every 25\,s, 25 shares & 300\,s horizon, one decision every 1\,s (300 decisions), 25\,BTC; ladder {5, 12.5, 25, 50}\,BTC and horizons {150, 300, 600, 1200}\,s \\
 Reward & terminal-penalised shortfall, $\alpha = 1$ & negative implementation shortfall against the arrival mid, bps, forced completion \\
 Benchmarks & TWAP, POPV1--4 & plain and adaptive TWAP, Almgren--Chriss family, expected-volume and oracle VWAP \\
-Evaluation & no seed protocol, sealed block or registration reported & registered rules, materiality floor, five seeds, common random numbers, behaviour audit, three-rung ladder, one-shot sealed confirmations \\
+Evaluation & no seed protocol, sealed block or registration reported & registered rules, materiality floor, five seeds, common random numbers, behaviour audit, separate blocks for selection and replication, one-shot sealed confirmations \\
 Agents trained & not reported & \textbf{429} (70 / 283 / 76 by environment) \\
 \bottomrule
-\multicolumn{3}{@{}p{\linewidth}@{}}{\footnotesize The left column describes \emph{both} the paper and its released implementation. Rows parsed from the authors' own configuration file (\texttt{src/qrm\_rl/configs/default.yaml}, MIT licence, vendored at commit \texttt{c066726}, working tree clean): book depth, observation, actions, agent, episode and reward penalty.} \\
+\multicolumn{3}{@{}p{\linewidth}@{}}{\footnotesize The left column describes the paper and the implementation released with it. Its entries are taken from the authors' own configuration file rather than from the paper, which is the only place several of them are stated.} \\
 \end{tabular}

@@ -70,6 +70,16 @@ def main() -> None:
     L = []
     L.append(r"\begin{table}[htbp]")
     L.append(r"\centering")
+    L.append(r"\caption[What each design could have detected]{\textbf{The smallest cost "
+             r"difference each design could have detected, by environment and cell.} "
+             r"MDE is the difference the registered test would find in eight cases out "
+             r"of ten. $\sigma_{\text{ep}}$ is the spread of cost across episodes, "
+             r"$\sigma_{\text{seed}}$ the spread across independently trained seeds, "
+             r"and $\rho$ the correlation between seeds' per-episode differences, "
+             r"induced by common random numbers. A dagger marks cells where fewer than "
+             r"three seeds survived the behavioural audit. The lower panel reports "
+             r"dispersion measured on two or three blocks per environment.}")
+    L.append(r"\label{tab:power}")
     L.append(r"\footnotesize")
     L.append(r"\setlength{\tabcolsep}{4pt}")
     L.append(r"\begin{tabular}{llrrrrrrr}")
@@ -123,38 +133,6 @@ def main() -> None:
     L.append(r"\bottomrule")
     L.append(r"\end{tabular}")
 
-    L.append(r"\caption[What each design could have detected]{\textbf{The smallest cost "
-             r"difference each design could have detected, by environment and cell.} "
-             r"Every headline verdict in this chapter is a null, and a null is informative "
-             r"only if the instrument could have seen the effect had it been present. "
-             r"\textbf{MDE} is the effect size the registered across-seed test would detect "
-             r"with 80\% probability at $\alpha=0.05$, computed from the exact non-central "
-             r"$t$ distribution rather than a normal approximation, which at five seeds "
-             r"overstates power substantially. \textbf{The interval is the claim, not the "
-             r"point estimate}: with five seeds the across-seed spread is itself estimated on "
-             r"four degrees of freedom, and the interval shown propagates that uncertainty. "
-             r"$\sigma_{\text{ep}}$ is per-episode cost dispersion, $\sigma_{\text{seed}}$ "
-             r"the spread across independently trained seeds, and $\rho$ the correlation "
-             r"between seeds' per-episode difference series induced by common random numbers. "
-             r"Shared noise shifts every seed mean together and so contributes nothing to "
-             r"their spread, which is why the test is powerful against differences between "
-             r"policies and powerless against a shift common to all of them. "
-             r"\textsuperscript{\dag}\,\textbf{Not quotable}: fewer than three seeds survived "
-             r"the behaviour audit. Unfinished orders are forced to complete at the deadline, "
-             r"and the audit removes agents that rely on that forced purchase \emph{before} "
-             r"any cost is compared; below three survivors the spread rests on one degree of "
-             r"freedom. The lower panel reports the one thing that licenses applying a "
-             r"sensitivity measured on one block to a verdict issued on another: dispersion "
-             r"was measured on two or three blocks per environment and agrees to within "
-             r"7.3\% everywhere. Recorded order books are the least sensitive of the three "
-             r"environments, and the cause is stated per cell rather than generalised. The "
-             r"weakest remaining cell is the value-based learner at 193\,BTC on the sealed "
-             r"split, with an MDE of 0.623\,bps and a 0.075 probability of detecting a "
-             r"difference at the 0.05\,bps materiality threshold; its across-seed spread is "
-             r"85\% policy-to-policy variation, so that cell is a convergence problem rather "
-             r"than a sampling one. Other cells in the same environment resolve to "
-             r"0.032\,bps. This limitation is stated here rather than left implicit.}")
-    L.append(r"\label{tab:power}")
     L.append(r"\end{table}")
 
     OUT.write_text("\n".join(L) + "\n")

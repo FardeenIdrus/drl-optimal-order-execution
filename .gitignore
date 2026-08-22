@@ -61,3 +61,14 @@ reports/tables/rendered/
 
 reports/results_pack/
 reports/diagnostics/count_words.py
+reports/qrm_step5_remediation.md.prewrite
+
+# Editor and tool backup copies, superseded by git history. Any suffix after .bak is
+# caught: .bak, .bak2 ... .bak5, .bakfig. Supersedes the individually-listed
+# reports/qrm_step5_remediation.md.prewrite above.
+*.bak*
+*~
+*.orig
+*.old
+*.backup
+*.prewrite

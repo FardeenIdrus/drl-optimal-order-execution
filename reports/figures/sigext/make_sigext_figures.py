@@ -410,9 +410,9 @@ def fig_s8_kernel_structure() -> None:
 
 L2_TEST = Path("/Users/fardeenidrus/Desktop/MSc Dissertation/scratch_hyperliquid/l2_test_results")
 L2_LEVER = {                      # folder -> the design cell it represents
-    "runs":            "1-min data, 30-min deadline",
-    "runs_10s":        "10-s data, 30-min deadline",
-    "runs_10s_10min":  "10-s data, 10-min deadline",
+    "runs":            "1-min bars, 30-min",
+    "runs_10s":        "10-s bars, 30-min",
+    "runs_10s_10min":  "10-s bars, 10-min",
 }
 
 
@@ -503,11 +503,11 @@ def fig_s2_three_environment() -> None:
     step5_signal_sealed/judgement.json; step5_signal_ceiling21e6/ceiling_confirmation.json.
     """
     envs = [
-        ("1. Frozen replay of real order-book data", load_l2_sealed_arms(),
-         "no stable edge — 4 of 14 arms clear the bar, and a diagnosed-broken learner clears it too"),
-        ("2. Reactive simulator, no injected signal", load_reactive_sealed_arms(),
+        ("1. Recorded order books", load_l2_sealed_arms(),
+         "no stable edge; six of fourteen configurations clear the bar, a collapsed learner among them"),
+        ("2. Reacting simulator, no injected signal", load_reactive_sealed_arms(),
          "null — both sealed confirmations fail"),
-        ("3. Reactive simulator + measured signal", load_injected_sealed_arms(),
+        ("3. Reacting simulator with the measured signal", load_injected_sealed_arms(),
          "null — both regimes fail"),
     ]
     # Horizontal, one sub-panel per environment, shared cost axis: 18 arms cannot carry
@@ -516,8 +516,8 @@ def fig_s2_three_environment() -> None:
     flat = [a for _, arms, _ in envs for a in arms]
     lo = min(a["bps"] for a in flat) - 0.10
     hi = max(a["bps"] for a in flat) + 0.10
-    fig = plt.figure(figsize=(13.4, 6.4))
-    outer = fig.add_gridspec(1, 2, width_ratios=[2.05, 1.0], wspace=0.02)
+    fig = plt.figure(figsize=(6.3, 7.2))
+    outer = fig.add_gridspec(2, 1, height_ratios=[3.15, 1.0], hspace=0.30)
     left = outer[0, 0].subgridspec(3, 1, height_ratios=[len(a) + 1.4 for _, a, _ in envs],
                                    hspace=0.42)
     axes_a = []
@@ -534,34 +534,25 @@ def fig_s2_three_environment() -> None:
                     markeredgecolor="white", markeredgewidth=1.0)
             ax.annotate(f"{a['n_cheaper']}/{a['n_valid']} seeds cheaper",
                         xy=(a["bps"], y), xytext=(9, 0), textcoords="offset points",
-                        va="center", fontsize=6.8, color=MUTED)
+                        va="center", fontsize=6.0, color=MUTED)
         ax.set_yticks(ys)
         ax.set_yticklabels(
-            [f"{a['lever']}" + (f"  ·  {a['algo'].upper()} {a['size']:.0f} BTC"
+            [f"{a['lever']}" + (f"  ·  {a['algo'].upper()} {a['size']:g}"
                                 if a["size"] else f"  ·  {a['algo'].upper()}")
-             for a in arms], fontsize=7.2)
+             for a in arms], fontsize=6.2)
         ax.set_ylim(-0.85, len(arms) - 0.15)
         ax.set_xlim(lo, hi)
         ax.tick_params(axis="y", length=0)
-        ax.set_title(name, fontsize=9.8, loc="left", color=INK, fontweight="bold", pad=13)
+        ax.set_title(name, fontsize=8.0, loc="left", color=INK, fontweight="bold", pad=11)
         ax.annotate(verdict, xy=(0.0, 1.0), xycoords="axes fraction", xytext=(0, 3),
-                    textcoords="offset points", fontsize=7.8, color=MUTED, style="italic")
+                    textcoords="offset points", fontsize=6.4, color=MUTED, style="italic")
         if row < 2:
             ax.tick_params(axis="x", labelbottom=False)
     axes_a[-1].set_xlabel("pooled cost vs TWAP (bps)   [left of the line = cheaper than TWAP]")
     # the one matched comparison in the figure, marked as such
-    con = fig.add_subplot(left[1:, 0], frameon=False)
-    con.set_xticks([]); con.set_yticks([])
-    con.patch.set_alpha(0.0)
-    con.annotate("", xy=(1.012, 0.04), xytext=(1.012, 0.90), xycoords="axes fraction",
-                 arrowprops=dict(arrowstyle="<->", color=INK, lw=1.2))
-    con.annotate("controlled contrast: only the signal differs", xy=(1.028, 0.47),
-                 xycoords="axes fraction", va="center", ha="center", rotation=90,
-                 fontsize=7.6, color=INK)
 
     # ---- panel B: the edge was there to take, and the agents did not take it ----
-    ax2 = fig.add_subplot(outer[0, 1])
-    ax2.set_position(ax2.get_position().translated(0.075, 0.11).shrunk(0.76, 0.64))
+    ax2 = fig.add_subplot(outer[1, 0])
     ceil = json.loads((S / "step5_signal_ceiling21e6" /
                        "ceiling_confirmation.json").read_text())["regimes"]
     inj = {a["lever"].split()[0]: a for a in load_injected_sealed_arms()}
@@ -572,36 +563,32 @@ def fig_s2_three_environment() -> None:
     ax2.bar(x - w / 2, c_sav, w, color=OI_GREEN, edgecolor="white", linewidth=1.0)
     ax2.bar(x + w / 2, a_sav, w, color=OI_ORANGE, edgecolor="white", linewidth=1.0)
     for xi, v in zip(x - w / 2, c_sav):
-        ax2.text(xi, v + 0.014, f"{v:.3f}", ha="center", va="bottom", fontsize=8.5, color=INK)
-    for xi, v in zip(x + w / 2, a_sav):
-        ax2.text(xi, min(v, 0) - 0.014, f"{v:+.3f}", ha="center", va="top",
-                 fontsize=8.5, color=INK)
-    for xi, c, a in zip(x, c_sav, a_sav):
-        ax2.annotate(f"{100 * a / c:.0f}% of the\navailable edge\ncaptured",
-                     xy=(xi + w / 2, min(a, 0) - 0.055), ha="center", va="top",
-                     fontsize=8, color=INK, fontweight="bold")
+        ax2.text(xi, v + 0.014, f"{v:.3f}", ha="center", va="bottom", fontsize=7, color=INK)
+    for xi, v, c in zip(x + w / 2, a_sav, c_sav):
+        ax2.text(xi, min(v, 0) - 0.020,
+                 f"{v:+.3f}\n{100 * v / c:.0f}% of the edge",
+                 ha="center", va="top", fontsize=6.5, color=INK)
     ax2.axhline(0.0, color=INK, lw=1.2, ls="--")
     ax2.axhspan(-0.05, 0.05, color=MUTED, alpha=0.13, zorder=0)
     ax2.set_xticks(x)
     ax2.set_xticklabels(REGIMES)
     ax2.set_ylim(min(min(a_sav) - 0.20, -0.20), max(c_sav) * 1.15)
     ax2.set_ylabel("saving vs TWAP (bps)")
-    ax2.set_title("Environment 3: the edge was real\nand the agents left all of it",
-                  fontsize=10.5)
+    ax2.set_title("Environment 3: the edge was available and the agents left it",
+                  fontsize=8.0, loc="left")
 
     handles = [
-        Line2D([], [], color=BLUE, marker="o", ls="", ms=8, label="PPO arm (sealed)"),
-        Line2D([], [], color=RED, marker="s", ls="", ms=8, label="DQN arm (sealed)"),
+        Line2D([], [], color=BLUE, marker="o", ls="", ms=8, label="PPO configuration"),
+        Line2D([], [], color=RED, marker="s", ls="", ms=8, label="DQN configuration"),
         Line2D([], [], color=INK, lw=1.2, ls="--", label="TWAP"),
         Patch(facecolor=MUTED, alpha=0.13, label="+/-0.05 bps materiality band"),
         Patch(facecolor=OI_GREEN, label="registered rule, zero fitted parameters"),
-        Patch(facecolor=OI_ORANGE, label="trained agents (sealed)"),
+        Patch(facecolor=OI_ORANGE, label="trained agents"),
     ]
     fig.legend(handles=handles, loc="lower center", ncol=3, frameon=False,
                bbox_to_anchor=(0.5, -0.09))
-    fig.suptitle("Three environments, three sealed verdicts: no stable improvement on TWAP "
-                 "anywhere -- including where a simple rule proves the edge exists",
-                 y=1.03, fontsize=11.5)
+    fig.suptitle("Eighteen pre-registered configurations, by environment",
+                 y=0.995, fontsize=9)
     save(fig, "s2_three_environment", "main_body")
     print(f"    fractions of ceiling captured: "
           f"{[f'{100*a/c:.1f}%' for a, c in zip(a_sav, c_sav)]}")

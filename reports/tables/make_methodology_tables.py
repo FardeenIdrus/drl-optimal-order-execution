@@ -135,17 +135,16 @@ def provenance() -> None:
          "plain and adaptive TWAP, Almgren--Chriss family, expected-volume and oracle VWAP"],
         ["Evaluation", "no seed protocol, sealed block or registration reported",
          "registered rules, materiality floor, five seeds, common random numbers, "
-         "behaviour audit, three-rung ladder, one-shot sealed confirmations"],
+         "behaviour audit, separate blocks for selection and replication, "
+         "one-shot sealed confirmations"],
         ["Agents trained", "not reported",
          rf"\textbf{{{CEN['TOTAL_agents_of_record']}}} "
          rf"({CEN['recorded_books']['agents']} / {CEN['reacting_simulator']['agents']} / "
          rf"{CEN['injected_simulator']['agents']} by environment)"],
     ]
-    note = (r"The left column describes \emph{both} the paper and its released implementation. "
-            r"Rows parsed from the authors' own configuration file "
-            r"(\texttt{src/qrm\_rl/configs/default.yaml}, MIT licence, vendored at commit "
-            r"\texttt{c066726}, working tree clean): book depth, observation, actions, agent, "
-            r"episode and reward penalty.")
+    note = (r"The left column describes the paper and the implementation released with it. "
+            r"Its entries are taken from the authors' own configuration file rather than from "
+            r"the paper, which is the only place several of them are stated.")
     _w("m1_provenance.tex", _tabular("@{}p{0.15\\linewidth}p{0.34\\linewidth}p{0.44\\linewidth}@{}",
                                      ["", "Espa\\~na et al. (2025)", "This study"], rows, note))
 
@@ -272,12 +271,19 @@ REGISTER_ROWS = [
     ("Materiality floor of $0.05$ bps on the mean saving",
      "before any evaluation data were seen", "---", "applied unchanged",
      "criteria section 3, line 63"),
-    ("Significance level of $0.01$ on the paired test",
+    ("Significance level of $0.01$ on the screening paired test",
      "before any evaluation data were seen", "---", "applied unchanged",
      "criteria section 3, line 61"),
-    ("Six simulator validation checks and their pass bands",
-     "before any agent was trained", "all six pass", "held; all six passed",
-     "criteria section 2"),
+    # Eight, not six. Criteria section 2 registers three gate families whose sub-conditions
+    # number six (G1 two, G2 one, G3 three); the two fairness clauses are registered
+    # separately and were unchanged at the base-environment run: the drift clause |t| < 2
+    # ("the original clause", qrm_step4_criteria.md:855) and the gradient clause
+    # ("unchanged and always required", :854). Both verdicts predate training --
+    # step3g/fairness_verdict_{calm,volatile}.json 2026-07-08 20:34/20:59 against
+    # runs_primary_v3/ 2026-07-09 03:12. tab:t5 prints all eight per regime.
+    ("Eight simulator validation checks and their pass bands",
+     "before any agent was trained", "all eight pass", "held; all eight passed",
+     "criteria sections 2 and 8"),
     ("Behaviour audit: exclusion above one unit left to the deadline in more than "
      "one episode in ten",
      "before any agent was scored", "fixed TWAP itself passes at every order size",

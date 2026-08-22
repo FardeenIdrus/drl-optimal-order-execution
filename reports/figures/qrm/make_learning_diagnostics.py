@@ -63,7 +63,7 @@ OUT = Path(__file__).resolve().parent
 BLUE, RED, INK, MUTED = "#1f77b4", "#d62728", "#222222", "#666666"
 RCOL = {"calm": BLUE, "volatile": RED}
 
-plt.rcParams.update({"font.size": 10, "axes.titlesize": 11, "axes.labelsize": 10,
+plt.rcParams.update({"font.size": 7.5, "axes.titlesize": 8, "axes.labelsize": 7.5,
                      "figure.dpi": 150, "savefig.bbox": "tight",
                      "axes.spines.top": False, "axes.spines.right": False})
 
@@ -102,12 +102,12 @@ def panel(ax, runs, xcol, ycol, title, ylab, logy=False, hline=None, hlabel=None
         ax.axhline(hline, color=INK, lw=1.1, ls="--", zorder=2)
         if hlabel:
             ax.annotate(hlabel, xy=(0.99, hline), xycoords=("axes fraction", "data"),
-                        ha="right", va="bottom", fontsize=7.5, color=INK)
+                        ha="right", va="bottom", fontsize=6.5, color=INK)
     if logy:
         ax.set_yscale("log")
     ax.set_xlabel("training steps (millions)")
     ax.set_ylabel(ylab)
-    ax.set_title(title, fontsize=10.5)
+    ax.set_title(title, fontsize=8.5, loc="left")
     return n
 
 
@@ -116,38 +116,26 @@ def main() -> None:
     dqn = load("runs_signal_logged_dqn", "dqn")
     print(f"loaded {len(ppo)} PPO and {len(dqn)} DQN trajectories")
 
-    fig, axes = plt.subplots(2, 3, figsize=(14.0, 7.4))
+    fig, axes = plt.subplots(2, 3, figsize=(7.3, 5.0))
 
     # ---- PPO row -------------------------------------------------------------------
     panel(axes[0, 0], ppo, "time/total_timesteps", "rollout/ep_rew_mean",
-          "PPO — average reward per episode", "mean episode reward")
+          "PPO: reward per episode", "mean episode reward")
     panel(axes[0, 1], ppo, "time/total_timesteps", "train/value_loss",
-          "PPO — value error (critic regression loss)", "value loss", logy=True)
+          "PPO: value error", "value loss", logy=True)
     n = panel(axes[0, 2], ppo, "time/total_timesteps", "train/explained_variance",
-              "PPO — training-time explained variance\n(optimistically biased — see caption)",
-              "explained variance", hline=0.0, hlabel="explains nothing")
+              "PPO: explained variance",
+              "explained variance", hline=0.0)
     axes[0, 2].set_ylim(-1.0, 1.0)
-    axes[0, 2].annotate("This is the library's own metric, scored against a\n"
-                        "target built from the value function itself\n"
-                        "(returns = advantages + values). Measured\n"
-                        "honestly against realised return-to-go under\n"
-                        "the deterministic policy, the same critics\n"
-                        "explain -0.004 of the variance.",
-                        xy=(0.03, 0.03), xycoords="axes fraction", ha="left", va="bottom",
-                        fontsize=7.2, color=MUTED)
 
     # ---- DQN row -------------------------------------------------------------------
     panel(axes[1, 0], dqn, "time/total_timesteps", "rollout/ep_rew_mean",
-          "DQN — average reward per episode", "mean episode reward")
+          "DQN: reward per episode", "mean episode reward")
     panel(axes[1, 1], dqn, "time/total_timesteps", "train/loss",
-          "DQN — value error (temporal-difference loss)", "TD loss", logy=True)
+          "DQN: value error", "TD loss", logy=True)
     ax = axes[1, 2]
     panel(ax, dqn, "time/total_timesteps", "rollout/exploration_rate",
-          "DQN — exploration rate (annealed)", "epsilon")
-    ax.annotate("DQN has no explained-variance analogue:\nthat quantity comes from advantage\n"
-                "estimation and exists only for PPO.\nIts value error is the TD loss, centre.",
-                xy=(0.97, 0.60), xycoords="axes fraction", ha="right", va="top",
-                fontsize=8, color=MUTED)
+          "DQN: exploration rate", "epsilon")
 
     handles = [Line2D([], [], color=BLUE, lw=2, label="calm regime (5 seeds)"),
                Line2D([], [], color=RED, lw=2, label="volatile regime (5 seeds)"),
@@ -160,7 +148,7 @@ def main() -> None:
     # to an examiner meeting the figure once. Which inputs these agents had belongs in the
     # caption, not the title -- see the manifest's caption obligation for F23.
     fig.suptitle("In the injected market, average episode reward does not improve over the "
-                 "full training budget", y=1.005, fontsize=12)
+                 "full training budget", y=1.005, fontsize=9)
     fig.tight_layout()
     for ext in ("pdf", "png"):
         fig.savefig(OUT / f"fig23_learning_diagnostics.{ext}")

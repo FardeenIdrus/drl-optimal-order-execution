@@ -364,7 +364,7 @@ def t7_l2_summary():
         r"% Sealed columns pool BEHAVIOUR-VALID seeds only (audit before cost), unlike the",
         r"% stored arm_summary -- see the addendum in reports/l2_test_protocol.md.",
         r"\begin{tabular}{llrrrrrr}", r"\toprule",
-        r"& & \multicolumn{3}{c}{validation} & \multicolumn{3}{c}{sealed exam} \\",
+        r"& & \multicolumn{3}{c}{validation} & \multicolumn{3}{c}{held-out test period} \\",
         r"\cmidrule(lr){3-5}\cmidrule(lr){6-8}",
         r"panel & arm & pooled & cheaper & $p$ & pooled & cheaper & $p$ \\",
         r" & & (bps) & seeds & & (bps) & seeds & \\", r"\midrule",
@@ -375,14 +375,22 @@ def t7_l2_summary():
             p = ttest_1samp(vals, 0.0, alternative="less").pvalue
             tv, tf = _l2_arm_test(dirname, algo, size)
             ok = tv[~tf] if len(tv) else tv
+            clears = False
             if len(ok) >= 2:
                 tp = ttest_1samp(ok, 0.0, alternative="less").pvalue
-                tcell = (f"{ok.mean():+.4f} & {int((ok < 0).sum())}/{len(ok)} & {tp:.3f}")
+                # clears the pass rule once the behaviour audit is applied first (Sec 4.6)
+                clears = bool(ok.mean() < 0 and tp < 0.05)
+                bf = (lambda x: r"\textbf{" + x + "}") if clears else (lambda x: x)
+                tcell = (f"{bf(f'{ok.mean():+.4f}')} & {bf(f'{int((ok < 0).sum())}/{len(ok)}')}"
+                         f" & {bf(f'{tp:.3f}')}")
             elif len(ok) == 1:
+                bf = lambda x: x
                 tcell = f"{ok.mean():+.4f} & {int((ok < 0).sum())}/1 & --"
             else:
+                bf = lambda x: x
                 tcell = "-- & -- & --"
-            lines.append(f"{esc(label)} & {algo.upper()} {size} & {vals.mean():+.4f} & "
+            lines.append(f"{esc(label)} & {bf(algo.upper() + ' ' + str(size))} & "
+                         f"{vals.mean():+.4f} & "
                          f"{int((vals < 0).sum())}/5 & {p:.3f} & {tcell} \\\\")
         lines.append(r"\midrule")
     lines[-1] = r"\bottomrule"
