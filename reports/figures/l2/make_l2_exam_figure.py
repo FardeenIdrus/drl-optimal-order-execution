@@ -61,7 +61,7 @@ def main():
                     fontsize=7.5, color=MUTED)
     ax.set_xlim(-0.25, 1.25)
     ax.set_xticks([0, 1])
-    ax.set_xticklabels(["validation\n(earlier period)", "sealed test\n(later period)"])
+    ax.set_xticklabels(["validation\n(earlier period)", "confirmation\n(later period)"])
     ax.set_ylabel("cost vs TWAP (bps)   [below the line = cheaper]")
     ax.set_title("Every agent flips sign: 28 of 30")
     ax.annotate("worse than TWAP", xy=(0.99, 0.99), xycoords="axes fraction",
@@ -80,7 +80,7 @@ def main():
         ks = [k for k in keys if k[1].startswith(algo)]
         v = np.array([val[k]["mean_paired_diff_bps"] for k in ks])
         t = np.array([test[k]["mean_paired_diff_bps"] for k in ks])
-        groups += [f"{algo.upper()}\nvalidation", f"{algo.upper()}\nsealed test"]
+        groups += [f"{algo.upper()}\nvalidation", f"{algo.upper()}\nconfirmation"]
         meds += [float(np.median(v)), float(np.median(t))]
         votes += [f"{int((v < 0).sum())}/{len(v)} cheaper", f"{int((t < 0).sum())}/{len(t)} cheaper"]
         cols += [col, col]

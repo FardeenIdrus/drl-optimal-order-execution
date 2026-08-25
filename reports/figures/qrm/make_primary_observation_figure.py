@@ -75,7 +75,8 @@ def main() -> None:
     ax.axvline(0.0, color=INK, lw=1.0, ls="--", zorder=0)
     ax.set_yticks(np.arange(len(runs)))
     ax.set_yticklabels([r.replace("ppo_", "").replace("_", " ") for r in runs], fontsize=8)
-    ax.set_xlabel("how much of the outcome the value function predicts   [higher is better]")
+    ax.set_xlabel("explained variance: the share of outcome variation the value\n"
+                  "function predicts   [1 = perfect, 0 = no better than the mean]")
     ax.set_title("How well the value function predicts the outcome")
     om = np.mean([dm[("original", r)]["critic"]["explained_variance"] for r in runs])
     nm = np.mean([dm[("obsfix", r)]["critic"]["explained_variance"] for r in runs])

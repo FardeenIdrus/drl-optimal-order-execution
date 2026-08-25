@@ -130,7 +130,7 @@ def t3_confirmations():
         r"% Auto-generated from step5_confirm_v3a (9e6) + step5_confirm_v1b (13e6).",
         r"\begin{tabular}{lllrrrc}",
         r"\toprule",
-        r"config & sealed block & seed & vs fixed & vs adaptive & $p$ (adaptive) & valid \\",
+        r"config & confirmation block & seed & vs fixed & vs adaptive & $p$ (adaptive) & valid \\",
         r"\midrule",
     ]
     for dirn, label, blk in [("step5_confirm_v3a", "faster-learning (v3a)", "9{,}000{,}000"),
@@ -240,7 +240,7 @@ def t4_grid():
             # centre volatile cell: numeric condition met, but its dev signal already
             # FAILED both sealed confirmations (criteria 6.8/6.11) -> resolved, not live
             if (size, hz) == (25.0, 5.0) and regime == "volatile":
-                trig_s = "closed (failed both sealed tests)"
+                trig_s = "closed (failed both confirmations)"
             else:
                 trig_s = r"\textbf{YES}" if trig else "no"
             reg = regime if (hz, size) == (2.5, 5.0) else ""
@@ -366,7 +366,7 @@ def t7_l2_summary():
         r"\begin{tabular}{llrrrrrr}", r"\toprule",
         r"& & \multicolumn{3}{c}{validation} & \multicolumn{3}{c}{held-out test period} \\",
         r"\cmidrule(lr){3-5}\cmidrule(lr){6-8}",
-        r"panel & arm & pooled & cheaper & $p$ & pooled & cheaper & $p$ \\",
+        r"panel & configuration (size in BTC) & pooled & cheaper & $p$ & pooled & cheaper & $p$ \\",
         r" & & (bps) & seeds & & (bps) & seeds & \\", r"\midrule",
     ]
     for label, dirname, arms in L2_PANELS:
@@ -406,8 +406,8 @@ def t9_l2_perrun():
         r"% resid = share of episodes finished by the forced deadline buy; DL = audit-rejected.",
         r"% LONGTABLE: flows across pages; include directly (no float, no resizebox).",
         r"\begin{longtable}{llrrrrr}", r"\toprule",
-        r"panel & arm & seed & \multicolumn{2}{c}{validation} & "
-        r"\multicolumn{2}{c}{sealed exam} \\",
+        r"panel & configuration (size in BTC) & seed & \multicolumn{2}{c}{validation} & "
+        r"\multicolumn{2}{c}{test period} \\",
         r"\cmidrule(lr){4-5}\cmidrule(lr){6-7}",
         r" & & & vs TWAP (bps) & resid & vs TWAP (bps) & audit \\",
         r"\midrule", r"\endhead",

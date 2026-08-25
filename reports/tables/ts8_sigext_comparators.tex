@@ -2,7 +2,7 @@
 \begin{table}[htbp]\centering
 \caption[Comparator policies in both environments]{\textbf{Comparator policies in both
 environments.} Mean difference against adaptive TWAP and per-episode cost standard deviation,
-$n=2000$ paired episodes per cell. Lower panel, injected environment: how many trained agents
+$n=2000$ paired episodes per cell. Lower panel, injected simulator: how many trained agents
 are strictly dominated, meaning a feasible benchmark offers both lower cost and lower risk.}
 \label{tab:sigext-comparators}
 % NINE columns: \small overflows the portrait text block by ~26pt. \scriptsize fits without
@@ -11,7 +11,7 @@ are strictly dominated, meaning a feasible benchmark offers both lower cost and 
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrrrrrrrr}
 \toprule
-& \multicolumn{4}{c}{base environment} & \multicolumn{4}{c}{injected environment} \\
+& \multicolumn{4}{c}{reacting simulator} & \multicolumn{4}{c}{injected simulator} \\
 \cmidrule(lr){2-5}\cmidrule(lr){6-9}
 & \multicolumn{2}{c}{calm} & \multicolumn{2}{c}{volatile} & \multicolumn{2}{c}{calm} & \multicolumn{2}{c}{volatile} \\
 policy & vs TWAP & s.d. & vs TWAP & s.d. & vs TWAP & s.d. & vs TWAP & s.d. \\

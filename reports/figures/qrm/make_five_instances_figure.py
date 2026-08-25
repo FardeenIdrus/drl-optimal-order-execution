@@ -54,24 +54,30 @@ FIRST, FRESH = "#d62728", "#1f77b4"
 INK, MUTED, GRID = "#222222", "#666666", "#cccccc"
 MATERIALITY = 0.05
 
-plt.rcParams.update({"font.size": 9.5, "axes.titlesize": 10.5, "axes.labelsize": 10,
-                     "figure.dpi": 150, "savefig.bbox": "tight",
+# PRINTED AT \textwidth = 6.30 in, AND AUTHORED AT THAT WIDTH. Previously authored at 14.4 in
+# and included at \textwidth: a scale of 0.44, which printed the 7 pt row notes at 3.1 pt.
+# savefig.bbox must be None, not "tight" -- a tight box ignores the declared size, and
+# bbox_inches=None at the call site falls back to this rcParam instead of overriding it.
+FIG_W, FIG_H = 6.30, 7.30
+plt.rcParams.update({"font.size": 7.6, "axes.titlesize": 8.2, "axes.labelsize": 7.6,
+                     "xtick.labelsize": 7.0, "ytick.labelsize": 7.4,
+                     "figure.dpi": 200, "savefig.bbox": None,
                      "axes.spines.top": False, "axes.spines.right": False})
 
 # Verified against the sources listed above on 2026-08-01.
 EVAPORATED = [
-    dict(label="1. Selected champion\nchosen from 98 tuning runs",
+    dict(label="Selected champion\nchosen from 98 tuning runs",
          first=-0.0628, fresh=-0.0023, block="sealed",
-         note="dev $p=0.004$, 5/5 valid  →  sealed $p=0.38$, 3/5 cheaper"),
-    dict(label="2. Alternative champion\nsecond selection rule",
+         note="dev $p=0.004$, 5/5 valid  →  confirmation $p=0.38$, 3/5 cheaper"),
+    dict(label="Alternative champion\nsecond selection rule",
          first=-0.0562, fresh=-0.0022, block="sealed",
-         note="dev $p=0.005$, 5/5 valid  →  sealed $p=0.39$, 2/5 cheaper"),
-    dict(label="3. Grid cell\none of two calm triggers",
+         note="dev $p=0.005$, 5/5 valid  →  confirmation $p=0.39$, 2/5 cheaper"),
+    dict(label="Grid cell pair\ntwo calm triggers",
          first=-0.0609, fresh=+0.0177, block="reserve",
          note="dev $p=0.0001$  →  reserve $p=0.96$, sign reversed"),
-    dict(label="5. Strongest candidate\ncorrected observation",
+    dict(label="Strongest candidate\nobservation amendment",
          first=-0.0583, fresh=+0.0009, block="sealed",
-         note="dev $p=0.0001$, 5/5 cheaper, CI below zero  →  sealed $p=0.55$, 1/5"),
+         note="dev $p=0.0001$, 5/5 cheaper, CI below zero  →  confirmation $p=0.55$, 1/5"),
 ]
 
 # Instance 4: validation -> sealed exam, every behaviour-valid arm on the affected dataset.
@@ -84,12 +90,15 @@ MANUFACTURED = [("PPO, 96.6 BTC", 0.1779, -0.4416, False),
 
 
 def main() -> None:
-    fig, (axL, axR) = plt.subplots(1, 2, figsize=(14.4, 6.4),
-                                   gridspec_kw={"width_ratios": [1.0, 1.0]})
+    fig = plt.figure(figsize=(FIG_W, FIG_H))
+    gs = fig.add_gridspec(2, 1, height_ratios=[1.0, 1.06], hspace=0.58,
+                          left=0.275, right=0.985, top=0.945, bottom=0.155)
+    axL, axR = fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[1, 0])
 
     # ---------------- left: four candidates that evaporated -----------------------
     y = np.arange(len(EVAPORATED))[::-1]
-    h = 0.32
+    # Bars slimmed to open a clear band for each row's note (it used to run through them).
+    h = 0.28
     for xb in (-MATERIALITY, MATERIALITY):
         axL.axvline(xb, color=MUTED, lw=1.0, ls=":", zorder=1)
     axL.axvline(0, color=INK, lw=1.2, zorder=2)
@@ -97,15 +106,18 @@ def main() -> None:
         yy = y[i]
         axL.barh(yy + h / 2, ins["first"], height=h, color=FIRST, alpha=0.85, zorder=3)
         axL.barh(yy - h / 2, ins["fresh"], height=h, color=FRESH, alpha=0.85, zorder=3)
-        axL.annotate(f"{ins['note']}   [{ins['block'].upper()} block]",
-                     xy=(0.015, yy - h - 0.16), xycoords=("axes fraction", "data"),
-                     ha="left", va="center", fontsize=7.0, color=MUTED)
+        # No bracketed block tag: each note now names the block kind in the arrow itself
+        # ("-> confirmation p = ...", "-> reserve p = ..."), so the tag duplicated it and
+        # pushed the longest row past the axes edge.
+        axL.annotate(f"{ins['note']}",
+                     xy=(0.015, yy - h - 0.17), xycoords=("axes fraction", "data"),
+                     ha="left", va="center", fontsize=6.2, color=MUTED, zorder=4,
+                     bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="none", alpha=0.9))
     axL.set_yticks(y)
-    axL.set_yticklabels([d["label"] for d in EVAPORATED], fontsize=8.8)
+    axL.set_yticklabels([d["label"] for d in EVAPORATED], fontsize=7.4)
     axL.set_xlabel("cost difference against adaptive TWAP (bps)      ← cheaper", labelpad=8)
-    axL.set_title("Four candidates that evaporated.\n"
-                  "Each cleared its bar on the block it was found on.",
-                  loc="left", fontsize=10.5)
+    axL.set_title("A.  Four candidates, on the block each was found on and on a held-out block",
+                  loc="left", fontsize=8.2)
     axL.grid(axis="x", color=GRID, lw=0.5, zorder=0)
     axL.set_axisbelow(True)
     axL.margins(y=0.20)
@@ -120,31 +132,28 @@ def main() -> None:
         axR.barh(row - h / 2, test, height=h, color=FRESH, alpha=0.85, zorder=3)
     axR.set_yticks(yy)
     axR.set_yticklabels([f"{n}{' *' if c else ''}" for n, _, _, c in MANUFACTURED],
-                        fontsize=8.8)
+                        fontsize=7.4)
     axR.set_xlabel("cost difference against adaptive TWAP (bps)      ← cheaper", labelpad=8)
-    axR.set_title("4. An edge that was manufactured. Every arm loses on\n"
-                  "validation and wins on the sealed block — including the controls.",
-                  loc="left", fontsize=10.5)
+    axR.set_title("B.  Every configuration on the affected dataset version, on validation and\n"
+                  "on the confirmation block, including three behaviourally collapsed",
+                  loc="left", fontsize=8.2)
     axR.grid(axis="x", color=GRID, lw=0.5, zorder=0)
     axR.set_axisbelow(True)
     axR.margins(y=0.16)
 
     handles = [Patch(facecolor=FIRST, alpha=0.85,
-                     label="first block (development, or validation for instance 4)"),
-               Patch(facecolor=FRESH, alpha=0.85, label="fresh block (sealed, or reserve)"),
+                     label="first block (development, or validation in panel B)"),
+               Patch(facecolor=FRESH, alpha=0.85, label="held-out block (confirmation or reserve)"),
                Patch(facecolor="#999999", alpha=0.3,
                      label="±0.05 bps pre-registered materiality threshold")]
-    fig.text(0.52, 0.115,
-             "*  independently diagnosed as behaviourally collapsed: these agents defer execution until the "
-             "deadline forces it.\n   A learner that has stopped learning cannot acquire skill, so what changed "
-             "between the two periods was the\n   market, not the policies.",
-             ha="left", va="top", fontsize=7.6, color=MUTED)
-    fig.legend(handles=handles, loc="lower center", ncol=3, frameon=False,
-               bbox_to_anchor=(0.5, -0.055), fontsize=9)
-    fig.suptitle("The measured edge tracks the evaluation block, not the policy: "
-                 "an out-of-sample block, unanimous seeds and a small $p$ are not sufficient",
-                 y=1.0, fontsize=11.8)
-    fig.tight_layout(rect=[0, 0.135, 1, 0.965])
+    # Descriptive only. The reading of the figure -- that the edge tracks the block and not
+    # the policy -- is the prose's job, not the exhibit's.
+    fig.text(0.015, 0.088,
+             "*  independently diagnosed as behaviourally collapsed: these agents defer execution "
+             "until the deadline forces it.",
+             ha="left", va="top", fontsize=6.4, color=MUTED)
+    fig.legend(handles=handles, loc="lower center", ncol=1, frameon=False,
+               bbox_to_anchor=(0.5, 0.005), fontsize=6.8)
     for ext in ("pdf", "png"):
         fig.savefig(OUT / f"fig25_five_instances.{ext}")
     plt.close(fig)

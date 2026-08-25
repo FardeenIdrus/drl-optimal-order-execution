@@ -133,8 +133,8 @@ def provenance() -> None:
          "negative implementation shortfall against the arrival mid, bps, forced completion"],
         ["Benchmarks", "TWAP, POPV1--4",
          "plain and adaptive TWAP, Almgren--Chriss family, expected-volume and oracle VWAP"],
-        ["Evaluation", "no seed protocol, sealed block or registration reported",
-         "registered rules, materiality floor, five seeds, common random numbers, "
+        ["Evaluation", "no seed protocol, confirmation block or registration reported",
+         "registered rules, materiality threshold, five seeds, common random numbers, "
          "behaviour audit, separate blocks for selection and replication, "
          "one-shot sealed confirmations"],
         ["Agents trained", "not reported",
@@ -183,6 +183,9 @@ def tracks() -> None:
         ["Training budget (steps)",
          budgets(sorted({b for v in rb["builds"].values() for b in v["training_budget_steps"]})),
          budgets(re_["training_budget_steps"]), budgets(inj["training_budget_steps"])],
+        # The base campaign's composition is stated nowhere in prose; this row is its only
+        # definition. Literal, because it is a design fact, not a measurement.
+        ["Seeds per configuration", "5", "5", "5"],
         ["Observation width",
          rf"{ow['recorded_books']['base']}",
          rf"{ow['reacting_simulator']['base']} / {ow['reacting_simulator']['with_arrival_price']}",
@@ -268,7 +271,7 @@ REGISTER_ROWS = [
     ("The definition of an edge: all four conditions together",
      "before any evaluation data were seen", "---", "applied unchanged",
      "criteria section 3, lines 60--64"),
-    ("Materiality floor of $0.05$ bps on the mean saving",
+    ("Materiality threshold of $0.05$ bps on the mean saving",
      "before any evaluation data were seen", "---", "applied unchanged",
      "criteria section 3, line 63"),
     ("Significance level of $0.01$ on the screening paired test",
@@ -289,8 +292,8 @@ REGISTER_ROWS = [
      "before any agent was scored", "fixed TWAP itself passes at every order size",
      "held; worst case $0.010$ against a $0.10$ cap",
      "criteria sections 4, 4b, 7.4"),
-    ("Which episode block serves which purpose, and each sealed block to be opened once",
-     "before any block was opened", "---", "applied unchanged; every sealed block spent once",
+    ("Which episode block serves which purpose, and each confirmation block to be opened once",
+     "before any block was opened", "---", "applied unchanged; every confirmation block spent once",
      "criteria section 3; seed-disjointness audit"),
     ("Injected signal must reproduce the measured Hyperliquid slope within $\\pm20\\%$",
      "before the certification run", "the band is reachable at every gated horizon",
@@ -301,7 +304,7 @@ REGISTER_ROWS = [
      "\\textbf{held}", "criteria A1; results log (K)"),
     ("First sealed confirmation, the rule-based follower",
      "before the block was opened",
-     "cheaper than the benchmark beyond the materiality floor, both regimes",
+     "cheaper than the benchmark beyond the materiality threshold, both regimes",
      "\\textbf{held}", "criteria A1; results log (L)"),
     ("Adding the arrival price to the observation, policy-gradient agent",
      "before the agents were re-trained",

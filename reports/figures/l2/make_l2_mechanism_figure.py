@@ -32,8 +32,15 @@ BLUE, RED, INK, MUTED = "#1f77b4", "#d62728", "#222222", "#666666"
 OI_GREEN, OI_ORANGE = "#009E73", "#E69F00"
 DATASET = "runs_10s"          # the dataset whose agents inverted; the exam's decisive arm set
 
-plt.rcParams.update({"font.size": 10, "axes.titlesize": 11, "axes.labelsize": 10,
-                     "figure.dpi": 150, "savefig.bbox": "tight",
+# PRINTED AT \textwidth = 6.30 in, AND AUTHORED AT THAT WIDTH. The previous version was
+# authored at 14.2 in and included at \textwidth, a scale of 0.44, so its 10.5 pt panel titles
+# printed at 4.6 pt. savefig.bbox is None, NOT "tight": a tight box is computed from the drawn
+# artists and does not respect the declared size, and passing bbox_inches=None at the call site
+# FALLS BACK to this rcParam rather than overriding it.
+FIG_W, FIG_H = 6.30, 7.60
+plt.rcParams.update({"font.size": 8.4, "axes.titlesize": 9.0, "axes.labelsize": 8.4,
+                     "xtick.labelsize": 7.8, "ytick.labelsize": 7.8,
+                     "figure.dpi": 200, "savefig.bbox": None,
                      "axes.spines.top": False, "axes.spines.right": False})
 
 
@@ -43,7 +50,10 @@ def main() -> None:
     val3, test3 = s3["validation"], s3["test"]
     runs = sorted(val3)
 
-    fig, axes = plt.subplots(1, 3, figsize=(14.2, 4.5))
+    fig = plt.figure(figsize=(FIG_W, FIG_H))
+    gs = fig.add_gridspec(2, 2, hspace=0.55, wspace=0.34,
+                          left=0.125, right=0.975, top=0.945, bottom=0.065)
+    axes = [fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[0, 1]), fig.add_subplot(gs[1, 0])]
 
     # ---------- A: the probe -- a rule that cannot learn shows the whole inversion ----------
     ax = axes[0]
@@ -57,14 +67,14 @@ def main() -> None:
     ax.axhline(0.0, color=INK, lw=1.2, ls="--", zorder=1)
     ax.axhspan(-0.05, 0.05, color=MUTED, alpha=0.13, zorder=0)
     ax.axvline(1.0, color=MUTED, lw=1.0, ls=":", zorder=1)
-    ax.annotate("delay", xy=(0.5, ax.get_ylim()[1]), xytext=(0, -4),
-                textcoords="offset points", ha="center", va="top", fontsize=8, color=MUTED)
-    ax.annotate("front-load", xy=(2.0, ax.get_ylim()[1]), xytext=(0, -4),
-                textcoords="offset points", ha="center", va="top", fontsize=8, color=MUTED)
+    ax.annotate("trades slower", xy=(0.5, ax.get_ylim()[1]), xytext=(0, -3),
+                textcoords="offset points", ha="left", va="top", fontsize=6.6, color=MUTED)
+    ax.annotate("trades faster", xy=(2.0, ax.get_ylim()[1]), xytext=(0, -3),
+                textcoords="offset points", ha="right", va="top", fontsize=6.6, color=MUTED)
     ax.set_xlabel("fixed pace, as a multiple of TWAP\n(1.0 reproduces TWAP exactly)")
     ax.set_ylabel("cost vs TWAP (bps)   [below = cheaper]")
-    ax.set_title("A.  No learning involved:\nthe premium to deviating reverses sign",
-                 fontsize=10.5)
+    ax.set_title("A.  Cost of a fixed pace multiple,\nby evaluation period",
+                 fontsize=9.0, loc="left")
 
     # ---------- B: dose is a property of the policy; cost is a property of the period ------
     ax = axes[1]
@@ -84,17 +94,23 @@ def main() -> None:
     ax.axhline(0.0, color=INK, lw=1.2, ls="--", zorder=1)
     ax.axvline(0.0, color=MUTED, lw=1.0, ls=":", zorder=1)
     ax.axhspan(-0.05, 0.05, color=MUTED, alpha=0.13, zorder=0)
-    ax.set_xlabel("the agent's front-loading dose\n[negative = it delays instead]")
+    ax.set_xlabel(r"$\beta$: the agent's pacing exposure" "\n[negative = it trades slower than TWAP]")
     ax.set_ylabel("cost vs TWAP (bps)")
-    ax.set_title("B.  Dose predicts the direction of the flip,\nagent by agent", fontsize=10.5)
+    ax.set_title("B.  Each agent's cost in both periods,\nagainst its pacing exposure",
+                 fontsize=9.0, loc="left")
     n_off = int((~keep).sum())
-    note = (f"dose is a property of the weights, so it does not move\n"
-            f"between periods: corr(validation, test) = "
-            f"{np.corrcoef(bv, bt)[0, 1]:.3f}\nonly the cost flips")
+    note = (r"$\beta$ is a property of the weights and does not" "\n"
+            f"move between periods: corr = {np.corrcoef(bv, bt)[0, 1]:.3f}\n"
+            f"only the cost changes sign")
     if n_off:
-        note += f"\n{n_off} collapsed seed off-scale (+2.94 / +4.34 bps)"
-    ax.annotate(note, xy=(0.02, 0.02), xycoords="axes fraction", fontsize=7.4,
-                color=MUTED, va="bottom")
+        note += f"\n{n_off} collapsed seed off-scale\n(+2.94 / +4.34 bps)"
+    # Upper left: the lower left is where the sealed-period markers cluster.
+    # The note used to sit on top of the plotted points; reserve blank space above them for it.
+    y0, y1 = ax.get_ylim()
+    ax.set_ylim(y0, y1 + 0.62 * (y1 - y0))
+    ax.annotate(note, xy=(0.02, 0.97), xycoords="axes fraction", fontsize=7.4,
+                color=MUTED, va="top",
+                bbox=dict(boxstyle="round,pad=0.35", fc="white", ec="none", alpha=0.92))
 
     # ---------- C: the decomposition ----------
     ax = axes[2]
@@ -107,34 +123,33 @@ def main() -> None:
                   color=[INK, OI_GREEN, OI_ORANGE], edgecolor="white", linewidth=1.2)
     for b, v in zip(bars, [shift, pacing, resid]):
         ax.text(b.get_x() + b.get_width() / 2, v - 0.018, f"{v:+.3f}",
-                ha="center", va="top", fontsize=9.5, color=INK, fontweight="bold")
+                ha="center", va="top", fontsize=7.4, color=INK, fontweight="bold")
     ax.axhline(0.0, color=INK, lw=1.2, ls="--")
     ax.axhspan(-0.05, 0.05, color=MUTED, alpha=0.13, zorder=0)
     ax.set_xticks([0, 1, 2])
-    ax.set_xticklabels(["observed\nval -> test shift", "explained by\npacing",
-                        "residual\n(not pacing)"], fontsize=8.5)
+    ax.set_xticklabels(["observed\nshift", "explained by\npacing",
+                        "residual"], fontsize=7.0)
     ax.set_ylabel("mean shift in cost vs TWAP (bps)")
     ax.set_ylim(min(shift, pacing) * 1.42, 0.13)
-    ax.annotate(f"{100 * pacing / shift:.0f}% of the inversion is\na pacing exposure",
+    ax.annotate(f"{100 * pacing / shift:.0f}% of the shift",
                 xy=(1, min(shift, pacing) * 1.30), ha="center", va="bottom",
-                fontsize=8.6, color=OI_GREEN, fontweight="bold")
+                fontsize=7.4, color=OI_GREEN, fontweight="bold")
     ax.annotate("inside the materiality band", xy=(2, 0.062), ha="center", va="bottom",
-                fontsize=7.4, color=MUTED)
-    ax.set_title("C.  95% of the apparent edge is\nexposure, not skill", fontsize=10.5)
+                fontsize=6.4, color=MUTED)
+    ax.set_title("C.  Decomposition of the mean shift\nin cost between periods",
+                 fontsize=9.0, loc="left")
 
     handles = [
         Line2D([], [], color=BLUE, marker="o", lw=1.8, label="validation period"),
-        Line2D([], [], color=RED, marker="s", lw=1.8, label="sealed test period"),
+        Line2D([], [], color=RED, marker="s", lw=1.8, label="confirmation period"),
         Line2D([], [], color=MUTED, lw=1.0, ls="-", label="PPO agent (panel B)"),
         Line2D([], [], color=MUTED, lw=1.0, ls=(0, (2.2, 1.4)), label="DQN agent (panel B)"),
         Line2D([], [], color=INK, lw=1.2, ls="--", label="TWAP"),
         Patch(facecolor=MUTED, alpha=0.13, label="+/-0.05 bps materiality band"),
     ]
-    fig.legend(handles=handles, loc="lower center", ncol=6, frameon=False,
-               bbox_to_anchor=(0.5, -0.11), fontsize=8.6)
-    fig.suptitle("The sealed period's apparent edge is a pacing exposure any fixed rule "
-                 "would have collected", y=1.02, fontsize=11.5)
-    fig.tight_layout()
+    # Legend fills the empty lower-right cell rather than a strip below the axes.
+    fig.legend(handles=handles, loc="upper left", ncol=1, frameon=False,
+               bbox_to_anchor=(0.60, 0.42), fontsize=7.2)
     for ext in ("pdf", "png"):
         fig.savefig(OUT / f"frozen_inversion_mechanism.{ext}")
     plt.close(fig)

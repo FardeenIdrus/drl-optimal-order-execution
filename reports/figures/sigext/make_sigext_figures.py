@@ -232,7 +232,7 @@ def fig_s4_exploiter_vs_agents() -> None:
     judgement.json (agents). Same env, same seeds, same CRN pairing."""
     fol = load_follower()
     j, audit = load_dev()
-    rows = [("follower", "signal-follower\n(registered benchmark)", "exploit"),
+    rows = [("follower", "signal-reading rule\n(registered benchmark)", "exploit"),
             ("bangbang", "threshold rule\n(diagnostic)", "exploit"),
             ("half", "half-strength rule\n(diagnostic)", "exploit"),
             ("__ppo", "PPO base\n(trained agent)", "agent"),
@@ -504,7 +504,7 @@ def fig_s2_three_environment() -> None:
     """
     envs = [
         ("1. Recorded order books", load_l2_sealed_arms(),
-         "no stable edge; six of fourteen configurations clear the bar, a collapsed learner among them"),
+         "no stable edge; six of fourteen configurations meet the pass rule, a collapsed learner among them"),
         ("2. Reacting simulator, no injected signal", load_reactive_sealed_arms(),
          "null — both sealed confirmations fail"),
         ("3. Reacting simulator with the measured signal", load_injected_sealed_arms(),
@@ -515,11 +515,19 @@ def fig_s2_three_environment() -> None:
     # its own arms instead of in a shared margin.
     flat = [a for _, arms, _ in envs for a in arms]
     lo = min(a["bps"] for a in flat) - 0.10
-    hi = max(a["bps"] for a in flat) + 0.10
-    fig = plt.figure(figsize=(6.3, 7.2))
-    outer = fig.add_gridspec(2, 1, height_ratios=[3.15, 1.0], hspace=0.30)
-    left = outer[0, 0].subgridspec(3, 1, height_ratios=[len(a) + 1.4 for _, a, _ in envs],
-                                   hspace=0.42)
+    # Headroom on the right for the "n/m seeds cheaper" annotations, which sit outside the
+    # rightmost point and were clipped once the tight bbox stopped rescuing them.
+    hi = max(a["bps"] for a in flat) + 0.19
+    # SIZED FOR PRINT. \textwidth is 6.30 in and \textheight 9.72 in, so 8.60 in of figure
+    # leaves room for the caption. The +3.0 constant (was +1.4) stops the two-row panels being
+    # squeezed by the fourteen-row one; the outer hspace separates the cost panels from the
+    # saving panel, which is a different quantity on a different axis and was reading as a
+    # fourth environment.
+    fig = plt.figure(figsize=(6.3, 8.35))
+    outer = fig.add_gridspec(2, 1, height_ratios=[3.0, 1.25], hspace=0.55,
+                             left=0.295, right=0.955, top=0.925, bottom=0.105)
+    left = outer[0, 0].subgridspec(3, 1, height_ratios=[len(a) + 3.0 for _, a, _ in envs],
+                                   hspace=0.46)
     axes_a = []
     for row, (name, arms, verdict) in enumerate(envs):
         ax = fig.add_subplot(left[row, 0], sharex=axes_a[0] if axes_a else None)
@@ -537,7 +545,8 @@ def fig_s2_three_environment() -> None:
                         va="center", fontsize=6.0, color=MUTED)
         ax.set_yticks(ys)
         ax.set_yticklabels(
-            [f"{a['lever']}" + (f"  ·  {a['algo'].upper()} {a['size']:g}"
+            # The size carries no unit without this; every order size in the study is in BTC.
+            [f"{a['lever']}" + (f"  ·  {a['algo'].upper()} {a['size']:g}\u2009BTC"
                                 if a["size"] else f"  ·  {a['algo'].upper()}")
              for a in arms], fontsize=6.2)
         ax.set_ylim(-0.85, len(arms) - 0.15)
@@ -586,10 +595,15 @@ def fig_s2_three_environment() -> None:
         Patch(facecolor=OI_ORANGE, label="trained agents"),
     ]
     fig.legend(handles=handles, loc="lower center", ncol=3, frameon=False,
-               bbox_to_anchor=(0.5, -0.09))
+               bbox_to_anchor=(0.5, 0.004), fontsize=8)
     fig.suptitle("Eighteen pre-registered configurations, by environment",
                  y=0.995, fontsize=9)
-    save(fig, "s2_three_environment", "main_body")
+    # savefig.bbox is "tight" globally in this file, which expanded this figure to 8.30 in and
+    # printed it at scale 0.759 -- every label 24% smaller than authored. Overridden HERE ONLY,
+    # via rc_context, because the other figures in this file are sized against that setting.
+    # bbox_inches=None at the call site does NOT override the rcParam; it falls back to it.
+    with matplotlib.rc_context({"savefig.bbox": None}):
+        save(fig, "s2_three_environment", "main_body")
     print(f"    fractions of ceiling captured: "
           f"{[f'{100*a/c:.1f}%' for a, c in zip(a_sav, c_sav)]}")
 
@@ -720,7 +734,8 @@ def fig_s11_a4_observation() -> None:
     ax.axvline(0.0, color=INK, lw=1.0, ls="--", zorder=0)
     ax.set_yticks(y)
     ax.set_yticklabels([r.replace("ppo_", "").replace("_", " ") for r in runs], fontsize=8)
-    ax.set_xlabel("how much of the outcome the value function predicts   [higher is better]")
+    ax.set_xlabel("explained variance: the share of outcome variation the value\n"
+                  "function predicts   [1 = perfect, 0 = no better than the mean]")
     ax.set_title("How well the value function predicts the outcome")
 
     # ---- right: the verdict ----

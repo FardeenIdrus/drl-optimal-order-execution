@@ -142,7 +142,7 @@ def fig_dev_vs_sealed():
         Line2D([], [], marker="D", ls="", color=BLUE, ms=7,
                label="development block: mean ± 95% CI (in-sample selection)"),
         Line2D([], [], marker="D", ls="", color=RED, ms=7,
-               label="sealed block: mean ± 95% CI (one-shot, fresh seeds)"),
+               label="confirmation block: mean ± 95% CI (one-shot, fresh seeds)"),
         Line2D([], [], marker="o", ls="", markerfacecolor="none",
                markeredgecolor="grey", ms=6, label="individual seeds (5 per condition)"),
     ]
@@ -217,7 +217,7 @@ def fig_forest_selection():
     ax.axvline(-0.05, color="grey", lw=1.0, ls="--")
     # floor label ABOVE the axes (blended transform: x in data coords, y in axes coords)
     tr = blended_transform_factory(ax.transData, ax.transAxes)
-    ax.text(-0.05, 1.015, "materiality floor (-0.05)", transform=tr,
+    ax.text(-0.05, 1.015, "materiality threshold (-0.05)", transform=tr,
             ha="center", va="bottom", fontsize=8, color="grey")
     ax.text(0.0, 1.015, "adaptive-TWAP benchmark", transform=tr,
             ha="center", va="bottom", fontsize=8, color="k")
@@ -457,8 +457,15 @@ def fig_regime_comparison():
     ax.set_xticklabels([g[0] for g in groups])
     ax.set_xlim(-1.1, centers[-1] + 1.75)
     ax.set_ylabel(BPS + "\n(development block)")
-    ax.set_title("The apparent advantage was volatile-regime-only; calm shows nothing\n"
-                 "(development-block evidence; the volatile signal later failed the sealed test)")
+    # DESCRIPTIVE, and no chronology. The previous title argued ("The apparent advantage was
+    # volatile-regime-only; calm shows nothing") and dated itself ("the volatile signal LATER
+    # failed the sealed test"). Arguments belong in prose, not on the exhibit, and
+    # writing_standard.md §4.3 bans narrating a sequence. It also over-claimed: two CALM cells
+    # in the reacting grid triggered follow-up, one at p = 0.0003, so "calm shows nothing" is
+    # not true of the campaign. The title now names the two configurations plotted and the
+    # block they were measured on, which is all this figure shows.
+    ax.set_title("Cost against adaptive TWAP by regime, two configurations\n"
+                 "(development block; per-seed values with 95% confidence intervals)")
     handles = [
         Line2D([], [], marker="D", ls="", color=BLUE, ms=7, label="calm regime: mean ± 95% CI"),
         Line2D([], [], marker="D", ls="", color=RED, ms=7, label="volatile regime: mean ± 95% CI"),
@@ -563,7 +570,7 @@ def fig_grid_heatmap():
     cb = fig.colorbar(im, ax=axes, fraction=0.032, pad=0.02)
     cb.set_label("pooled cost vs adaptive-TWAP (bps)\nnegative = agent cheaper", fontsize=8.5)
     fig.suptitle("Robustness grid, development-block evidence: two calm cells (solid outline) meet the\n"
-                 "pre-registered follow-up trigger; the centre volatile signal (dashed) already failed two sealed tests",
+                 "pre-registered follow-up trigger; the centre volatile signal (dashed) already failed two confirmations",
                  y=1.06)
     save(fig, "fig9_grid_heatmap")
 
@@ -594,7 +601,7 @@ def fig_forest_calm():
     ax.axvline(0, color="k", lw=0.9)
     ax.axvline(-0.05, color="grey", lw=1.0, ls="--")
     tr = blended_transform_factory(ax.transData, ax.transAxes)
-    ax.text(-0.05, 1.015, "materiality floor (-0.05)", transform=tr,
+    ax.text(-0.05, 1.015, "materiality threshold (-0.05)", transform=tr,
             ha="center", va="bottom", fontsize=8, color="grey")
     ax.text(0.0, 1.015, "adaptive-TWAP benchmark", transform=tr,
             ha="center", va="bottom", fontsize=8, color="k")
@@ -717,8 +724,8 @@ def fig_q_tilt():
     ax.text(100 * np.mean(val), 1.01, f"valid mean {100*np.mean(val):.0f}%",
             transform=tr, color=BLUE, fontsize=8, ha="center", va="bottom")
     ax.set_xlabel('share of states where the network ranks "trade nothing" first (%)')
-    ax.set_title("Inside the collapsed networks: near-flat action values tipping toward\n"
-                 "inaction (both 2.5-min probe cells, 5 evaluation episodes per agent)",
+    ax.set_title("Preference for inaction, by behaviour-audit outcome\n"
+                 "(both 2.5-min probe cells, 5 evaluation episodes per agent)",
                  pad=24)
     handles = [Patch(facecolor=RED, alpha=0.85, label="collapsed (failed behaviour audit)"),
                Patch(facecolor=BLUE, alpha=0.85, label="valid")]

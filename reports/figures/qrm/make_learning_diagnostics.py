@@ -147,7 +147,7 @@ def main() -> None:
     # a reference point a first-time reader cannot resolve. "The original agents" is meaningless
     # to an examiner meeting the figure once. Which inputs these agents had belongs in the
     # caption, not the title -- see the manifest's caption obligation for F23.
-    fig.suptitle("In the injected market, average episode reward does not improve over the "
+    fig.suptitle("In the injected simulator, average episode reward does not improve over the "
                  "full training budget", y=1.005, fontsize=9)
     fig.tight_layout()
     for ext in ("pdf", "png"):

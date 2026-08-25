@@ -357,7 +357,7 @@ PANEL_B = [
     ("13e6", "confirmation", "second confirmation of the main comparison, one attempt only",
      "1", "spent"),
     ("25e6", "confirmation", "created for the amended observation specification",
-     "1, two arms", "spent"),
+     "1, two runs", "spent"),
     ("17e6", "confirmation", "created for the injected-signal extension, one attempt only",
      "1", "spent"),
     ("21e6", "confirmation", "created to confirm the best attainable improvement with the "

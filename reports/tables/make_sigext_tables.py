@@ -278,9 +278,9 @@ regime & follower vs adaptive TWAP (bps) & s.e. & $p$ \\
     body = r"""% Sealed exhibit on block 17e6 (MAIN). Predictions registered before unsealing.
 % Source: step5_signal_sealed/judgement.json (+ follower_context.json)
 \begin{table}[htbp]\centering
-\caption[Sealed-block replication]{Sealed-block replication. The predictions were recorded in the registration
-ledger before the block was opened: no agent would pass, and the signal-reading rule
-would remain profitable beyond the materiality threshold in both regimes.}
+\caption[Replication on the confirmation block]{Replication on the confirmation block. The predictions were recorded in the registered
+protocol before the block was opened: no agent would meet the edge criterion, and the
+signal-reading rule would remain profitable beyond the materiality threshold in both regimes.}
 \label{tab:sigext-sealed}
 \small
 \begin{tabular}{lrlrl}
@@ -326,7 +326,7 @@ def table_ts10_obsfix_per_run() -> None:
     body = r"""% Per-run results for the three arrival-price campaigns, injected market (APPENDIX).
 % Source: step5_signal_obsfix / _var / _dqn -- judgement.json + behaviour_audit.json
 \begin{table}[htbp]\centering
-\caption{Every run in the injected market trained with the arrival price among the agent's
+\caption{Every run in the injected simulator trained with the arrival price among the agent's
 inputs, against both benchmarks ($n=2000$ paired episodes each), on the development block.
 A4 is the base configuration, A4.1 three pre-planned variants, A4.2 the value-based algorithm;
 these are three separate campaigns and are not pooled. Runs marked \textbf{no} failed the
@@ -398,13 +398,13 @@ def table_ts7_ceiling() -> None:
 \caption[The attainable-edge ceiling]{\textbf{The attainable-edge ceiling and the fraction
 captured.} Upper panel: mean paired saving against adaptive TWAP for each coefficient in the
 registered grid, on the development block. Lower panel: the tuned rule confirmed once on a
-held-out confirmation block, against the agents' results on their own sealed block, and the
+held-out confirmation block, against the agents' results on their own confirmation block, and the
 fraction of the ceiling captured.}
 \label{tab:sigext-ceiling}
 \small
 \begin{tabular}{lrr}
 \toprule
-tilt coefficient $c$ & calm (bps) & volatile (bps) \\
+coefficient $c$ & calm (bps) & volatile (bps) \\
 \midrule
 """ + "\n".join(grid_rows) + r"""
 \bottomrule
@@ -413,7 +413,7 @@ tilt coefficient $c$ & calm (bps) & volatile (bps) \\
 \vspace{0.6em}
 \begin{tabular}{llrrlrl}
 \toprule
-regime & $c^*$ & confirmed ceiling (bps) & s.e. & $p$ & agents (sealed) & captured \\
+regime & $c^*$ & confirmed ceiling (bps) & s.e. & $p$ & agents (confirmed) & captured \\
 \midrule
 """ + "\n".join(conf_rows) + r"""
 \bottomrule
@@ -455,7 +455,7 @@ def table_ts8_comparators() -> None:
 \begin{table}[htbp]\centering
 \caption[Comparator policies in both environments]{\textbf{Comparator policies in both
 environments.} Mean difference against adaptive TWAP and per-episode cost standard deviation,
-$n=2000$ paired episodes per cell. Lower panel, injected environment: how many trained agents
+$n=2000$ paired episodes per cell. Lower panel, injected simulator: how many trained agents
 are strictly dominated, meaning a feasible benchmark offers both lower cost and lower risk.}
 \label{tab:sigext-comparators}
 % NINE columns: \small overflows the portrait text block by ~26pt. \scriptsize fits without
@@ -464,7 +464,7 @@ are strictly dominated, meaning a feasible benchmark offers both lower cost and 
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrrrrrrrr}
 \toprule
-& \multicolumn{4}{c}{base environment} & \multicolumn{4}{c}{injected environment} \\
+& \multicolumn{4}{c}{reacting simulator} & \multicolumn{4}{c}{injected simulator} \\
 \cmidrule(lr){2-5}\cmidrule(lr){6-9}
 & \multicolumn{2}{c}{calm} & \multicolumn{2}{c}{volatile} & \multicolumn{2}{c}{calm} & \multicolumn{2}{c}{volatile} \\
 policy & vs TWAP & s.d. & vs TWAP & s.d. & vs TWAP & s.d. & vs TWAP & s.d. \\
