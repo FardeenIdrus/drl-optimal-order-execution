@@ -74,8 +74,11 @@ def fig_l1_three_lever():
         ax.set_title(title, fontsize=9.5)
         ax.set_xlim(-0.6, len(arms) - 0.4)
     axes[0].set_ylabel("cost vs TWAP (bps)\nVALIDATION data")
-    fig.suptitle("Frozen-replay track: no arm beats TWAP consistently across bar resolution,\n"
-                 "order size (BTC), or deadline (all 70 agents; sealed test set not yet used)",
+    # Descriptive, and free of banned terms: "frozen replay" (the ruling is recorded order
+    # books), "track" and "arm" (the noun is configuration), plus "not yet used", which was a
+    # chronology and is now false -- the test period has been used.
+    fig.suptitle("Recorded order books: cost against TWAP by bar resolution, order size\n"
+                 "and deadline, on validation data (all 70 agents)",
                  y=1.09)
     handles = [
         Line2D([], [], marker="o", ls="", markerfacecolor="none", markeredgecolor=BLUE,
@@ -84,7 +87,7 @@ def fig_l1_three_lever():
                ms=7, label="DQN seed"),
         Line2D([], [], marker="s", ls="", markerfacecolor=RED, markeredgecolor=RED,
                ms=7, label="filled = leaned on forced deadline buy (>10% of episodes)"),
-        Line2D([], [], marker="D", ls="", color="k", ms=7, label="arm mean"),
+        Line2D([], [], marker="D", ls="", color="k", ms=7, label="configuration mean"),
     ]
     fig.legend(handles=handles, loc="upper center", bbox_to_anchor=(0.5, -0.04),
                ncol=4, frameon=False, fontsize=8.5)
