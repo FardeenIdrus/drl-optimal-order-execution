@@ -1,16 +1,25 @@
-\begin{tabular}{@{}p{0.2\linewidth}p{0.24\linewidth}p{0.24\linewidth}p{0.24\linewidth}@{}}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.2\linewidth}p{0.24\linewidth}p{0.24\linewidth}p{0.24\linewidth}@{}}
 \toprule
 \textbf{} & \textbf{Recorded books} & \textbf{Reacting simulator} & \textbf{Injected simulator} \\
 \midrule
 Market & recorded order books, replayed & queue-reactive simulator & queue-reactive simulator \\
+\addlinespace[4pt]
 Does the book react? & no & yes & yes \\
-Predictable signal & whatever the real data held & only what the simulator's own dynamics produce & a measured Hyperliquid signal, injected \\
+\addlinespace[4pt]
+Predictable signal & the predictability present in the recorded data & only what the simulator's own dynamics produce & a measured Hyperliquid signal, injected \\
+\addlinespace[4pt]
 Decision cadence & 10\,s and 1\,min (three builds) & 1\,s & 1\,s \\
+\addlinespace[4pt]
 Decisions per episode & 30, 60, 180 (by build) & 300 primary; {150, 300, 600, 1200} across the horizon grid & 300 \\
+\addlinespace[4pt]
 Order sizes (BTC) & 96.57, 193.13, 386.27 (0.5, 1, 2\% of the two-year daily average) & 5, 12.5, 25, 50 (0.017 to 0.167\% of December's) & 25 \\
+\addlinespace[4pt]
 Training budget (steps) & 2M, 12M & 2M, 10M & 2M \\
+\addlinespace[4pt]
 Seeds per configuration & 5 & 5 & 5 \\
+\addlinespace[4pt]
 Observation width & 7 & 27 / 28 & 28 / 29 \\
+\addlinespace[4pt]
 Benchmark & fixed TWAP & adaptive TWAP & adaptive TWAP \\
 \bottomrule
 \end{tabular}

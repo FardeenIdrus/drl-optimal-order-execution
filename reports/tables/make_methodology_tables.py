@@ -64,12 +64,17 @@ SCAF = (VENDORED / "src" / "qrm_rl" / "configs" / "default.yaml").read_text()
 OURS = (REPO / "configs" / "experiment.yaml").read_text()
 
 
-def _tabular(colspec: str, header: list[str], rows: list[list[str]], notes: str = "") -> str:
+def _tabular(colspec: str, header: list[str], rows: list[list[str]], notes: str = "",
+             rowsep: str = "") -> str:
+    # rowsep: booktabs-style breathing room between wrapped rows (e.g. "3pt"). Internal
+    # horizontal rules are deliberately not used; \addlinespace is the booktabs idiom.
     out = [r"\begin{tabular}{" + colspec + "}", r"\toprule",
            " & ".join(rf"\textbf{{{h}}}" for h in header) + r" \\", r"\midrule"]
-    for r in rows:
+    for i, r in enumerate(rows):
         cells = [c for c in r if c != ""] if r and r[0].startswith(r"\multicolumn") else r
         out.append(" & ".join(cells) + r" \\")
+        if rowsep and i < len(rows) - 1:
+            out.append(rf"\addlinespace[{rowsep}]")
     out += [r"\bottomrule"]
     if notes:
         out.append(rf"\multicolumn{{{len(header)}}}{{@{{}}p{{\linewidth}}@{{}}}}{{\footnotesize {notes}}} \\")
@@ -130,9 +135,10 @@ def provenance() -> None:
          rf"and horizons {{{', '.join(f'{h}' for h in PD['horizon_variants_decisions'])}}}\,s"],
         # LITERAL (designation, paper eq. 4; their final_penalty parsed above).
         ["Reward", rf"terminal-penalised shortfall, $\alpha = {their_pen}$",
-         "negative implementation shortfall against the arrival mid, bps, forced completion"],
+         "negative implementation shortfall against the arrival mid-quote, in basis points, "
+         "with forced completion at the deadline"],
         ["Benchmarks", "TWAP, POPV1--4",
-         "plain and adaptive TWAP, Almgren--Chriss family, expected-volume and oracle VWAP"],
+         "fixed and adaptive TWAP, Almgren--Chriss family, expected-volume and oracle VWAP"],
         ["Evaluation", "no seed protocol, confirmation block or registration reported",
          "registered rules, materiality threshold, five seeds, common random numbers, "
          "behaviour audit, separate blocks for selection and replication, "
@@ -162,7 +168,7 @@ def tracks() -> None:
          "queue-reactive simulator"],
         ["Does the book react?", "no", "yes", "yes"],
         # "endogenous" is defined nowhere in the document; say what it means instead.
-        ["Predictable signal", "whatever the real data held",
+        ["Predictable signal", "the predictability present in the recorded data",
          "only what the simulator's own dynamics produce",
          "a measured Hyperliquid signal, injected"],
         ["Decision cadence", r"10\,s and 1\,min (three builds)",
@@ -197,8 +203,10 @@ def tracks() -> None:
     # setting, and left this table on 2026-08-18; it belongs to the research-design section or
     # the appendix. The in-table note went with it: captions describe, they do not argue.
     _w("m2_tracks.tex", _tabular(
-        "@{}p{0.2\\linewidth}p{0.24\\linewidth}p{0.24\\linewidth}p{0.24\\linewidth}@{}",
-        ["", "Recorded books", "Reacting simulator", "Injected simulator"], design))
+        "@{}>{\\raggedright\\arraybackslash}p{0.2\\linewidth}p{0.24\\linewidth}"
+        "p{0.24\\linewidth}p{0.24\\linewidth}@{}",
+        ["", "Recorded books", "Reacting simulator", "Injected simulator"], design,
+        rowsep="4pt"))
 
 
 # ---------------------------------------------------------------- tab:m-injgates

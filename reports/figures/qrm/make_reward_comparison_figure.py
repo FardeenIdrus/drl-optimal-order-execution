@@ -89,7 +89,9 @@ def load_arm(dirname: str) -> tuple[np.ndarray, np.ndarray, list[dict]]:
 
 
 def main() -> None:
-    fig, axes = plt.subplots(1, 2, figsize=(11.0, 4.3), sharey=True)
+    # Authored at the printed width (6.3in, \textwidth), panels stacked, so every
+    # font renders at its stated size (register 167: resizing is a full retune).
+    fig, axes = plt.subplots(2, 1, figsize=(6.3, 7.2), sharey=True)
     console = []
 
     for ax, (title, dir_old, dir_new, lab_old, lab_new) in zip(axes, PANELS):
@@ -119,9 +121,10 @@ def main() -> None:
 
         ax.axhline(0.0, color=INK, lw=0.8, ls=":", zorder=0)
         ax.set_xlabel("training steps (millions)")
-        ax.set_title(title, fontsize=10.5)
+        ax.set_title(title, fontsize=11.5)
 
-    axes[0].set_ylabel("average reward per episode\n[higher is cheaper execution]")
+    for ax in axes:
+        ax.set_ylabel("average reward per episode\n[higher is cheaper execution]")
 
     # The claim of the figure, stated on the figure rather than left to the caption.
     for ax, (title, *_rest) in zip(axes, PANELS):
@@ -138,10 +141,10 @@ def main() -> None:
                Line2D([], [], color=INK, lw=2.6, dashes=(4, 3), label="fitted trend (dashed)"),
                Line2D([], [], color=MUTED, lw=6, alpha=0.20,
                       label="+/- 1 sd across 10 seeds")]
-    fig.legend(handles=handles, loc="lower center", ncol=4, frameon=False,
-               bbox_to_anchor=(0.5, -0.10))
-    fig.suptitle("Average episode reward does not improve, with or without the arrival price "
-                 "in the agent's inputs", y=1.01, fontsize=12)
+    fig.legend(handles=handles, loc="lower center", ncol=2, frameon=False,
+               bbox_to_anchor=(0.5, -0.07))
+    fig.suptitle("Average episode reward does not improve, with or\n"
+                 "without the arrival price in the agent's inputs", y=1.005, fontsize=12.5)
     fig.tight_layout()
     for ext in ("pdf", "png"):
         fig.savefig(OUT / f"fig27_reward_comparison.{ext}")

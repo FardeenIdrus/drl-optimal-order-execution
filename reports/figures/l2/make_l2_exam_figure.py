@@ -37,7 +37,8 @@ def load():
 def main():
     val, test = load()
     keys = [k for k in val if k[0] == "runs_10s"]           # the dataset with the apparent edge
-    fig, axes = plt.subplots(1, 2, figsize=(10.2, 4.3))
+    # RETUNED 2026-08-27 (register 220 follow-up): print width 6.3in, stacked, notes in ink.
+    fig, axes = plt.subplots(2, 1, figsize=(6.3, 7.6))
 
     # ---- panel A: paired validation -> test, every agent ----
     ax = axes[0]
@@ -58,16 +59,16 @@ def main():
     if n_off:
         ax.annotate(f"{n_off} collapsed DQN seed off-scale\n(+2.94 to +4.34 bps, same direction)",
                     xy=(0.5, 0.965), xycoords="axes fraction", ha="center", va="top",
-                    fontsize=7.5, color=MUTED)
+                    fontsize=9, color=INK)
     ax.set_xlim(-0.25, 1.25)
     ax.set_xticks([0, 1])
     ax.set_xticklabels(["validation\n(earlier period)", "confirmation\n(later period)"])
     ax.set_ylabel("cost vs TWAP (bps)   [below the line = cheaper]")
     ax.set_title("Every agent flips sign: 28 of 30")
     ax.annotate("worse than TWAP", xy=(0.99, 0.99), xycoords="axes fraction",
-                ha="right", va="top", fontsize=8, color=MUTED, style="italic")
+                ha="right", va="top", fontsize=9, color=INK, style="italic")
     ax.annotate("cheaper than TWAP", xy=(0.99, 0.02), xycoords="axes fraction",
-                ha="right", va="bottom", fontsize=8, color=MUTED, style="italic")
+                ha="right", va="bottom", fontsize=9, color=INK, style="italic")
 
     # ---- panel B: the control -- broken DQN wins too ----
     ax = axes[1]
@@ -89,7 +90,7 @@ def main():
     bars = ax.bar(x, means, 0.6, color=cols, edgecolor="white", linewidth=1.2)
     for b, vt, m in zip(bars, votes, means):
         ax.text(b.get_x() + b.get_width() / 2, 0.012 if m < 0 else -0.012, vt,
-                ha="center", va="bottom" if m < 0 else "top", fontsize=7.5, color=MUTED)
+                ha="center", va="bottom" if m < 0 else "top", fontsize=8.5, color=INK)
     for b, m in zip(bars, means):
         inside = m < 0
         ax.text(b.get_x() + b.get_width() / 2,
@@ -99,7 +100,7 @@ def main():
                 fontweight="bold" if inside else "normal")
     ax.axhline(0.0, color=INK, lw=1.2, ls="--")
     ax.set_xticks(x)
-    ax.set_xticklabels(groups, fontsize=8.5)
+    ax.set_xticklabels(groups, fontsize=9.5)
     ax.set_ylabel("median cost vs TWAP (bps)")
     ax.set_title("DQN is a diagnosed-broken learner\nand it also flips to cheaper on the test period")
 
@@ -107,10 +108,10 @@ def main():
                Line2D([], [], color=RED, lw=2, marker="o", ms=5,
                       label="DQN agents (15 runs; behaviourally collapsed)"),
                Line2D([], [], color=INK, lw=1.2, ls="--", label="TWAP")]
-    fig.legend(handles=handles, loc="lower center", ncol=3, frameon=False,
-               bbox_to_anchor=(0.5, -0.10))
-    fig.suptitle("An apparent edge that a broken agent also produces is a property of the period, not skill",
-                 y=1.02, fontsize=11)
+    fig.legend(handles=handles, loc="lower center", ncol=2, frameon=False,
+               bbox_to_anchor=(0.5, -0.055))
+    fig.suptitle("An apparent edge that a broken agent also produces\nis a property of the period, not skill",
+                 y=1.005, fontsize=12)
     fig.tight_layout()
     for ext in ("pdf", "png"):
         fig.savefig(OUT / f"frozen_exam_inversion.{ext}")

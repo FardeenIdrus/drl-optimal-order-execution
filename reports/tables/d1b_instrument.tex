@@ -17,5 +17,12 @@ $\bar{V}_{2\mathrm{y}}$ & average daily volume, 2024-01-01 to 2025-12-31 & 19,31
 $\tilde{V}_{2\mathrm{y}}$ & median daily volume, same span & 12,149 BTC, range 647 to 102,959 \\
 $\bar{V}_{\mathrm{Dec}}$ & average daily volume, December 2025 & 29,939 BTC \\
 $\tilde{V}_{\mathrm{Dec}}$ & median daily volume, December 2025 & 30,754 BTC \\
+\addlinespace[0.6em]
+\midrule
+\multicolumn{3}{@{}l}{\emph{Panel C. Predictive strength of queue imbalance}} \\
+\midrule
+$\mathrm{AUC}_{1}$ & area under the ROC curve, direction of the next mid-quote change & calm 0.961 to 0.963, volatile 0.943 to 0.949 \\
+$\mathrm{AUC}_{60\mathrm{s}}$ & the same, one minute ahead & calm 0.693, volatile 0.573 \\
+\multicolumn{3}{@{}p{\dimexpr0.90\linewidth+4\tabcolsep}@{}}{\footnotesize Ranges span the hours used to fit the simulator and the hours held back to test it (\Cref{sec:data-partitions}); the one-minute figures are the held-back hours only.} \\
 \bottomrule
 \end{tabular}

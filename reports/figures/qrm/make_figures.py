@@ -393,15 +393,15 @@ def fig_dqn_collapse():
     ax.text(2, 100, "audit threshold: the forced-deadline buy finishes\n"
             ">10% of episodes.  Runs in the shaded zone are\n"
             "INVALID (degenerate 'do-nothing-then-dump' policy).",
-            fontsize=7.5, color=RED, ha="left", va="top", linespacing=1.3)
+            fontsize=8.5, color="#222222", ha="left", va="top", linespacing=1.3)
     plot_points(ax)
     # grey box marking the region the right panel magnifies
     from matplotlib.patches import Rectangle
     ax.add_patch(Rectangle((ZX[0], ZY[0]), ZX[1] - ZX[0], ZY[1] - ZY[0],
                            fill=False, edgecolor="grey", lw=1.0, zorder=4))
     ax.annotate("magnified in the\nright panel", xy=(ZX[1], 5), xytext=(44, 4),
-                fontsize=7.5, color="grey", va="center",
-                arrowprops=dict(arrowstyle="->", color="grey", lw=0.9))
+                fontsize=8.5, color="#222222", va="center",
+                arrowprops=dict(arrowstyle="->", color="#222222", lw=0.9))
     ax.set_xlabel('share of decisions that were "trade nothing" (%)')
     ax.set_ylabel("episodes finished by the forced-deadline buy (%)")
     ax.set_title("all 20 base-campaign runs", fontsize=10)

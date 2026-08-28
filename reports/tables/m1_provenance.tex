@@ -9,8 +9,8 @@ Observation & 5 variables & 7 recorded books; 27 reacting; 28 injected ($+1$ eac
 Actions & 3: 0, 0.5, 1.0 of the volume at best ask & 7 pace multiples of TWAP: 0.0, 0.5, 0.8, 1.0, 1.2, 1.5, 2.0; $1.0$ \emph{is} adaptive TWAP \\
 Learner & DDQN & PPO and DQN \\
 Episode & 600\,s horizon, one decision every 25\,s, 25 shares & 300\,s horizon, one decision every 1\,s (300 decisions), 25\,BTC; ladder {5, 12.5, 25, 50}\,BTC and horizons {150, 300, 600, 1200}\,s \\
-Reward & terminal-penalised shortfall, $\alpha = 1$ & negative implementation shortfall against the arrival mid, bps, forced completion \\
-Benchmarks & TWAP, POPV1--4 & plain and adaptive TWAP, Almgren--Chriss family, expected-volume and oracle VWAP \\
+Reward & terminal-penalised shortfall, $\alpha = 1$ & negative implementation shortfall against the arrival mid-quote, in basis points, with forced completion at the deadline \\
+Benchmarks & TWAP, POPV1--4 & fixed and adaptive TWAP, Almgren--Chriss family, expected-volume and oracle VWAP \\
 Evaluation & no seed protocol, confirmation block or registration reported & registered rules, materiality threshold, five seeds, common random numbers, behaviour audit, separate blocks for selection and replication, one-shot sealed confirmations \\
 Agents trained & not reported & \textbf{429} (70 / 283 / 76 by environment) \\
 \bottomrule

@@ -142,6 +142,10 @@ def fig_s1_injection_fidelity() -> None:
     with the registered +/-20% acceptance band on the gated horizons (1,2,5,10 s).
     Source: signal/gates/sigext_gates_v4c_PASS.json -> injection_matching."""
     g = load_gates()["injection_matching"]
+    # The simulator's PRE-INJECTION slope per horizon: the registered baseline
+    # measurement (1,200 episodes per regime) whose remainder the injection adds.
+    # Showing it makes the mechanism visible: baseline + remainder = certified total.
+    eb = json.loads((S / "signal" / "endogenous_baseline.json").read_text())["endogenous"]
     fig, axes = plt.subplots(1, 2, figsize=(9.2, 3.6), sharey=False)
     for ax, regime in zip(axes, REGIMES):
         rows = g["regimes"][regime]["horizons"]
@@ -149,10 +153,20 @@ def fig_s1_injection_fidelity() -> None:
         x = np.arange(len(hs))
         real = np.array([rows[h]["real_calibrate_slope"] for h in hs])
         sim = np.array([rows[h]["sim_total_slope"] for h in hs])
+        base = np.array([eb[regime][h]["slope"] if h in eb[regime] else np.nan for h in hs])
         gated = np.array([rows[h]["gated"] for h in hs])
         ax.fill_between(x, real * 0.8, real * 1.2, color=MUTED, alpha=0.18, zorder=1)
         ax.plot(x, real, "-o", color=INK, lw=1.8, ms=5, zorder=3)
         ax.plot(x, sim, "--s", color=RCOL[regime], lw=1.8, ms=5, zorder=4)
+        ax.plot(x, base, ":^", color="#767676", lw=1.6, ms=4.5, zorder=2)
+        # One vertical bracket per panel, at a gated horizon, making the injected
+        # remainder visible as the gap between the baseline and the injected curve.
+        if "5" in hs:
+            i5 = hs.index("5")
+            ax.annotate("", xy=(i5 + 0.18, sim[i5]), xytext=(i5 + 0.18, base[i5]),
+                        arrowprops=dict(arrowstyle="<->", color=INK, lw=1.1))
+            ax.text(i5 + 0.32, (sim[i5] + base[i5]) / 2, "injected\nremainder",
+                    fontsize=7.8, ha="left", va="center", color=INK)
         for i, gt in enumerate(gated):
             if gt:
                 ax.axvspan(i - 0.5, i + 0.5, color=RCOL[regime], alpha=0.05, zorder=0)
@@ -165,14 +179,16 @@ def fig_s1_injection_fidelity() -> None:
     handles = [Line2D([], [], color=INK, marker="o", lw=1.8, label="measured on Hyperliquid"),
                Line2D([], [], color=BLUE, marker="s", ls="--", lw=1.8, label="injected simulator (calm)"),
                Line2D([], [], color=RED, marker="s", ls="--", lw=1.8, label="injected simulator (volatile)"),
+               Line2D([], [], color="#767676", marker="^", ls=":", lw=1.6,
+                      label="simulator before injection"),
                Patch(facecolor=MUTED, alpha=0.18, label="registered +/-20% acceptance band")]
-    fig.legend(handles=handles, loc="lower center", ncol=2, frameon=False,
-               bbox_to_anchor=(0.5, -0.19))
+    fig.legend(handles=handles, loc="lower center", ncol=2, frameon=False, fontsize=10.5,
+               bbox_to_anchor=(0.5, -0.24))
     # Title states what the figure shows, not the verdict. The verdict is a methods
     # certification and belongs in the caption, where it can carry its band. Author's
     # labelling rule, 2026-08-12: short, specific, no internal names, no outcomes.
     fig.suptitle("Injected signal against Hyperliquid's BTC perpetual",
-                 y=1.02, fontsize=11)
+                 y=1.03, fontsize=13)
     fig.tight_layout()
     save(fig, "s1_injection_fidelity", "main_body")
 
@@ -237,7 +253,9 @@ def fig_s4_exploiter_vs_agents() -> None:
             ("half", "half-strength rule\n(diagnostic)", "exploit"),
             ("__ppo", "PPO base\n(trained agent)", "agent"),
             ("__dqn", "DQN base\n(trained agent)", "agent")]
-    fig, axes = plt.subplots(1, 2, figsize=(10.6, 4.0), sharex=True)
+    # RETUNED 2026-08-27 (register 220): authored at print width 6.3in, panels stacked so
+    # fonts render at true size; previously 10.6in wide printed at ~57% scale.
+    fig, axes = plt.subplots(2, 1, figsize=(6.3, 6.6), sharex=True)
     for ax, regime in zip(axes, REGIMES):
         ys = np.arange(len(rows))[::-1]
         for y, (key, label, kind) in zip(ys, rows):
@@ -271,9 +289,9 @@ def fig_s4_exploiter_vs_agents() -> None:
         ax.axvline(0.0, color=MUTED, lw=1.0, ls="--", zorder=1)
         ax.axvspan(-0.05, 0.05, color=MUTED, alpha=0.12, zorder=0)
         ax.set_yticks(ys)
-        ax.set_yticklabels([r[1] for r in rows], fontsize=8.5)
-        ax.set_xlabel("cost vs adaptive TWAP (bps; negative = cheaper)")
-        ax.set_title(regime)
+        ax.set_yticklabels([r[1] for r in rows], fontsize=9)
+        ax.set_title(regime, fontsize=10.5)
+    axes[1].set_xlabel("cost vs adaptive TWAP (bps; negative = cheaper)")
     handles = [Line2D([], [], color=OI_VERM, marker="s", ls="none", ms=7,
                       label="signal-reading rule (mean +- 95% CI)"),
                Line2D([], [], color=OI_BLUE, marker="o", ls="none", ms=7,
@@ -282,9 +300,9 @@ def fig_s4_exploiter_vs_agents() -> None:
                       label="individual agent seed"),
                Patch(facecolor=MUTED, alpha=0.12, label="+/-0.05 bps materiality band")]
     fig.legend(handles=handles, loc="lower center", ncol=2, frameon=False,
-               bbox_to_anchor=(0.5, -0.20))
+               bbox_to_anchor=(0.5, -0.09))
     fig.suptitle("The signal was capturable; the agents did not capture it",
-                 y=1.02, fontsize=11)
+                 y=1.005, fontsize=11.5)
     fig.tight_layout()
     save(fig, "s4_exploiter_vs_agents", "main_body")
 
@@ -641,7 +659,9 @@ def fig_s10_frontier() -> None:
     label = {"adaptive": "adaptive TWAP", "fixed": "fixed TWAP", "ac_kT0": "AC $\\kappa T$=0",
              "ac_kT1": "AC $\\kappa T$=1", "ac_kT2": "AC $\\kappa T$=2",
              "ac_kT4": "AC $\\kappa T$=4", "vwap_oracle": "oracle VWAP"}
-    fig, axes = plt.subplots(1, 2, figsize=(10.2, 4.2))
+    # RETUNED 2026-08-27 (register 220): print-width 6.3in, stacked; the TWAP/AC-kT0
+    # cluster label previously collided with the agent circles.
+    fig, axes = plt.subplots(2, 1, figsize=(6.3, 7.2))
     for ax, regime in zip(axes, REGIMES):
         rows = comp["regimes"][regime]
         front = {f["policy"] for f in fr[regime]["frontier"]}
@@ -658,7 +678,7 @@ def fig_s10_frontier() -> None:
             s, m = v["std_cost_bps"], v["mean_cost_bps"]
             if k == "vwap_oracle":
                 ax.plot(s, m, "x", color=OI_ORANGE, ms=8, mew=2, zorder=4)
-                ax.annotate("oracle VWAP", (s, m), fontsize=7.5, color=INK,
+                ax.annotate("oracle VWAP", (s, m), fontsize=8, color=INK,
                             xytext=(4, 4), textcoords="offset points")
                 continue
             hit = next((g for g in drawn
@@ -680,15 +700,30 @@ def fig_s10_frontier() -> None:
                 txt = " = ".join(label.get(k, k) for k in ks)
             else:
                 txt = label.get(ks[0], ks[0])
-            ax.annotate(txt, (g["s"], g["m"]), fontsize=7.5, color=INK,
-                        xytext=(5, 4), textcoords="offset points")
+            if len(g["keys"]) > 1:
+                # merged cluster: the agent circles sit beside this marker, so lead
+                # the label away with a thin STRAIGHT connector angled above the
+                # circles (the earlier arc read as a data curve and, in the volatile
+                # panel, appeared to join the efficient set)
+                ax.annotate(txt, (g["s"], g["m"]), fontsize=8, color=INK,
+                            xytext=(70, 30), textcoords="offset points", ha="left",
+                            arrowprops=dict(arrowstyle="-", lw=0.6, color=MUTED,
+                                            shrinkA=0, shrinkB=3))
+            elif g["keys"] == ["ac_kT1"]:
+                # kT1 sits beside the TWAP cluster and the agent circles in both
+                # regimes; label it below its marker where the space is clear
+                ax.annotate(txt, (g["s"], g["m"]), fontsize=8, color=INK,
+                            xytext=(6, -13), textcoords="offset points")
+            else:
+                ax.annotate(txt, (g["s"], g["m"]), fontsize=8, color=INK,
+                            xytext=(5, 4), textcoords="offset points")
         for sd in range(5):
             c = ag[f"ppo_{regime}_s{sd}"]
-            ax.plot(c.std(ddof=1), c.mean(), "o", mfc="none", mec=OI_BLUE, ms=7,
-                    mew=1.6, zorder=5)
+            ax.plot(c.std(ddof=1), c.mean(), "o", mfc="none", mec=OI_BLUE, ms=6.5,
+                    mew=1.5, zorder=5)
+        ax.margins(x=0.09, y=0.14)
         ax.set_xlabel("cost standard deviation (bps)   [risk]")
-        if ax is axes[0]:
-            ax.set_ylabel("mean cost (bps)   [lower = cheaper]")
+        ax.set_ylabel("mean cost (bps)   [lower = cheaper]")
         n_dom = fr[regime]["n_dominated"]
         ax.set_title(f"{regime}  ({n_dom}/5 agents strictly dominated)")
     handles = [Line2D([], [], color=OI_VERM, marker="s", ls="none", ms=7,
@@ -701,9 +736,9 @@ def fig_s10_frontier() -> None:
                Line2D([], [], color=OI_ORANGE, marker="x", ls="none", ms=8, mew=2,
                       label="oracle VWAP (infeasible; excluded from the frontier)")]
     fig.legend(handles=handles, loc="lower center", ncol=2, frameon=False,
-               bbox_to_anchor=(0.5, -0.24))
-    fig.suptitle("Agents pay for their deviation from uniform pacing without buying risk reduction",
-                 y=1.02, fontsize=11)
+               bbox_to_anchor=(0.5, -0.075))
+    fig.suptitle("Agents pay for their deviation from uniform pacing\nwithout buying risk reduction",
+                 y=1.005, fontsize=11.5)
     fig.tight_layout()
     save(fig, "s10_risk_return_frontier", "appendix")
 
@@ -773,9 +808,10 @@ def fig_s11_a4_observation() -> None:
     # TITLE RULE: name what was ADDED, never "repairing"/"making learnable" -- those concede a
     # defect where the accurate statement is a specification test. See F23/F26/F27 for the
     # matching wording; the four titles must stay consistent.
+    # fontsize raised 2026-08-27 (author): the title was illegible at print scale
     fig.suptitle("Adding the arrival price to the agent's inputs improves the value function "
                  "but not execution cost",
-                 y=1.02, fontsize=11)
+                 y=1.04, fontsize=14)
     fig.tight_layout()
     save(fig, "s11_a4_observation", "main_body")
 

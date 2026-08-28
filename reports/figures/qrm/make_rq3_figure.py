@@ -203,7 +203,8 @@ def panel_a(ax):
     algo_ticks(ax, cells, [("injected simulator", [0, 1]), ("recorded books", [2, 3])])
     ax.set_ylabel("share of attribution (%)")
     ptitle(ax, "A. Attribution on the order-book input that predicts price",
-           "dashed line = the share one input receives under an even spread")
+           "the injected signal, or queue imbalance on recorded books; "
+           "dashed line = even spread")
     ax.grid(axis="y", color=GRID, lw=0.5, zorder=0)
     ax.set_axisbelow(True)
     ax.set_xlim(-0.6, len(cells) - 1 + 0.78)     # room for the right-hand mean labels

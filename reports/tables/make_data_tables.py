@@ -32,6 +32,7 @@ REPORTS = HERE.parent
 M = json.loads((S / "oxford_l4" / "data_chapter_measurements.json").read_text())
 QA = json.loads((REPORTS / "phase1_qa.json").read_text())
 TC = json.loads((S / "oxford_l4" / "tick_class" / "tick_class_measurement.json").read_text())
+EA = json.loads((S / "oxford_l4" / "tick_class" / "event_ahead_auc.json").read_text())
 ADV = json.loads((S / "adv" / "btc_adv.json").read_text())
 TVALL = json.loads((S / "oxford_l4" / "trade_volume_202512.json").read_text())
 TV = TVALL["december_only"]
@@ -239,6 +240,31 @@ def table_d1b_instrument() -> str:
           r"\midrule"]
     for s, q, v in panel_b:
         L.append(f"{s} & {q} & {v} \\\\")
+
+    # Panel C, added 2026-08-27 (author-approved): the chapter's central measurement had no
+    # exhibit anywhere in the document. Values are read from event_ahead_auc.json (next-change
+    # AUC, four regime-by-hour-group cells) and tick_class_measurement.json's auc_by_horizon
+    # (60 s, held-back hours). The ranges span the fitting and held-back hour groups; labels
+    # follow the artefact's own split, not calendar halves.
+    a = EA["auc"]
+    calm_cells = [a["calm/calibrate"]["auc"], a["calm/holdout"]["auc"]]
+    vol_cells = [a["volatile/calibrate"]["auc"], a["volatile/holdout"]["auc"]]
+    h60 = TC["auc_by_horizon"]
+    panel_c = [
+        (r"$\mathrm{AUC}_{1}$", "area under the ROC curve, direction of the next mid-quote change",
+         f"calm {min(calm_cells):.3f} to {max(calm_cells):.3f}, "
+         f"volatile {min(vol_cells):.3f} to {max(vol_cells):.3f}"),
+        (r"$\mathrm{AUC}_{60\mathrm{s}}$", "the same, one minute ahead",
+         f"calm {h60['calm/holdout/60']['auc']:.3f}, volatile {h60['volatile/holdout/60']['auc']:.3f}"),
+    ]
+    L += [r"\addlinespace[0.6em]", r"\midrule",
+          r"\multicolumn{3}{@{}l}{\emph{Panel C. Predictive strength of queue imbalance}} \\",
+          r"\midrule"]
+    for s, q, v in panel_c:
+        L.append(f"{s} & {q} & {v} \\\\")
+    L += [note + r"{\footnotesize Ranges span the hours used to fit the simulator and the hours "
+          r"held back to test it (\Cref{sec:data-partitions}); the one-minute figures are the "
+          r"held-back hours only.} \\"]
     L += [r"\bottomrule", r"\end{tabular}"]
     return "\n".join(L) + "\n"
 
@@ -266,7 +292,7 @@ def table_d2() -> str:
          f"Measured instead against all {RC['span_days']} days of the two years, including the "
          f"{s0['days_skipped']} never requested, it is {RC['coverage_pct_calendar']}\\%"),
         ("checking the download",
-         f"{n(s1['raw_files'])} files on disk against {n(s1['expected'])} expected",
+         f"{n(s1['raw_files'])} files downloaded against {n(s1['expected'])} expected",
          "every file matched byte for byte" if s1["byte_exact"] else "MISMATCH"),
         ("building one book per minute",
          f"{n(s3['minutes_present'])} minutes, no duplicates, a median of "
@@ -426,10 +452,10 @@ def table_d3() -> str:
             f"{B['dataset_10s']['test_fraction_pct']:.0f}\\% of each version's episodes are held "
             r"out as the test set; validation is then the last 15\% of what remains, so the "
             r"three run train, validation, test in time order. "
-            r"The rule is identical across the three; "
-            r"because they hold different numbers of episodes, the same fraction falls on a "
-            r"different date in each. Between the last training bar and the first test bar sits "
-            f"{B['dataset_10s']['boundary_buffer_episodes']:.0f} whole episode plus one bar, so "
+            r"The rule is identical across versions, but each holds a different number of "
+            r"episodes, so the same fraction falls on a different date. A gap of "
+            f"{B['dataset_10s']['boundary_buffer_episodes']:.0f} whole episode plus one bar "
+            r"separates the last training bar from the first test bar, so "
             # "Both fractions were fixed before any training" asserted a chronology no artefact
             # dates. The structural claim is verifiable and stronger: the split is baked into
             # the dataset files the agents read.
@@ -592,15 +618,42 @@ def split_d3(body: str) -> dict:
 def table_d2b() -> str:
     """The per-order record's processing steps, and what was checked at each.
 
-    The parallel to `table_d2`, which does the same for the snapshot record. Three rows only,
-    and deliberately so: Table 3.1 already carries the SOURCES (what each stream holds, the
-    missing clock, the identifier match, 31 of 31 days, 5,355,301 states) and Table 3.5 carries
-    the DIVISION into fitting and holdout hours. Restating either here would be the exhibit-scale
-    version of the mistake this chapter has already been caught on twice. What sits nowhere else
-    is the processing between them, which is what these three rows hold.
+    The parallel to `table_d2`, which does the same for the snapshot record.
+
+    EXPANDED 3 -> 7 ROWS, 2026-08-27, author-approved. The old three-row form relied on the
+    sources table (old Table 3.1) and the December-division panel carrying acquisition and the
+    hour split; BOTH were withdrawn from the body on 2026-08-13 (CARLO_REVISION_PASS.md), which
+    left the acquisition, the timestamp matching and the hour split in NO exhibit. The per-order
+    record feeds the reacting simulator, the study's main track, yet its pipeline table was a
+    third the size of the snapshot record's. Rows 1-2, 5 and 6 restore those steps.
+
+    EVIDENCE, per cell, so no claim is typed unverified:
+      * checksum row: `oxford_l4/_download_btc_l4.sh` (md5 per file) and `download.log`
+        ("OK <file> md5=..." for every archive, run of 2 July 2026).
+      * stream contents: the released dataset's book-change stream carries id/side/price/size
+        and no timestamp; the event stream carries nanosecond timestamps (SCHEMA.md).
+      * hour split: december_partition in the measurements JSON (threshold, 743 labelled
+        hours, 557/186 via the cells map).
+      * "timestamps strictly increasing" was NOT verifiable as a recorded per-step check and
+        is deliberately absent; integrity rests on the independent second pass (final row).
     """
     P = M["perorder_pipeline"]
+    D = M["december_partition"]
+    cells = D["cells"]
+    fit_hours = cells["calm/calibrate"] + cells["volatile/calibrate"]
+    held_hours = cells["calm/holdout"] + cells["volatile/holdout"]
     rows = [
+        (r"obtaining the records",
+         (f"the dataset's two streams, covering all {P['days_logged']} December days. One stream "
+          r"records each modification to the visible book, with the order's identifier, side, "
+          r"price and new size but no timestamp; the other records every order event, timestamped "
+          r"to the nanosecond"),
+         (r"each archive verified against its expected MD5 checksum after download")),
+        (r"timestamping the book changes",
+         (r"each book change receives the nanosecond timestamp of its order event, matched on "
+          r"the order's identifier"),
+         (r"matches that invert at sub-second resolution are resolved by the phantom-order "
+          r"rule below")),
         (r"warming up the replay",
          (f"the first {n(P['warmup_events'])} changes are applied without being recorded. The replay "
           r"starts from an empty book, and learns of an order only when that order changes, so it "
@@ -613,18 +666,29 @@ def table_d2b() -> str:
          (f"{n(P['phantom_orders_removed'])} orders across the month are removed before they appear. In the "
           r"sub-second ordering of the two streams, a cancellation can be recorded before the order "
           r"it cancels"),
-         (r"audited 4 July 2026. One rule, applied uniformly across the month. Without it, such "
+         (r"one rule, applied uniformly across the month. Without it, such "
           r"orders rest in the book indefinitely")),
+        (r"building the half-second book",
+         (f"the book rebuilt at twenty levels per side and sampled at half-second intervals, "
+          f"giving {n(P['n_grid_rows'])} book states over the month"),
+         (r"the reconstruction is verified by the independent pass in the final row")),
+        (r"labelling and splitting the hours",
+         (f"each of {n(P['hours_labelled'])} hours labelled calm or volatile at the "
+          f"\\${D['threshold_vol_1s']:.2f} median threshold on one-second price volatility, "
+          f"which separates a median calm hour of \\${D['median_vol_calm']:.2f} from a median "
+          f"volatile hour of \\${D['median_vol_volatile']:.2f}; "
+          f"{fit_hours} earlier hours eligible for fitting, the later {held_hours} reserved for "
+          r"testing"),
+         (r"within each group, every fitting hour predates all of its held-back hours")),
         (r"verifying the reconstruction",
          (r"a second, independent pass over the same raw records, advancing the book event by event, "
           r"and sampling it back to the same half-second points"),
          (f"the two methods agree exactly, across all {n(P['n_grid_rows'])} states")),
     ]
-    # Columns widened 2026-08-09 to use the full 16cm text width. Table 3.4 sits at the top
-    # of the page that also carries ALL of section 3.4's prose; every wrapped line it saves
-    # is a line that paragraph needs. See (Y17).
+    # Widths sized for \footnotesize (was \scriptsize at 2.4/7.9/5.5, which overran the text
+    # block at \footnotesize): 2.6+7.2+5.3 = 15.1cm + two 10pt inter-column gaps < 16.04cm.
     out = [r"% Auto-generated by reports/tables/make_data_tables.py. Do not edit.",
-           r"\begin{tabular}{@{}p{2.4cm} p{7.9cm} p{5.5cm}@{}}", r"\toprule",
+           r"\begin{tabular}{@{}p{2.6cm} p{7.2cm} p{5.3cm}@{}}", r"\toprule",
            r"step & what it produced & what was checked \\", r"\midrule"]
     out += [" & ".join(c) + r" \\" for c in rows]
     out += [r"\bottomrule", r"\end{tabular}"]

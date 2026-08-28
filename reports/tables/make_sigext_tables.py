@@ -279,8 +279,9 @@ regime & follower vs adaptive TWAP (bps) & s.e. & $p$ \\
 % Source: step5_signal_sealed/judgement.json (+ follower_context.json)
 \begin{table}[htbp]\centering
 \caption[Replication on the confirmation block]{Replication on the confirmation block. The predictions were recorded in the registered
-protocol before the block was opened: no agent would meet the edge criterion, and the
-signal-reading rule would remain profitable beyond the materiality threshold in both regimes.}
+protocol before the block was opened. They stated that no agent would meet the edge criterion,
+and that the signal-reading rule would remain profitable beyond the materiality threshold in
+both regimes.}
 \label{tab:sigext-sealed}
 \small
 \begin{tabular}{lrlrl}
@@ -397,9 +398,9 @@ def table_ts7_ceiling() -> None:
 \begin{table}[htbp]\centering
 \caption[The attainable-edge ceiling]{\textbf{The attainable-edge ceiling and the fraction
 captured.} Upper panel: mean paired saving against adaptive TWAP for each coefficient in the
-registered grid, on the development block. Lower panel: the tuned rule confirmed once on a
-held-out confirmation block, against the agents' results on their own confirmation block, and the
-fraction of the ceiling captured.}
+registered grid, on the development block. Lower panel: the tuned rule, confirmed once on a
+held-out confirmation block. The agents' results on their own confirmation block are shown
+alongside, with the fraction of the ceiling captured.}
 \label{tab:sigext-ceiling}
 \small
 \begin{tabular}{lrr}
