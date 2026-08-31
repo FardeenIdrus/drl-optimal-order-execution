@@ -1,10 +1,10 @@
-# Project dependencies (Python 3.12). Reproducible env for the data pipeline.
-# Create:  python3.12 -m venv .venv && .venv/bin/pip install -r requirements.txt
+# Project dependencies (Python 3.12), fully pinned for reproducibility.
+# Create the environment with:
+#   python3.12 -m venv .venv && .venv/bin/pip install -r requirements.txt
 #
-# numpy is pinned to 2.1.2 to stay compatible with the QRM/RL stack (numba) added
-# in a later phase. Remaining RL dependencies (torch, stable-baselines3, numba,
-# shap, scikit-learn) are appended here as each Phase-2 step introduces them.
+# numpy is pinned to 2.1.2 for compatibility with numba (a shap dependency).
 
+# Data pipeline and testing
 numpy==2.1.2
 pandas==3.0.3
 pyarrow==24.0.0
@@ -12,14 +12,14 @@ lz4==4.4.5
 PyYAML==6.0.3
 pytest==9.1.1
 
-# Phase 2 (RL environment + agents)
-gymnasium==1.2.1   # Step 1: Gym interface for the real-data execution env
+# Execution environments and agents
+gymnasium==1.2.1          # Gym interface for the execution environments
+torch==2.12.1             # Stable-Baselines3 backend (CPU/MPS on macOS arm64)
+stable-baselines3==2.9.0  # DQN and PPO; supports gymnasium 1.x and native n-step DQN
 
-# Phase 5 (RL agents: DQN + PPO, gate statistics, attribution)
-torch==2.12.1             # SB3 backend (CPU/MPS on macOS arm64)
-stable-baselines3==2.9.0  # DQN + PPO; supports gymnasium 1.x and native n-step DQN
-scikit-learn==1.9.0       # ablation utilities (Phase 7)
-scipy==1.18.0             # Wilcoxon signed-rank + paired bootstrap (the gate)
-matplotlib==3.11.0        # training-curve plots
-shap==0.52.0              # per-regime attribution (Phase 7)
+# Evaluation and analysis
+scipy==1.18.0             # Wilcoxon signed-rank test and paired bootstrap
+scikit-learn==1.9.0       # analysis utilities
+matplotlib==3.11.0        # figures and training-curve plots
+shap==0.52.0              # per-regime feature attribution
 numba==0.65.1             # shap dependency; pinned for numpy 2.1.2 compatibility

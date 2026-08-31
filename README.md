@@ -239,3 +239,8 @@ the primary records they govern are in `results_archive/`.
 
 One contract (the BTC perpetual) on one venue; the simulator is calibrated to December 2025;
 execution is by market order at one of seven pace multiples of the TWAP rate.
+
+## Licence
+
+MIT (see `LICENSE`). The vendored engine under `qrm_optimal_execution/` carries its own MIT
+licence.
