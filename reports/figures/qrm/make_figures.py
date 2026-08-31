@@ -2,7 +2,7 @@
 
 Generates PDF (vector, for \\includegraphics) + PNG (preview) into reports/figures/
 from the EXISTING sealed result files only (no new evaluation). Every number is read
-from the source-of-record JSONs listed in qrm_step5_remediation.md.
+from the source-of-record JSONs archived under results_archive/.
 
 Style rules applied throughout (v2, after user review):
   - legends OUTSIDE the axes (below), never overlapping data;
@@ -323,7 +323,7 @@ def fig_learning_curves():
 
 # ---------------------------------------------------------------- figure 6
 def fig_drift_confound():
-    """The drift confound: identical 20-run design before/after the drift fix."""
+    """The drift confound: identical 20-run design with and without the directional drift."""
     v2, a2 = _load("SUPERSEDED_step5_v2")
     v3, a3 = _load("step5_v3")
     groups = [("calm regime", _seed_means(v2, a2, "calm", ""), _seed_means(v3, a3, "calm", "")),
@@ -460,7 +460,7 @@ def fig_regime_comparison():
     # DESCRIPTIVE, and no chronology. The previous title argued ("The apparent advantage was
     # volatile-regime-only; calm shows nothing") and dated itself ("the volatile signal LATER
     # failed the sealed test"). Arguments belong in prose, not on the exhibit, and
-    # writing_standard.md §4.3 bans narrating a sequence. It also over-claimed: two CALM cells
+    # house style bans narrating a sequence. It also over-claimed: two CALM cells
     # in the reacting grid triggered follow-up, one at p = 0.0003, so "calm shows nothing" is
     # not true of the campaign. The title now names the two configurations plotted and the
     # block they were measured on, which is all this figure shows.

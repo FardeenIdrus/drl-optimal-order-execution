@@ -1,7 +1,7 @@
 """Measured-signal extension tables (Phase F) -> LaTeX fragments in reports/tables/.
 
 Companion to reports/figures/sigext/make_sigext_figures.py. Reads the FROZEN result
-JSONs only; every number traces to a source-of-record file (live doc addenda G/H/I/J).
+JSONs only; every number traces to a source-of-record file archived under results_archive/.
 
 TIERING (mirrors the figure suite):
   MAIN      ts2_dev_verdicts, ts4_exploiter_ceiling

@@ -13,7 +13,7 @@ Every figure in the three tables is read from a measured artefact at build time:
 
 ONE EXCEPTION, DECLARED. Table D3's Panel B lists the simulator's episode-seed blocks with
 their governance status (development, reserve, sealed, spent). A block's STATUS is a human
-designation recorded in the partition audit, addendum (Z) of qrm_step5_remediation.md; it is
+designation recorded in the partition audit; it is
 not derivable from any file, because "sealed and spent" is a statement about how a partition
 was licensed and used, not about its contents. Those cells are therefore literals carried
 from (Z), marked below, and every numeric cell in the same table is not.
@@ -159,9 +159,7 @@ def table_d1() -> str:
 def table_d1b_instrument() -> str:
     """Table 3.1: the instrument's measured properties, one symbol per quantity.
 
-    REBUILT 2026-08-13 on Carlo's comment: "this can stay as a table if you just introduce some
-    mathematical notation (which you need later anyways) for volume, order sizes etc and turn it
-    into a simple variable - value table." Six columns of phrases became three of symbol,
+    Six columns of phrases were reduced, on supervisor review, to three of symbol,
     quantity and value.
 
     THREE THINGS LEFT, each for a stated reason.
@@ -372,7 +370,7 @@ def table_d2() -> str:
 
 # -------------------------------------------------------- D3: partitions and governance
 
-# Panel B literals. Source: qrm_step5_remediation.md addendum (Z), the two-pass partition
+# Panel B literals. Source: the two-pass partition
 # audit. Status is a licensing designation and has no machine-readable source; see the module
 # docstring. Numbers inside this panel are counts recorded by that audit.
 #
@@ -407,7 +405,7 @@ PANEL_B = [
     ("3e6", "environment check", "certifying the simulator itself, never used to judge a method",
      "---", "not a comparison block"),
     # CORRECTED 2026-08-06. This row read "30e6, 31e6, 77M" and omitted seven ranges that the
-    # partition audit (Z) declares at qrm_step5_remediation.md:2904-2909 -- 30.0/30.1/30.2M and
+    # partition audit declares -- 30.0/30.1/30.2M and
     # 30.3/30.4/30.5/30.55M. In a table whose job is to say which seed sets exist, an omission
     # is worse than a clumsy phrase. 30e6 IS 30.0M: it appears twice in (Z) because it was used
     # for diagnostics and later for the power-analysis measurement, which is why neither it nor
@@ -440,8 +438,8 @@ PANEL_A_ROWS = [
      lambda b, k: f"{n(b['test_regime']['calm'])} / {n(b['test_regime']['volatile'])}"),
 ]
 
-# "(main)" was removed 2026-08-06: it read as "the study's main track", which is the reactive
-# simulator, not this dataset. Which version the chapter's quoted figures come from is stated in
+# "(main)" was removed 2026-08-06: the study's main focus is the reacting simulator,
+# not this dataset. Which version the chapter's quoted figures come from is stated in
 # the panel note below instead.
 BUILD_ORDER = [("dataset_10s", r"\textbf{10-second}"),
                ("dataset", "1-minute"),
@@ -638,9 +636,9 @@ def table_d2b() -> str:
 
     EXPANDED 3 -> 7 ROWS, 2026-08-27, author-approved. The old three-row form relied on the
     sources table (old Table 3.1) and the December-division panel carrying acquisition and the
-    hour split; BOTH were withdrawn from the body on 2026-08-13 (CARLO_REVISION_PASS.md), which
+    hour split; both were withdrawn on supervisor review, which
     left the acquisition, the timestamp matching and the hour split in NO exhibit. The per-order
-    record feeds the reacting simulator, the study's main track, yet its pipeline table was a
+    record feeds the reacting simulator, the study's main focus, yet its pipeline table was a
     third the size of the snapshot record's. Rows 1-2, 5 and 6 restore those steps.
 
     EVIDENCE, per cell, so no claim is typed unverified:

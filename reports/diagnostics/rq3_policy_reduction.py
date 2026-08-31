@@ -43,8 +43,7 @@ OUT = S / "rq3_attribution"
 def entropy_stats(model, states, n_actions):
     """PER-STATE action entropy, not the entropy of the marginal action distribution.
 
-    These differ sharply and the difference has already misled this project once (live doc
-    addendum (P)): a policy can be CONFIDENT in every individual state while its marginal
+    These differ sharply: a policy can be CONFIDENT in every individual state while its marginal
     distribution over a run looks near-uniform, because it picks different confident actions
     in different states. The marginal entropy then reads as "the policy is indecisive" when
     the opposite is true. Per-state entropy is the quantity that answers whether the policy is

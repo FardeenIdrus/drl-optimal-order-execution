@@ -6,9 +6,9 @@ whose critic explains nothing -- so the obvious reply was always "and what does 
 the critic is fixed?". Until 2026-08-11 that could not be answered: the three campaigns carrying
 a working critic all trained with `log_learning: false` and no reward series existed for any of
 them. Thirty agents were retrained with logging and every one reproduced its original's final
-curve value at exactly zero delta (live doc Y24), so these curves belong to the agents of record.
+curve value at exactly zero delta, so these curves belong to the agents of record.
 
-WHAT IS PLOTTED. Four arms, two per panel:
+WHAT IS PLOTTED. Four series, two per panel:
 
   PRIMARY track   runs_primary_v3_logged         27 inputs, critic explains -0.003
                   runs_primary_v3_obsfix_logged  28 inputs, critic explains +0.422
@@ -90,7 +90,7 @@ def load_arm(dirname: str) -> tuple[np.ndarray, np.ndarray, list[dict]]:
 
 def main() -> None:
     # Authored at the printed width (6.3in, \textwidth), panels stacked, so every
-    # font renders at its stated size (register 167: resizing is a full retune).
+    # font renders at its stated size (point sizes are absolute; resizing requires retuning every font and margin).
     fig, axes = plt.subplots(2, 1, figsize=(6.3, 7.2), sharey=True)
     console = []
 

@@ -1,8 +1,8 @@
 """Stage 3g driver — regime-conditional QRM calibration (calm vs volatile).
 
 Builds TWO calibrated simulators from the validated v2 reconstruction: one from the
-month's calm hours, one from its volatile hours. Pre-registered rules (BUILD_PLAN
-"Step 3 — QRM calibration: LOCKED decisions", 3g; amendments 2026-07-04):
+month's calm hours, one from its volatile hours. Pre-registered rules (locked before
+calibration ran; amendments 2026-07-04):
 
 * Regime label = hourly realised volatility (std of 1 s mid changes, the gate's M1
   statistic) from the v2 reconstruction, split at the month MEDIAN — mirroring the L2
@@ -106,7 +106,7 @@ def select_blocks(labels: pd.DataFrame, regime: str,
                   block_len: int = BLOCK_LEN, n_blocks: int = N_BLOCKS) -> list:
     """Contiguous blocks of ``block_len`` hours near the regime's MEDIAN volatility.
 
-    Mechanism this serves (BUILD_PLAN 3g decision, 2026-07-06): one stationary rate
+    Mechanism this serves (design decision, 2026-07-06): one stationary rate
     table blended from scattered heterogeneous hours is smoother than any real hour
     (too wide vs quiet hours, too tight vs burst hours). Calibrating on contiguous,
     median-typical stretches gives a simulator OF a typical hour of the regime. Rule
@@ -465,7 +465,7 @@ def cmd_deconvolve_endo(args) -> None:
 
     The exogenous table was measured from ALL real mid changes; with the engine's
     endogenous (queue-depletion) moves now captured (I6 fix), background price motion
-    is generated twice. Rule (pre-registered in qrm_step5_remediation.md): if the
+    is generated twice. Rule, fixed in writing before this calibration ran: if the
     endogenous share of move variance exceeds 5%, subtract the MEASURED endogenous
     per-interval move distribution from the exogenous table (rate subtraction on the
     affected bins), floor at zero, renormalise into the 0 bin, and re-center.

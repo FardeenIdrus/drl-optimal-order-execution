@@ -55,8 +55,7 @@ WHAT IS COMPUTED, AND WHY EACH CHOICE WAS MADE BEFORE LOOKING AT ANY RESULT
    reproduces the pattern).
 
 6. ACTION CONCENTRATION AND PER-STATE ENTROPY, because they can contradict 1-3 and must be
-   allowed to. Per-state entropy, never the marginal: the two differ sharply and the difference
-   has already misled this project once (live doc addendum (P)). DQN is a deterministic argmax
+   allowed to. Per-state entropy, never the marginal: the two differ sharply. DQN is a deterministic argmax
    with no action distribution, so per-state entropy is undefined for it and is reported as such
    rather than silently imputed as zero.
 

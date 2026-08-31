@@ -1,7 +1,7 @@
 """L2 sealed-exam figure: the validation-to-test inversion (l2_test_protocol.md, 2026-07-30).
 
 THE claim: an apparent edge with 5/5 seed agreement and p<=0.008 on genuinely sealed data,
-produced EQUALLY by a diagnosed-broken learner -> it is a property of the PERIOD, not skill.
+produced equally by a behaviourally collapsed learner -> it is a property of the PERIOD, not skill.
 Every number from the frozen result JSONs. Palette validated for colour-blind separation
 (house blue/red pair, worst-CVD dE 21.1).
 """
@@ -37,7 +37,7 @@ def load():
 def main():
     val, test = load()
     keys = [k for k in val if k[0] == "runs_10s"]           # the dataset with the apparent edge
-    # RETUNED 2026-08-27 (register 220 follow-up): print width 6.3in, stacked, notes in ink.
+    # Authored at print width (6.3in), panels stacked, notes drawn in ink.
     fig, axes = plt.subplots(2, 1, figsize=(6.3, 7.6))
 
     # ---- panel A: paired validation -> test, every agent ----
@@ -70,7 +70,7 @@ def main():
     ax.annotate("cheaper than TWAP", xy=(0.99, 0.02), xycoords="axes fraction",
                 ha="right", va="bottom", fontsize=9, color=INK, style="italic")
 
-    # ---- panel B: the control -- broken DQN wins too ----
+    # ---- panel B: the control -- the collapsed DQN reverses too ----
     ax = axes[1]
     # MEDIAN, not mean: one collapsed DQN seed at +2.94 -> +4.34 bps drags the DQN mean to
     # -0.019 and makes the control look like a tie when 4 of 5 seeds in two of three arms are

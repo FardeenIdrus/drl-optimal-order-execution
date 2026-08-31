@@ -2,7 +2,7 @@
 
 Reuses the L2 track's agent builders (same [30x5] LeakyReLU trunk, same hyperparameter
 discipline) so the L2-vs-QRM comparison isolates the ENVIRONMENT, not the architecture.
-gamma follows the locked fixed-rate scaling rule (BUILD_PLAN "Discount factor"):
+gamma follows the locked fixed-rate scaling rule (fixed before training):
 gamma = 0.995^(1/60) ~ 0.99992 per 1 s step (the L2 value was per 60 s step).
 
 Run bundle per (algo, regime, seed): model.zip + meta.json + eval curve CSV.

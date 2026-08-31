@@ -1,6 +1,6 @@
 """QRM extension: empirically-calibrated EXOGENOUS reference-price moves.
 
-Why (evidence in BUILD_PLAN "Step 3 — Option A executed", 2026-07-04): the base QRM moves
+Why (design decision recorded 2026-07-04): the base QRM moves
 its price ONLY via queue depletion, but on BTC price motion dominates queue dynamics
 (~7 ticks/s, information-driven). Faithfully calibrated queues never empty, so the base
 model's price is provably frozen. Huang et al. (2015) note the base model underestimates

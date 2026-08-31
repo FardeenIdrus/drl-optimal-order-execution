@@ -8,15 +8,15 @@ JSON, it was never measured, and the builder must fail rather than invent it.
 WHAT IS MEASURED HERE
 
   agent census      per track, from run directories, with the logging/duplicate copies
-                    EXCLUDED by name. Counting directories overstates: live doc (Y22) §3,
-                    (Y24). The census is agents of record, not folders.
+                    EXCLUDED by name. Counting directories overstates: logging re-runs and
+                    duplicate copies exist alongside the agents of record.
   training budget   per build, from each run's own meta.json. It is NOT uniform on the
-                    recorded-book track (register 86) and the JSON therefore carries the
+                    recorded-book builds, and the JSON therefore carries the
                     distinct values per build rather than one number.
   order ladders     from meta.json, not from the configs: the configs declared a ladder
-                    that never ran and omitted one that did (register 81).
+                    that never ran and omitted one that did; meta.json is authoritative.
   observation width from the environment code's own arithmetic and the recorded-book
-                    config's feature list -- six cells, three environments x two arms.
+                    config's feature list -- six cells, three environments x two algorithms.
   design constants  decision cadence, episode length, horizon, from configs and meta.
 
 WHAT IS NOT MEASURED HERE, AND WHY
@@ -39,7 +39,7 @@ OUT = OX / "methodology_measurements.json"
 
 # Directories that hold reproduction-gated logging copies or byte-identical duplicates of
 # agents already counted. Excluded BY NAME so the exclusion is auditable, not inferred.
-# Live doc (Y22) §3 (the 20 earlier logging re-runs and 10 duplicates) and (Y24) (30 more).
+# The 20 earlier logging re-runs, 10 duplicate copies, and 30 later logging re-runs.
 NOT_AGENTS_OF_RECORD = {
     "runs_signal_logged",              # logging copy of runs_signal_phaseD's PPO arm
     "runs_signal_logged_dqn",          # logging copy of runs_signal_phaseD's DQN arm
@@ -221,7 +221,7 @@ def observation_widths() -> dict:
     return {
         "recorded_books": {"base": 2 + len(feats), "with_arrival_price": None,
                            "features": feats,
-                           "note": "never re-run with the amendment; register 96, disclose"},
+                           "note": "never re-trained under the amendment; disclosed"},
         "reacting_simulator": {"base": reacting, "with_arrival_price": reacting + 1},
         "injected_simulator": {"base": reacting + 1, "with_arrival_price": reacting + 2},
         "K_per_side": K,

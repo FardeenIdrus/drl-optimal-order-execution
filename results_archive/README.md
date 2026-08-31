@@ -31,9 +31,10 @@ checksummed copies of the working record (verified at archive time).
 ## What is deliberately NOT here
 
 Raw exchange data (order-book diffs, orders, trades; ~150 GB) and the derived training
-datasets (parquet). Both are regenerable: the raw data comes from Hyperliquid's public
-S3 archive (`s3://hl-mainnet-node-data`, December 2025), and the repository's pipeline
-scripts rebuild the datasets and the calibration from it.
+datasets (parquet). Both are regenerable: the two-year snapshot record comes from
+Hyperliquid's public archive (`s3://hyperliquid-archive`), the December 2025 per-order
+record from the "Open Book" Level 4 dataset (Zenodo DOI 10.5281/zenodo.18184441), and the
+repository's pipeline scripts rebuild the datasets and the calibration from them.
 
 ## Relationship to the working record
 

@@ -267,7 +267,7 @@ def injected_gates() -> None:
     # FOOTER DELETED 2026-08-18. It ran to ~200 words and ARGUED: the disjunction defence,
     # the materiality-vs-significance point, the tab:t5 comparison and the cost-level caveat
     # are all body prose for the injected-signal section. Captions describe; the argument goes
-    # in the text (CARLO_REVISION_PASS.md:41-44). It also printed the cost gap as "~2.2x",
+    # in the text. It also printed the cost gap as "~2.2x",
     # which step4_gates_v3.json measures at 2.72 calm / 2.35 volatile, and used "dump", now
     # removed document-wide.
     _w("m3_injected_gates.tex", _tabular(
@@ -356,7 +356,7 @@ def register() -> None:
     predicted = sum(1 for r in REGISTER_ROWS if r[2].strip() != "---")
     # The three argumentative statements this note used to carry -- checkability, the count of
     # falsifications, and the one post hoc amendment -- are in the body of the registration
-    # section. Per CARLO_REVISION_PASS.md:41-44 the note keeps only what bounds the exhibit.
+    # section. The note keeps only what bounds the exhibit.
     note = (rf"\textbf{{The research questions were not part of this registration}}: the "
             rf"decision rules, thresholds, block assignments and per-amendment predictions were.")
     _w("m4_register.tex", _tabular(

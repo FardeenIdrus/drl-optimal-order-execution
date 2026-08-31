@@ -2,8 +2,7 @@
 relationship in the real December 2025 data (per regime, calibrate/holdout chronological
 split), plus the perfect-foresight stop/go bound.
 
-Registered protocol: PLANS/measured_signal_extension_plan.md Phase A and the dated
-addendum in reports/qrm_step4_criteria.md. All constants below are registered; nothing is
+Registered protocol: the dated addendum in reports/qrm_step4_criteria.md. All constants below are registered; nothing is
 tunable from the command line by design.
 
 Candidates (computed causally on the 0.5 s reconstructed book grid):

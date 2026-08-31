@@ -1,7 +1,7 @@
 """Logged re-runs: capture average reward per episode for the agents that never had it.
 
-WHY. Carlo's diagnostic question was "does average episode reward trend upward during
-training?". fig23 answers it for the ORIGINAL Phase D agents (28 inputs, broken critic) because
+WHY. The diagnostic question: does average episode reward trend upward during
+training? fig23 answers it for the ORIGINAL Phase D agents (28 inputs, broken critic) because
 those ten were retrained with logging in `runs_signal_logged`. It cannot answer it for:
 
   * the A4 agents   (injected track, 29 inputs, critic WORKS)   -- the obvious follow-up

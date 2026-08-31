@@ -27,8 +27,8 @@ REPO = Path(__file__).resolve().parents[2]
 SRC_ROOT = REPO / "reports" / "figures"
 DEST = (REPO.parent / "Idrus_Fardeen_MSc_Dissertation" / "figures")
 
-# Every directory holding figures of record. results_pack/figures is deliberately EXCLUDED:
-# it is a frozen snapshot of the 2026-07-21 meeting pack, not a source of truth.
+# Every directory holding figures of record. Untracked draft-figure directories are
+# deliberately excluded: they are not sources of truth.
 SRC_DIRS = [
     SRC_ROOT / "data",
     SRC_ROOT / "qrm",

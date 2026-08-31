@@ -1,46 +1,58 @@
-# Deep Reinforcement Learning for Optimal Order Execution on Real Hyperliquid Order-Book Data
+# Deep Reinforcement Learning for Order Execution on Hyperliquid
 
-MSc dissertation project. Reinforcement-learning agents (PPO and DQN) execute a large BTC buy
-order and are benchmarked against TWAP scheduling on implementation shortfall, using real
-Hyperliquid BTC-USD order-book data (December 2025). The study runs on two complementary
-experimental tracks. The reactive-simulator track is the main focus: agents trade inside a
-queue-reactive market model calibrated on per-order (L4) data, so their own orders consume
-liquidity and move the price. The frozen-replay track is the secondary strand: agents trade
-against replayed historical snapshots that cannot react, and its chief role is to motivate
-the move to a reacting market.
+A research project on optimal trade execution: can deep reinforcement learning agents (DQN
+and PPO) buy a large Bitcoin perpetual-futures position more cheaply than a time-weighted
+average price (TWAP) schedule? Cost is implementation shortfall, measured on real Hyperliquid
+order-book data.
 
-**Headline result to date:** a boundary null. On the reactive track, apparent advantages over
-TWAP appeared repeatedly on the evaluation data used during development and failed every test
-on fresh data: two one-shot sealed confirmations failed, and the two surviving cells of a
-16-cell robustness grid died on a never-before-used replication block. Documenting how those
-spurious edges arose, and the pre-registered evaluation machinery that caught them, is a
-central contribution. A separately diagnosed finding: DQN systematically collapses into
-inaction at realistic order sizes where PPO trains healthily.
+The central difficulty with execution nulls is identification: an agent that fails to beat
+its benchmark may have learned badly, or may have traded in a market with nothing to exploit.
+This project resolves the ambiguity by measuring the venue's own short-horizon predictability
+(queue imbalance, from per-order data), injecting it into a calibrated queue-reactive
+simulator at certified strength, and testing whether agents can convert a signal that is
+known to be present, at a strength the venue itself exhibits.
 
-## Project status (21 July 2026)
+**Findings.** A single-coefficient rule reading the injected signal, restricted to the
+agents' own action set, captures a material saving (0.31 basis points in calm conditions,
+0.63 in volatile, confirmed once on a held-out block). Across eighteen pre-registered agent
+configurations in three environments, neither DQN nor PPO captures any of it. Every apparent
+agent edge found during development failed out-of-sample replication; one apparent edge on
+recorded order books is traced mechanically to evaluation-period drift, collected equally by
+rules that cannot learn.
 
-- Reactive-simulator track: experimentally complete. Primary campaign (20 agents), tuning
-  and selection (98 runs), two sealed confirmations (both failed), 16-cell size-by-deadline
-  robustness grid with a five-seed escalation and replication ladder (both triggered cells
-  failed replication), DQN collapse diagnosis (cross-setting probe, update-rhythm variant,
-  learned-value inspection), per-episode cost distributions.
-- Frozen-replay track: all 70 agents trained and validated (14 arms: dataset by algorithm by
-  order size, five seeds each). The one-shot sealed test-set evaluation has not yet run.
-- Next experiment: the measured-signal extension (measure the order-flow to future-return
-  relationship from the data and inject exactly that into the simulator, unifying the two
-  tracks' mechanisms in one environment). Registered as a next step in the results document.
-- The current results document lives at `reports/results_pack/results_pack.pdf`.
+## Design
+
+Agents are evaluated in three environments, each answering an objection the previous one
+leaves open:
+
+1. **Recorded order books**: two years of replayed Hyperliquid snapshots. Real prices, but
+   a replayed book cannot react to the agent's own orders.
+2. **Reacting simulator**: a queue-reactive market model (Huang, Lehalle and Rosenbaum,
+   2015) calibrated to Hyperliquid's December 2025 per-order records, so the agent's orders
+   consume liquidity and move the price.
+3. **Injected environment**: the reacting simulator with the venue's measured
+   queue-imbalance predictability added to its price process and the agent's observation,
+   certified to match the venue measurement within twenty per cent at four forecast horizons
+   between one and ten seconds.
+
+The evaluation is built for credible nulls and credible positives alike: decision rules,
+thresholds and block assignments fixed in writing before the data they govern were seen;
+one-use confirmation blocks; a behavioural audit applied before any cost comparison; paired
+common-random-number scoring against both fixed and adaptive TWAP; multiple-testing
+corrections where multiple tests exist; and a non-learning control that detects
+evaluation-period artefacts the standard corrections cannot.
 
 ## Repository layout
 
 ```
 src/execution/                All project code (one package).
-  pipeline.py                 Config-driven orchestrator for the frozen-replay data
+  pipeline.py                 Config-driven orchestrator for the recorded-book data
                               pipeline (idempotent, deterministic).
 
-  data/                       Frozen-replay data pipeline: raw S3 archive to frozen datasets.
-    manifest.py, pull.py      S3 availability listing and raw download.
-    schema.py, parse.py       Canonical order-book contract; raw to canonical conversion.
+  data/                       Recorded-book data pipeline: raw snapshot archive to
+                              leakage-guarded train/validation/test datasets.
+    manifest.py, pull.py      Archive availability listing and raw download.
+    schema.py, parse.py       Canonical order-book contract; raw-to-canonical conversion.
     sources/                  Hyperliquid-specific listing and decoding.
     resample.py               Bar-resolution books plus intra-bar statistics.
     features.py               Causal microstructure features (leakage-tested).
@@ -48,139 +60,182 @@ src/execution/                All project code (one package).
     adv.py                    Daily volume, used to size orders as a share of it.
     qa_report.py              Pipeline quality-assurance report.
 
-  data/l4/                    Per-order (L4) data to a validated reconstructed book.
-    book_diffs_reader.py      Streams order-level book-diff events.
-    orders_reader.py          Order-status file: timestamps and terminal removals.
-    trades_reader.py          Trades file: authoritative market-order events.
+  data/l4/                    Per-order records to a validated reconstructed book.
+    book_diffs_reader.py      Streams order-level book-change events.
+    orders_reader.py          Order-status stream: timestamps and terminal removals.
+    trades_reader.py          Trades stream: authoritative market-order events.
     book_engine.py            Order-by-order book reconstruction with a crossing guard.
-    snapshot_sampler.py       0.5-second snapshot grid over the event stream.
+    snapshot_sampler.py       Half-second snapshot grid over the event stream.
     reconstruct_month.py      Month-scale driver (checkpointed, memory-flat).
     validate_vs_l2.py         Cross-validation of the reconstruction against the
                               independent snapshot archive.
 
-  qrm/                        The reactive simulator and every reactive-track experiment.
+  qrm/                        The reacting simulator, its calibration, and the injected
+                              signal.
     event_labeler.py          Classifies events: limit arrival, cancellation, market order.
     ref_frame.py              Reference price frame; depth and queue state.
     quiet_spell.py            Quiet-spell-conditioned calibration measurements.
     calibrate_intensities.py  Earlier unconditioned calibrators (kept for comparison).
-    assemble.py               Packages calibrated rates, book shapes and sizes for the engine.
+    assemble.py               Packages calibrated rates, book shapes and sizes.
     exo_ref_sim.py            The two-component simulator: calibrated queue dynamics plus
-                              an empirically measured, drift-neutralised background
-                              price-move process.
+                              a drift-neutralised background price process.
     step3f.py, step3g.py      Calibration drivers: validation gate; per-regime calibration
-                              (calm and volatile) with the drift-neutrality fairness gate.
-    step4_gates.py            Pre-training environment validation gates (impact is real and
-                              persistent, costs size-monotone, benchmark sanity).
-    reactive_env.py           The reactive execution environment (Gymnasium).
-    reactive_baselines.py     Fixed TWAP and adaptive TWAP benchmarks inside the simulator.
-    train_reactive.py         Trains one agent (PPO or DQN) in the reactive environment;
-                              writes model, configuration record and training curve.
-    step5_judgement.py        Paired common-random-numbers evaluation of trained agents
-                              against both TWAP benchmarks; behaviour audit before any cost
-                              comparison; writes the judgement and audit records that are
-                              the source of truth for every reported number.
+                              with the drift-neutrality fairness gate.
+    step4_gates.py            Pre-training environment validation gates.
+    reactive_env.py           The reacting execution environment (Gymnasium).
+    reactive_baselines.py     Fixed and adaptive TWAP benchmarks inside the simulator.
+    signal_measure.py         Measures queue imbalance's predictive strength on the
+                              reconstructed venue book (the quantity the injection matches).
+    sigext_kernel.py          The injected signal's construction.
+    sigext_calibrate.py       Certification of the injected strength against the venue
+                              measurement across forecast horizons.
+    sigext_gates.py           Fairness and actionability gates for the injected environment.
+    train_reactive.py         Trains one agent (PPO or DQN); writes model, configuration
+                              record and training curve.
+    step5_judgement.py        Paired common-random-numbers evaluation against both TWAP
+                              benchmarks; behavioural audit before any cost comparison;
+                              writes the judgement and audit records behind every reported
+                              number.
     vendored.py               Import helper for the vendored engine below.
 
-  env/                        Frozen-replay execution environment.
+  env/                        Recorded-book execution environment.
     fills.py                  Ask-ladder fill engine, shared by agents and benchmarks.
     real_data_env.py          The replay environment; reward is implementation shortfall.
-    benchmarks.py             TWAP and related schedule benchmarks.
+    benchmarks.py             TWAP benchmark schedules.
     calibration.py            Impact fits used by benchmark calibration.
     episode_store.py          Chronological train/val/test episode split (leakage-free).
     normalize.py              Train-only feature normalisation.
 
-  agents/                     DQN and PPO (Stable-Baselines3) for the frozen-replay track:
-                              model builders, policies, callbacks, training entry point.
-  eval/                       Frozen-replay paired per-episode scoring and decomposition.
+  agents/                     DQN and PPO (Stable-Baselines3) for the recorded-book
+                              environment: model builders, policies, callbacks, training
+                              entry point.
+  eval/                       Recorded-book paired per-episode scoring and decomposition.
 
 configs/                      Experiment and pipeline configuration files, one pair per
-                              frozen-replay dataset (1-minute/30-min, 10-second/30-min,
-                              10-second/10-min). Single source of truth for settings.
+                              recorded-book dataset version. Single source of truth for
+                              settings.
 
-tests/                        219 deterministic pytest unit tests: leakage, fills, book
-                              reconstruction, calibration, reactive environment, benchmark
-                              parity, guard regressions.
+tests/                        276 deterministic pytest unit tests: leakage, fills, book
+                              reconstruction, calibration, the reacting environment,
+                              benchmark parity, guard regressions.
 
-reports/                      Protocols, analysis outputs and the results document.
-  qrm_step4_criteria.md       The frozen, pre-registered decision rules for the reactive
-                              track and every protocol amendment, dated before the runs
-                              they govern.
-  l2_test_protocol.md         Pre-registered protocol for the frozen-replay track's
-                              one-shot sealed test-set evaluation (not yet executed).
-  figures/                    Figure generation. qrm/make_figures.py and
-                              l2/make_l2_figures.py rebuild every figure from the primary
-                              result records.
-  tables/make_tables.py       Rebuilds every LaTeX table from the primary result records.
-  diagnostics/                DQN learned-value diagnostic and the per-episode
-                              re-evaluation script, with their outputs.
-  results_pack/               The results document. results_pack.tex/.pdf is the full
-                              working draft of the results and discussion chapter;
-                              *_overleaf.tex are self-contained single-file copies;
-                              meeting_pack.* is a figure-by-figure walkthrough version;
-                              figures/ and t*.tex are the embedded assets.
+reports/
+  qrm_step4_criteria.md       The registered decision rules for the simulator experiments
+                              and every protocol amendment, dated before the runs they
+                              govern.
+  l2_test_protocol.md         The registered protocol for the recorded-book held-out test.
+  figures/                    Figure builders (qrm/, l2/, sigext/, methodology/, data/);
+                              each script rebuilds its figures from the primary records.
+  tables/                     Table builders (make_tables.py, make_sigext_tables.py,
+                              make_methodology_tables.py, make_data_tables.py,
+                              make_table_a1.py); each generated file names its builder and
+                              sources in a header comment.
+  diagnostics/                Analysis scripts: feature attribution (Kernel SHAP), the
+                              pacing regression, power analysis and learned-value
+                              diagnostics.
 
 results_archive/              Version-controlled primary evidence for every reported
-                              number: scored evaluations, behaviour audits, environment
-                              gates, calibration bundles, per-episode cost arrays, and
-                              every trained model with its configuration and training
-                              curve, for both tracks (checksummed copies). See its
-                              README.md for the layout. The provenance appendix of the
-                              results document cites paths relative to this folder.
+                              number: scored evaluations, behavioural audits, environment
+                              gates, calibration bundles, per-episode cost records and
+                              training curves, checksummed (CHECKSUMS.sha256). Contents
+                              are preserved exactly as generated; see its README for the
+                              layout.
 
-qrm_optimal_execution/        Vendored queue-reactive-model scaffold (Huang, Lehalle and
-                              Rosenbaum 2015; implementation arXiv 2511.15262, MIT
-                              licence), unmodified.
+qrm_optimal_execution/        Vendored queue-reactive-model implementation (Huang, Lehalle
+                              and Rosenbaum 2015; released with arXiv 2511.15262, MIT
+                              licence), unmodified. It supplies the book dynamics only;
+                              everything else was built for this project.
 
 docs/data_dictionary.md       Data dictionary for the pipeline outputs.
 ```
 
-Bulk data lives outside the repository in a gitignored scratch directory: raw archives,
-reconstructed books and training datasets (about 160 GB). All of it is regenerable from
-public sources with the pipeline code above; `results_archive/README.md` states the sources.
-
-## Where to find what
-
-- The results document: `reports/results_pack/results_pack.pdf`.
-- The evidence behind any reported number: `results_archive/` (start from the results
-  document's provenance appendix, which maps every figure and table to its source file).
-- The pre-registered decision rules: `reports/qrm_step4_criteria.md` (reactive track) and
-  `reports/l2_test_protocol.md` (frozen-replay sealed exam).
-
 ## Data sources
 
-- Frozen-replay track: Hyperliquid public S3 snapshot archive (requester-pays), BTC.
-- Reactive track: Oxford "Open Book" Hyperliquid L4 dataset (Zenodo,
-  DOI 10.5281/zenodo.18184441, CC BY 4.0), December 2025 BTC.
+- **Two-year snapshot record** (recorded-book environment): Hyperliquid's public archive
+  (`s3://hyperliquid-archive`, requester-pays), BTC perpetual, January 2024 to December 2025.
+- **December 2025 per-order record** (simulator calibration and the venue measurement): the
+  "Open Book" Hyperliquid Level 4 dataset, Zenodo DOI 10.5281/zenodo.18184441 (CC BY 4.0).
 
-## Setup and key commands
+Bulk data (roughly 160 GB of raw archives, reconstructed books and training datasets) lives
+outside the repository and is regenerable from these public sources with the pipeline code.
+
+## Installation
 
 ```bash
+# Python 3.12
 python3.12 -m venv .venv
 .venv/bin/pip install -r requirements.txt
+```
 
-# test suite (219 tests, deterministic)
+## Testing
+
+The suite holds 276 deterministic pytest unit tests (28 modules, one per component), run
+with:
+
+```bash
 PYTHONPATH=src .venv/bin/pytest tests -q
+```
 
-# frozen-replay data pipeline (idempotent; skips completed stages)
+Coverage by area:
+
+- **Data integrity and leakage**: causal feature construction, train-only normalisation,
+  chronological episode splits, regime labelling, resampling, dataset assembly
+  (`test_features`, `test_normalize`, `test_episode_store`, `test_regimes`,
+  `test_resample`, `test_dataset`, `test_parse`, `test_pipeline`).
+- **Order-book reconstruction**: the per-order book engine, timestamp matching and the
+  phantom-order rule (`test_l4_book_engine`, `test_l4_timestamps`).
+- **Execution environments**: fills, reward accounting, deadline handling and benchmark
+  behaviour in both the replay environment and the reacting simulator
+  (`test_real_data_env`, `test_env_fills`, `test_qrm_reactive_env`, `test_benchmarks`,
+  `test_ac_vwap`).
+- **Simulator calibration and fairness**: event labelling, intensity calibration, the
+  quiet-spell conditioning, the background price process and the assembled bundle
+  (`test_qrm_event_labeler`, `test_qrm_calibrate`, `test_qrm_quiet_spell`,
+  `test_qrm_exo_ref`, `test_qrm_ref_frame`, `test_qrm_assemble`).
+- **The injected signal**: the venue measurement, injection mechanics, policy independence
+  of the signal, and the signal-reading rule's action mapping (`test_signal_measure`,
+  `test_signal_injection`, `test_tick_class_measure`).
+- **Agents and evaluation**: model builders, training callbacks and the paired evaluator
+  (`test_agents`, `test_l2_test_evaluator`, `test_adv`, `test_calibration`).
+
+Every test is seed-fixed; the suite passes from a fresh clone with no external data.
+
+## Reproducing the experiments
+
+```bash
+# recorded-book data pipeline (idempotent; skips completed stages)
 PYTHONPATH=src .venv/bin/python -m execution.pipeline \
     --config configs/pipeline.yaml --scratch-root <scratch>
 
-# reactive track: train one agent / judge a set of runs (see --help for options)
+# per-order book reconstruction and simulator calibration
+PYTHONPATH=src .venv/bin/python -m execution.data.l4.reconstruct_month --help
+PYTHONPATH=src .venv/bin/python -m execution.qrm.step3g --help
+
+# train one agent; evaluate a set of runs
 PYTHONPATH=src .venv/bin/python -m execution.qrm.train_reactive --help
 PYTHONPATH=src .venv/bin/python -m execution.qrm.step5_judgement --help
-
-# rebuild every figure and table from the primary result records
-# (scripts read the working record in the scratch directory; results_archive/ is its
-#  checksummed snapshot inside the repository)
-.venv/bin/python reports/figures/qrm/make_figures.py
-.venv/bin/python reports/figures/l2/make_l2_figures.py
-.venv/bin/python reports/tables/make_tables.py
 ```
 
-## Limitations
+## Verifying archived results
 
-Stated fully in the results document. In brief: execution is market-order-only; the reactive
-simulator's background price process is deliberately unpredictable, so the null concerns
-liquidity-timing and impact management rather than price prediction (the measured-signal
-extension addresses this); one asset, one venue, one calendar month, two within-month
-regimes.
+Every reported number traces to a primary record under `results_archive/`. To verify the
+archive is intact:
+
+```bash
+cd results_archive && shasum -a 256 -c CHECKSUMS.sha256 | grep -v 'OK$' ; cd ..
+```
+
+The figure and table builders under `reports/` regenerate every exhibit from the primary
+records; each builder's docstring names the records it reads.
+
+## Registered protocols
+
+`reports/qrm_step4_criteria.md` and `reports/l2_test_protocol.md` are the project's
+registered decision rules, preserved exactly as written while the experiments ran. They
+occasionally reference a working laboratory notebook that is not part of this repository;
+the primary records they govern are in `results_archive/`.
+
+## Scope
+
+One contract (the BTC perpetual) on one venue; the simulator is calibrated to December 2025;
+execution is by market order at one of seven pace multiples of the TWAP rate.

@@ -2,8 +2,8 @@
 
 Sibling suite to reports/figures/qrm/ and reports/figures/l2/. Generates PDF (vector,
 for \\includegraphics) + PNG (preview) from the FROZEN result JSONs only -- no new
-evaluation, no re-runs. Every number traces to a source-of-record file listed in
-reports/qrm_step5_remediation.md addenda (G)/(H)/(I)/(J) and criteria section 8.
+evaluation, no re-runs. Every number traces to a source-of-record file archived
+under results_archive/; the governing rules are in reports/qrm_step4_criteria.md section 8.
 
 House style inherited from reports/figures/qrm/make_figures.py:
   - legends OUTSIDE the axes, never overlapping data;
@@ -253,7 +253,7 @@ def fig_s4_exploiter_vs_agents() -> None:
             ("half", "half-strength rule\n(diagnostic)", "exploit"),
             ("__ppo", "PPO base\n(trained agent)", "agent"),
             ("__dqn", "DQN base\n(trained agent)", "agent")]
-    # RETUNED 2026-08-27 (register 220): authored at print width 6.3in, panels stacked so
+    # Authored at print width (6.3in), panels stacked so
     # fonts render at true size; previously 10.6in wide printed at ~57% scale.
     fig, axes = plt.subplots(2, 1, figsize=(6.3, 6.6), sharex=True)
     for ax, regime in zip(axes, REGIMES):
@@ -659,7 +659,7 @@ def fig_s10_frontier() -> None:
     label = {"adaptive": "adaptive TWAP", "fixed": "fixed TWAP", "ac_kT0": "AC $\\kappa T$=0",
              "ac_kT1": "AC $\\kappa T$=1", "ac_kT2": "AC $\\kappa T$=2",
              "ac_kT4": "AC $\\kappa T$=4", "vwap_oracle": "oracle VWAP"}
-    # RETUNED 2026-08-27 (register 220): print-width 6.3in, stacked; the TWAP/AC-kT0
+    # Authored at print width (6.3in), stacked; the TWAP/AC-kT0
     # cluster label previously collided with the agent circles.
     fig, axes = plt.subplots(2, 1, figsize=(6.3, 7.2))
     for ax, regime in zip(axes, REGIMES):

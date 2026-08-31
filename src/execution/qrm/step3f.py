@@ -48,7 +48,7 @@ logger = logging.getLogger(__name__)
 
 TICK = 1.0    # BTC tick on Hyperliquid ($1); locked in the prior iterations
 DEFAULT_K = 5  # levels near the touch; --K runs the pre-planned robustness sweep
-#                (criteria/BUILD_PLAN 3b: "report a robustness check across K"). A
+#                (a pre-planned requirement: "report a robustness check across K"). A
 #                K-window caps the largest representable spread at 2K+1 ticks.
 
 

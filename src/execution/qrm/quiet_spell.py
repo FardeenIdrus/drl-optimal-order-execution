@@ -1,6 +1,6 @@
 """Quiet-spell (reference-price-stable) conditioning for the QRM calibration.
 
-Why (BUILD_PLAN "Step 3 — refinement iteration 2", 2026-07-04): the exogenous
+Why (design decision recorded 2026-07-04): the exogenous
 reference-move extension owns everything *associated with price moves* — the moves
 themselves AND the book re-formation at each move (`update_LOB` shift / invariant
 redraw). Measuring the event intensities over ALL time therefore double-counts the

@@ -11,9 +11,8 @@ Design decisions (defensible, for the methodology chapter)
 * **Replay, not simulation.** The book at each step is fixed historical data.
   Direct/temporary impact (our order walking real visible depth) is modelled;
   indirect/permanent impact (the book reacting to us, refilling, others
-  responding) is *not*, by construction of replay. This is the
-  counterfactual-feedback limitation stated in HANDOVER, made explicit rather
-  than hidden. The QRM book-rewrite machinery (``_write_batch`` / ``update_LOB``)
+  responding) is *not*, by construction of replay. This
+  counterfactual-feedback limitation is deliberate and explicit. The QRM book-rewrite machinery (``_write_batch`` / ``update_LOB``)
   is therefore intentionally dropped.
 * **Arrival price = mid as-of the episode's first decision** (Perold
   implementation-shortfall benchmark).

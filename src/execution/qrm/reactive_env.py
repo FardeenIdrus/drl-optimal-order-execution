@@ -3,8 +3,7 @@
 The agent executes a buy meta-order against the LIVING calibrated book: its market
 buys consume simulator queue units, the book refills at the calibrated state-dependent
 rates, and eating through the best queue moves the price — the endogenous impact
-channel the L2 replay could not represent. Design locked in BUILD_PLAN "STEP 4 — PLAN
-LOCKED (user-approved 06/07/2026)"; numeric criteria frozen in
+channel the L2 replay could not represent. The design was locked on 2026-07-06; numeric criteria were frozen in
 reports/qrm_step4_criteria.md BEFORE this file was written.
 
 Key mechanics (each with a locked rationale):

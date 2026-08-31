@@ -69,7 +69,7 @@ agent:
                                   # planning horizon matches 60s (0.995^30 = 0.9992^180 ~ 0.86). Keeping
                                   # 0.995 would make the 10s agent ~2x more myopic (terminal weight 0.41),
                                   # confounding decision-frequency with horizon. Robustness ablation at
-                                  # 0.995 planned (see BUILD_PLAN "Discount factor"). Standard continuous-
+                                  # 0.995 planned (fixed at design time). Standard continuous-
                                   # time discounting gamma=exp(-rho*dt).
     train_freq: 100
     gradient_steps: 1
