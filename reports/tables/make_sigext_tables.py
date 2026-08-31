@@ -269,7 +269,7 @@ def populate_sealed() -> None:
 \vspace{0.6em}
 \begin{tabular}{lrrl}
 \toprule
-regime & follower vs adaptive TWAP (bps) & s.e. & $p$ \\
+regime & signal-reading rule vs adaptive TWAP (bps) & s.e. & $p$ \\
 \midrule
 """ + "\n".join(fr) + r"""
 \bottomrule
@@ -278,7 +278,7 @@ regime & follower vs adaptive TWAP (bps) & s.e. & $p$ \\
     body = r"""% Sealed exhibit on block 17e6 (MAIN). Predictions registered before unsealing.
 % Source: step5_signal_sealed/judgement.json (+ follower_context.json)
 \begin{table}[htbp]\centering
-\caption[Replication on the confirmation block]{Replication on the confirmation block. The predictions were recorded in the registered
+\caption[Replication on the confirmation block]{\textbf{Replication on the confirmation block.} The predictions were recorded in the registered
 protocol before the block was opened. They stated that no agent would meet the edge criterion,
 and that the signal-reading rule would remain profitable beyond the materiality threshold in
 both regimes.}
@@ -540,7 +540,7 @@ run & without & with & without & with \\
 \toprule
 & \multicolumn{2}{c}{without the arrival price} & \multicolumn{2}{c}{with the arrival price} & \\
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}
-regime & vs TWAP (bps) & valid & vs TWAP (bps) & valid & meets edge rule \\
+regime & vs TWAP (bps) & valid & vs TWAP (bps) & valid & meets edge criterion \\
 \midrule
 """ + "\n".join(ver) + r"""
 \bottomrule

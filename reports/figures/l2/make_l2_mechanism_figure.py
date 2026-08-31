@@ -141,7 +141,7 @@ def main() -> None:
 
     handles = [
         Line2D([], [], color=BLUE, marker="o", lw=1.8, label="validation period"),
-        Line2D([], [], color=RED, marker="s", lw=1.8, label="confirmation period"),
+        Line2D([], [], color=RED, marker="s", lw=1.8, label="held-out test period"),
         Line2D([], [], color=MUTED, lw=1.0, ls="-", label="PPO agent (panel B)"),
         Line2D([], [], color=MUTED, lw=1.0, ls=(0, (2.2, 1.4)), label="DQN agent (panel B)"),
         Line2D([], [], color=INK, lw=1.2, ls="--", label="TWAP"),

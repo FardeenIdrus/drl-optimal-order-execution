@@ -260,10 +260,9 @@ def fig_d2() -> None:
     # question. A shorter window mechanically yields a lower realised volatility, so the clause
     # goes here, where the three numbers first sit side by side.
     ax.annotate("same rule, other versions: "
-                + ", ".join(f"{plain.get(k, k)} {v:.6f}"
+                + ", ".join(f"{v:.6f} ({plain.get(k, k)})"
                             for k, v in sorted(others.items(), key=lambda kv: plain.get(kv[0], kv[0])))
-                + ".\nA shorter episode spans less time, so its realised volatility, and "
-                  "hence its threshold, is lower",
+                + ".\nA shorter episode accumulates less price movement, so its threshold is lower",
                 xy=(0.5, -0.22), xycoords="axes fraction", ha="center", va="top", fontsize=6.5,
                 color="0.35")
     save(fig, "figD2_regimes")

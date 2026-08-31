@@ -31,7 +31,7 @@ OUT = Path(__file__).resolve().parent / "ta1_power.tex"
 SRC = S / "power_analysis_multiblock.json"
 
 ENV_LABEL = {"frozen": "Recorded order books", "reacting": "Reacting simulator",
-             "injected": "Injected predictability"}
+             "injected": "Injected simulator"}
 # The block a verdict of record was issued on, per environment: that is the row the reader
 # needs. Other blocks exist only to establish that dispersion transfers, and are summarised
 # in the transfer column rather than given their own rows.

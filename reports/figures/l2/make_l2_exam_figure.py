@@ -62,7 +62,7 @@ def main():
                     fontsize=9, color=INK)
     ax.set_xlim(-0.25, 1.25)
     ax.set_xticks([0, 1])
-    ax.set_xticklabels(["validation\n(earlier period)", "confirmation\n(later period)"])
+    ax.set_xticklabels(["validation\n(earlier period)", "held-out test\n(later period)"])
     ax.set_ylabel("cost vs TWAP (bps)   [below the line = cheaper]")
     ax.set_title("Every agent flips sign: 28 of 30")
     ax.annotate("worse than TWAP", xy=(0.99, 0.99), xycoords="axes fraction",
@@ -81,7 +81,7 @@ def main():
         ks = [k for k in keys if k[1].startswith(algo)]
         v = np.array([val[k]["mean_paired_diff_bps"] for k in ks])
         t = np.array([test[k]["mean_paired_diff_bps"] for k in ks])
-        groups += [f"{algo.upper()}\nvalidation", f"{algo.upper()}\nconfirmation"]
+        groups += [f"{algo.upper()}\nvalidation", f"{algo.upper()}\nheld-out test"]
         meds += [float(np.median(v)), float(np.median(t))]
         votes += [f"{int((v < 0).sum())}/{len(v)} cheaper", f"{int((t < 0).sum())}/{len(t)} cheaper"]
         cols += [col, col]
@@ -102,7 +102,7 @@ def main():
     ax.set_xticks(x)
     ax.set_xticklabels(groups, fontsize=9.5)
     ax.set_ylabel("median cost vs TWAP (bps)")
-    ax.set_title("DQN is a diagnosed-broken learner\nand it also flips to cheaper on the test period")
+    ax.set_title("Median cost by algorithm and period\nDQN agents are behaviourally collapsed")
 
     handles = [Line2D([], [], color=BLUE, lw=2, marker="o", ms=5, label="PPO agents (15 runs)"),
                Line2D([], [], color=RED, lw=2, marker="o", ms=5,
@@ -110,7 +110,7 @@ def main():
                Line2D([], [], color=INK, lw=1.2, ls="--", label="TWAP")]
     fig.legend(handles=handles, loc="lower center", ncol=2, frameon=False,
                bbox_to_anchor=(0.5, -0.055))
-    fig.suptitle("An apparent edge that a broken agent also produces\nis a property of the period, not skill",
+    fig.suptitle("Cost against TWAP in both evaluation periods,\nwith the behaviourally collapsed control",
                  y=1.005, fontsize=12)
     fig.tight_layout()
     for ext in ("pdf", "png"):

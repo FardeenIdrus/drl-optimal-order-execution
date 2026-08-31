@@ -120,7 +120,7 @@ def problem_and_network() -> None:
     _arrow(ax, 8.15, ACT_BOT - 0.70, 8.15, LY + LH + 0.04)
     _arrow(ax, 6.56, LY + LH / 2, 6.06, LY + LH / 2)
     _arrow(ax, 3.44, LY + LH / 2, 2.96, LY + LH / 2)
-    _arrow(ax, 1.60, LY + LH + 0.04, 1.60, OBS_BOT - 0.48)
+    _arrow(ax, 1.60, LY + LH + 0.04, 1.60, OBS_BOT - 0.10)
 
     # No in-figure title: the caption carries it, and printing both repeats the words.
     _save(fig, "fig_m_problem")

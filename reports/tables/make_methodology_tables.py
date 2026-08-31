@@ -141,8 +141,8 @@ def provenance() -> None:
          "fixed and adaptive TWAP, Almgren--Chriss family, expected-volume and oracle VWAP"],
         ["Evaluation", "no seed protocol, confirmation block or registration reported",
          "registered rules, materiality threshold, five seeds, common random numbers, "
-         "behaviour audit, separate blocks for selection and replication, "
-         "one-shot sealed confirmations"],
+         "behavioural audit, separate blocks for selection and replication, "
+         "sealed confirmations, each opened once"],
         ["Agents trained", "not reported",
          rf"\textbf{{{CEN['TOTAL_agents_of_record']}}} "
          rf"({CEN['recorded_books']['agents']} / {CEN['reacting_simulator']['agents']} / "
@@ -248,13 +248,20 @@ def injected_gates() -> None:
             # COUNT CORRECTED 2026-08-18: SIX paces are tested, not seven.
             # step3g.py:544 mults = [0.5, 0.8, 1.0, 1.2, 1.5, 2.0]; the seventh action,
             # 0.0, never trades and so cannot be a completing constant-pace policy.
+            # RESIDUAL ADDED 2026-08-31. The gate is THREE conjunctive conditions
+            # (sigext_gates.py:118-119): completing = resid < 0.02, mean <= -0.02, t <= -2.5.
+            # The cell printed the second and third and omitted the first, so 4.5's clause
+            # "that pace does not complete the order" could not be checked against the table
+            # the sentence cites. resid is deadline_residual_btc / order_btc (step3g.py:558),
+            # i.e. the share of the PARENT ORDER left to the forced purchase, not of episodes.
             [reg, "no constant pace beats TWAP (best of six paces, bps vs TWAP)",
-             f"{best['cost_vs_twap_bps']:+.4f} at ${best['mult']:g}\\times$ "
-             f"($t={best['t']:.2f}$)",
+             (f"{best['cost_vs_twap_bps']:+.4f} at ${best['mult']:g}\\times$ "
+              f"($t={best['t']:.2f}$; {best['deadline_resid_frac']:.2%} of the order "
+              f"unbought at the deadline, bar 2%)").replace("%", r"\%"),
              r"none both material \emph{and} significant", tick(f["gradient_pass"])],
-            [reg, "the injected signal reproduces the real slope (worst gated horizon)",
+            [reg, "the injected signal reproduces the real slope (worst certified horizon)",
              f"{worst['rel_gap']:.1%} at {worst_h}\\,s".replace("%", r"\%"),
-             r"$\leq 20\%$, all gated horizons",
+             r"$\leq 20\%$, all certified horizons",
              tick(all(v["pass"] for v in gated.values()))],
         ]
     # FOOTER DELETED 2026-08-18. It ran to ~200 words and ARGUED: the disjunction defence,
@@ -295,7 +302,7 @@ REGISTER_ROWS = [
     ("Eight simulator validation checks and their pass bands",
      "before any agent was trained", "all eight pass", "held; all eight passed",
      "criteria sections 2 and 8"),
-    ("Behaviour audit: exclusion above one unit left to the deadline in more than "
+    ("Behavioural audit: exclusion above one unit left to the deadline in more than "
      "one episode in ten",
      "before any agent was scored", "fixed TWAP itself passes at every order size",
      "held; worst case $0.010$ against a $0.10$ cap",
@@ -304,19 +311,19 @@ REGISTER_ROWS = [
      "before any block was opened", "---", "applied unchanged; every confirmation block spent once",
      "criteria section 3; seed-disjointness audit"),
     ("Injected signal must reproduce the measured Hyperliquid slope within $\\pm20\\%$",
-     "before the certification run", "the band is reachable at every gated horizon",
-     "held; worst gated horizon $17.6\\%$", "criteria section 8"),
+     "before the certification run", "the band is reachable at every certified horizon",
+     "held; worst certified horizon $17.6\\%$", "criteria section 8"),
     ("First sealed confirmation, agents",
      "before the block was opened",
-     "no agent meets the edge rule; pooled difference within noise of zero",
+     "no agent meets the edge criterion; pooled difference within noise of zero",
      "\\textbf{held}", "criteria A1; results log (K)"),
-    ("First sealed confirmation, the rule-based follower",
+    ("First sealed confirmation, the signal-reading rule",
      "before the block was opened",
      "cheaper than the benchmark beyond the materiality threshold, both regimes",
      "\\textbf{held}", "criteria A1; results log (L)"),
     ("Adding the arrival price to the observation, policy-gradient agent",
      "before the agents were re-trained",
-     "the predicted-score estimate improves above $0.10$; the cost verdict does not change",
+     "explained variance improves above $0.10$; the cost verdict does not change",
      "\\textbf{both held} ($0.42$ against a bar of $0.10$)",
      "criteria A4; results log (Y23)"),
     ("Adding the arrival price to the observation, value-based agent",

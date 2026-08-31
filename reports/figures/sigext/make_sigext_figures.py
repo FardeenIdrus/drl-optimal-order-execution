@@ -469,7 +469,7 @@ def load_reactive_sealed_arms() -> list[dict]:
     Both PASS=False -> the boundary null."""
     out = []
     for folder, label in (("step5_confirm_v3a", "selected config (lr 1e-3), volatile"),
-                          ("step5_confirm_v1b", "remedial pick (bigger net), volatile")):
+                          ("step5_confirm_v1b", "alternative (bigger net), volatile")):
         v = json.loads((S / folder / "judgement.json").read_text())["verdicts"]["ppo_volatile"]
         out.append({"lever": label, "algo": "ppo", "size": None,
                     "bps": float(v["pooled_vs_adaptive_bps"]),
@@ -736,7 +736,7 @@ def fig_s10_frontier() -> None:
                Line2D([], [], color=OI_ORANGE, marker="x", ls="none", ms=8, mew=2,
                       label="oracle VWAP (infeasible; excluded from the frontier)")]
     fig.legend(handles=handles, loc="lower center", ncol=2, frameon=False,
-               bbox_to_anchor=(0.5, -0.075))
+               bbox_to_anchor=(0.5, -0.095))
     fig.suptitle("Agents pay for their deviation from uniform pacing\nwithout buying risk reduction",
                  y=1.005, fontsize=11.5)
     fig.tight_layout()

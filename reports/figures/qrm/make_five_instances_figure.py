@@ -135,7 +135,7 @@ def main() -> None:
                         fontsize=7.4)
     axR.set_xlabel("cost difference against adaptive TWAP (bps)      ← cheaper", labelpad=8)
     axR.set_title("B.  Every configuration on the affected dataset version, on validation and\n"
-                  "on the confirmation block, including three behaviourally collapsed",
+                  "on the held-out test period, including three behaviourally collapsed",
                   loc="left", fontsize=8.2)
     axR.grid(axis="x", color=GRID, lw=0.5, zorder=0)
     axR.set_axisbelow(True)
@@ -143,7 +143,7 @@ def main() -> None:
 
     handles = [Patch(facecolor=FIRST, alpha=0.85,
                      label="first block (development, or validation in panel B)"),
-               Patch(facecolor=FRESH, alpha=0.85, label="held-out block (confirmation or reserve)"),
+               Patch(facecolor=FRESH, alpha=0.85, label="held-out block (confirmation or reserve; test in panel B)"),
                Patch(facecolor="#999999", alpha=0.3,
                      label="±0.05 bps pre-registered materiality threshold")]
     # Descriptive only. The reading of the figure -- that the edge tracks the block and not

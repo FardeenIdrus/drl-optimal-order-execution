@@ -135,7 +135,7 @@ def fig_l2_size_sweep():
                                 edgecolors=color, zorder=3)
             xs.append(x); means.append(ok.mean())
         ax2.plot(xs, means, marker + "-", color=color, ms=7,
-                 label=f"{algo.upper()} (mean over audit-clean seeds)")
+                 label=f"{algo.upper()} (mean over audit-valid seeds)")
     ax2.axhline(0, color="k", lw=0.9)
     ax2.set_xscale("log")
     ax2.set_ylim(-0.35, YMAX)

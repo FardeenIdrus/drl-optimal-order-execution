@@ -35,6 +35,7 @@ TC = json.loads((S / "oxford_l4" / "tick_class" / "tick_class_measurement.json")
 EA = json.loads((S / "oxford_l4" / "tick_class" / "event_ahead_auc.json").read_text())
 ADV = json.loads((S / "adv" / "btc_adv.json").read_text())
 TVALL = json.loads((S / "oxford_l4" / "trade_volume_202512.json").read_text())
+FV = json.loads((S / "oxford_l4" / "feature_validity_by_month.json").read_text())
 TV = TVALL["december_only"]
 
 RC = M["raw_coverage"]
@@ -312,6 +313,21 @@ def table_d2() -> str:
          f"is absent, the variable cannot be computed and the minute is discarded rather than "
          f"estimated by interpolation",
          f"no {p['vol_window']}-minute window is ever completed across absent minutes"),
+        # Monthly retention on the ten-second version: the figures behind the prose's
+        # retention-collapse disclosure, read from feature_validity_by_month.json.
+        ("bar retention by month, ten-second version",
+         (lambda nov, octm, others:
+          f"November 2025: {nov['has_book_pct']:.1f}\\% of bars carry book data and "
+          f"{nov['usable_pct']:.1f}\\% are retained; October 2025: {octm['has_book_pct']:.1f}\\% "
+          f"and {octm['usable_pct']:.1f}\\%; every other month lies between "
+          f"{min(m['usable_pct'] for m in others):.1f}\\% and "
+          f"{max(m['usable_pct'] for m in others):.1f}\\%")(
+             [m for m in FV["stores"]["10-second"]["by_month"] if m["month"] == "2025-11"][0],
+             [m for m in FV["stores"]["10-second"]["by_month"] if m["month"] == "2025-10"][0],
+             [m for m in FV["stores"]["10-second"]["by_month"]
+              if m["month"] not in ("2025-10", "2025-11")]),
+         "a bar carries book data if any snapshot fell inside it; it is retained only if "
+         "all five variables compute"),
         ("cutting the data into episodes",
          f"{n(s4['feature_valid_rows'])} usable minutes became {n(s6['rows'])}. The "
          f"{n(dropped)} difference is minutes left over at the ends, too few to complete an "

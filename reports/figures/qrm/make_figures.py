@@ -142,7 +142,7 @@ def fig_dev_vs_sealed():
         Line2D([], [], marker="D", ls="", color=BLUE, ms=7,
                label="development block: mean ± 95% CI (in-sample selection)"),
         Line2D([], [], marker="D", ls="", color=RED, ms=7,
-               label="confirmation block: mean ± 95% CI (one-shot, fresh seeds)"),
+               label="confirmation block: mean ± 95% CI (opened once, fresh seeds)"),
         Line2D([], [], marker="o", ls="", markerfacecolor="none",
                markeredgecolor="grey", ms=6, label="individual seeds (5 per condition)"),
     ]
@@ -345,13 +345,13 @@ def fig_drift_confound():
     ax.set_xticklabels([g[0] for g in groups])
     ax.set_xlim(-1.1, centers[-1] + 1.75)
     ax.set_ylabel(BPS + "\n(base PPO, development block)")
-    ax.set_title("A hidden background price drift manufactured a spurious calm-regime edge;\n"
-                 "neutralising the drift dissolved it (identical 20-run design before/after)")
+    ax.set_title("Cost with and without a directional drift in the background\n"
+                 "price process, by regime (identical 20-run design)")
     handles = [
         Line2D([], [], marker="D", ls="", color="#7f7f7f", ms=7,
-               label="WITH drift (before the fix): mean ± 95% CI"),
+               label="with drift: mean ± 95% CI"),
         Line2D([], [], marker="D", ls="", color=BLUE, ms=7,
-               label="drift-neutralised (after the fix): mean ± 95% CI"),
+               label="drift-neutralised: mean ± 95% CI"),
         Line2D([], [], marker="o", ls="", markerfacecolor="none",
                markeredgecolor="grey", ms=6, label="individual seeds"),
     ]
@@ -402,7 +402,7 @@ def fig_dqn_collapse():
     ax.annotate("magnified in the\nright panel", xy=(ZX[1], 5), xytext=(44, 4),
                 fontsize=8.5, color="#222222", va="center",
                 arrowprops=dict(arrowstyle="->", color="#222222", lw=0.9))
-    ax.set_xlabel('share of decisions that were "trade nothing" (%)')
+    ax.set_xlabel('share of decisions that were "do nothing" (%)')
     ax.set_ylabel("episodes finished by the forced-deadline buy (%)")
     ax.set_title("all 20 base-campaign runs", fontsize=10)
     ax.set_xlim(-3, 100)
@@ -414,10 +414,10 @@ def fig_dqn_collapse():
     plot_points(axz)
     axz.set_xlim(*ZX)
     axz.set_ylim(*ZY)
-    axz.set_xlabel('"trade nothing" decisions (%)')
+    axz.set_xlabel('"do nothing" decisions (%)')
     axz.set_title("zoom: the 13 healthy runs (grey box, left)", fontsize=10)
     fig.suptitle("DQN collapses into do-nothing-then-dump; PPO trades properly\n"
-                 "(behaviour audit of the 20 base-campaign runs)", y=1.04)
+                 "(behavioural audit of the 20 base-campaign runs)", y=1.04)
 
     handles = [
         Line2D([], [], marker="s", ls="", markerfacecolor=RED, markeredgecolor="white",
@@ -687,7 +687,7 @@ def fig_dqn_collapse_by_setting():
     ax.set_xticks(x); ax.set_xticklabels(settings, fontsize=9)
     ax.set_xlim(-0.6, 3.75)
     ax.set_ylim(0, 1.12)
-    ax.set_ylabel("share of seeds passing the behaviour audit")
+    ax.set_ylabel("share of seeds passing the behavioural audit")
     ax.set_title("DQN collapse across settings: size-driven, and not cured by the\n"
                  "library-default update rhythm at the primary setting")
     fig.legend(loc="upper center", bbox_to_anchor=(0.5, -0.02), ncol=2,
@@ -723,11 +723,11 @@ def fig_q_tilt():
             transform=tr, color=RED, fontsize=8, ha="center", va="bottom")
     ax.text(100 * np.mean(val), 1.01, f"valid mean {100*np.mean(val):.0f}%",
             transform=tr, color=BLUE, fontsize=8, ha="center", va="bottom")
-    ax.set_xlabel('share of states where the network ranks "trade nothing" first (%)')
-    ax.set_title("Preference for inaction, by behaviour-audit outcome\n"
+    ax.set_xlabel('share of states where the network ranks "do nothing" first (%)')
+    ax.set_title("Preference for inaction, by behavioural-audit outcome\n"
                  "(both 2.5-min probe cells, 5 evaluation episodes per agent)",
                  pad=24)
-    handles = [Patch(facecolor=RED, alpha=0.85, label="collapsed (failed behaviour audit)"),
+    handles = [Patch(facecolor=RED, alpha=0.85, label="collapsed (failed behavioural audit)"),
                Patch(facecolor=BLUE, alpha=0.85, label="valid")]
     fig.legend(handles=handles, loc="upper center", bbox_to_anchor=(0.5, -0.02),
                ncol=2, frameon=False, fontsize=9)

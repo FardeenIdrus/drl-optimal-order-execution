@@ -182,8 +182,8 @@ def t8_hyperparams():
         r"v6b & v3b trained longer & lr 1e-4, 10M steps \\",
         r"w3a & combination & net [128,128] + reward $\times$100 \\",
         r"w3b & combination & lr 1e-4 + reward $\times$100 \\",
-        r"d1 & DQN collapse fix & exploration\_final\_eps 0.05, anneal 0.5 \\",
-        r"d2 & DQN collapse fix & reward $\times$100 + net [64,64] \\",
+        r"d1 & DQN collapse variant & exploration\_final\_eps 0.05, anneal 0.5 \\",
+        r"d2 & DQN collapse variant & reward $\times$100 + net [64,64] \\",
         r"\bottomrule",
         r"\end{tabular}",
     ]

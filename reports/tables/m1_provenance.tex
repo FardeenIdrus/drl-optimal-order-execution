@@ -11,7 +11,7 @@ Learner & DDQN & PPO and DQN \\
 Episode & 600\,s horizon, one decision every 25\,s, 25 shares & 300\,s horizon, one decision every 1\,s (300 decisions), 25\,BTC; ladder {5, 12.5, 25, 50}\,BTC and horizons {150, 300, 600, 1200}\,s \\
 Reward & terminal-penalised shortfall, $\alpha = 1$ & negative implementation shortfall against the arrival mid-quote, in basis points, with forced completion at the deadline \\
 Benchmarks & TWAP, POPV1--4 & fixed and adaptive TWAP, Almgren--Chriss family, expected-volume and oracle VWAP \\
-Evaluation & no seed protocol, confirmation block or registration reported & registered rules, materiality threshold, five seeds, common random numbers, behaviour audit, separate blocks for selection and replication, one-shot sealed confirmations \\
+Evaluation & no seed protocol, confirmation block or registration reported & registered rules, materiality threshold, five seeds, common random numbers, behavioural audit, separate blocks for selection and replication, sealed confirmations, each opened once \\
 Agents trained & not reported & \textbf{429} (70 / 283 / 76 by environment) \\
 \bottomrule
 \multicolumn{3}{@{}p{\linewidth}@{}}{\footnotesize The left column describes the paper and the implementation released with it. Its entries are taken from the authors' own configuration file rather than from the paper, which is the only place several of them are stated.} \\
