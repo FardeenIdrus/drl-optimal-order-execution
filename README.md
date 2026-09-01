@@ -1,9 +1,27 @@
-# Deep Reinforcement Learning for Order Execution on Hyperliquid
+<p align="center">
+  <img src="docs/assets/banner.svg" alt="Deep Reinforcement Learning for Order Execution on Hyperliquid" width="100%">
+</p>
 
-A research project on optimal trade execution: can deep reinforcement learning agents (DQN
-and PPO) buy a large Bitcoin perpetual-futures position more cheaply than a time-weighted
-average price (TWAP) schedule? Cost is implementation shortfall, measured on real Hyperliquid
-order-book data.
+<p align="center">
+  <a href="https://github.com/FardeenIdrus/drl-optimal-order-execution/actions/workflows/tests.yml"><img src="https://github.com/FardeenIdrus/drl-optimal-order-execution/actions/workflows/tests.yml/badge.svg" alt="CI"></a>
+  <a href="requirements.txt"><img src="https://img.shields.io/badge/python-3.12-0072B2?labelColor=1f2328" alt="Python 3.12"></a>
+  <a href="tests/"><img src="https://img.shields.io/badge/unit%20tests-276-009E73?labelColor=1f2328" alt="276 unit tests"></a>
+  <a href="reports/qrm_step4_criteria.md"><img src="https://img.shields.io/badge/design-pre--registered-D55E00?labelColor=1f2328" alt="Pre-registered design"></a>
+  <a href="results_archive/"><img src="https://img.shields.io/badge/evidence-1514%20files%20checksummed-D55E00?labelColor=1f2328" alt="Checksummed evidence archive"></a>
+  <a href="https://doi.org/10.5281/zenodo.18184441"><img src="https://img.shields.io/badge/L4%20data-DOI%2010.5281%2Fzenodo.18184441-59636e?labelColor=1f2328" alt="Data DOI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-59636e?labelColor=1f2328" alt="MIT licence"></a>
+</p>
+
+<p align="center">
+  <b><a href="#overview">Overview</a> · <a href="#design">Design</a> · <a href="#findings">Findings</a> · <a href="#the-scale-of-the-evaluation">Scale</a> · <a href="#why-the-results-are-credible">Credibility</a> · <a href="#repository-layout">Layout</a> · <a href="#reproducing-the-experiments">Reproducing</a> · <a href="#verifying-archived-results">Verifying</a></b>
+</p>
+
+## Overview
+
+*Can deep reinforcement learning agents buy a large Bitcoin perpetual-futures position more
+cheaply than a time-weighted average price (TWAP) schedule?* Cost is implementation
+shortfall, measured on real Hyperliquid order-book data; the agents are DQN and PPO
+(Stable-Baselines3).
 
 The central difficulty with execution nulls is identification: an agent that fails to beat
 its benchmark may have learned badly, or may have traded in a market with nothing to exploit.
@@ -11,14 +29,6 @@ This project resolves the ambiguity by measuring the venue's own short-horizon p
 (queue imbalance, from per-order data), injecting it into a calibrated queue-reactive
 simulator at certified strength, and testing whether agents can convert a signal that is
 known to be present, at a strength the venue itself exhibits.
-
-**Findings.** A single-coefficient rule reading the injected signal, restricted to the
-agents' own action set, captures a material saving (0.31 basis points in calm conditions,
-0.63 in volatile, confirmed once on a held-out block). Across eighteen pre-registered agent
-configurations in three environments, neither DQN nor PPO captures any of it. Every apparent
-agent edge found during development failed out-of-sample replication; one apparent edge on
-recorded order books is traced mechanically to evaluation-period drift, collected equally by
-rules that cannot learn.
 
 ## Design
 
@@ -35,12 +45,70 @@ leaves open:
    certified to match the venue measurement within twenty per cent at four forecast horizons
    between one and ten seconds.
 
-The evaluation is built for credible nulls and credible positives alike: decision rules,
-thresholds and block assignments fixed in writing before the data they govern were seen;
-one-use confirmation blocks; a behavioural audit applied before any cost comparison; paired
-common-random-number scoring against both fixed and adaptive TWAP; multiple-testing
-corrections where multiple tests exist; and a non-learning control that detects
-evaluation-period artefacts the standard corrections cannot.
+The certification is direct, not assumed: the injected simulator's predictive slope is
+measured the same way as the venue's and must sit inside a registered acceptance band.
+
+<p align="center">
+  <img src="reports/figures/sigext/main_body/s1_injection_fidelity.png" alt="Injected signal certified against the venue measurement across forecast horizons, calm and volatile regimes" width="90%">
+</p>
+
+## Findings
+
+**A single-coefficient rule reading the injected signal, restricted to the agents' own
+action set, captures a material saving (0.31 basis points in calm conditions, 0.63 in
+volatile, confirmed once on a held-out block). Across eighteen pre-registered agent
+configurations in three environments, neither DQN nor PPO captures any of it.** Every
+apparent agent edge found during development failed out-of-sample replication; one apparent
+edge on recorded order books is traced mechanically to evaluation-period drift, collected
+equally by rules that cannot learn.
+
+<p align="center">
+  <img src="reports/figures/sigext/main_body/s4_exploiter_vs_agents.png" alt="The signal was capturable; the agents did not capture it: signal-reading rules versus trained agents, calm and volatile" width="85%">
+</p>
+
+The headline comparison in the injected environment, against the adaptive TWAP benchmark
+(negative = cheaper than the benchmark; the registered materiality band is ±0.05 bps):
+
+| Policy | Calm (bps) | Volatile (bps) |
+| --- | ---: | ---: |
+| Signal-reading rule (registered benchmark, zero fitted parameters) | **−0.230** | **−0.490** |
+| Threshold rule (diagnostic) | −0.177 | −0.332 |
+| Half-strength rule (diagnostic) | −0.147 | −0.323 |
+| PPO (trained agent) | +0.005 | +0.043 |
+| DQN (trained agent) | no audit-valid seeds | +0.246 |
+
+The rules and agents face identical episodes under common random numbers and share one
+action set, so the gap is attributable to the agents' learning, not to information or
+opportunity.
+
+## The scale of the evaluation
+
+| Quantity | Value |
+| --- | --- |
+| Recorded order-book history | 2 years (January 2024 – December 2025) |
+| Per-order venue records | 1 month (December 2025), reconstructed order by order |
+| Evaluation environments | 3 |
+| Pre-registered agent configurations | 18 |
+| Episodes per frozen verdict | 2,000, paired under common random numbers |
+| Deterministic unit tests | 276 (28 modules) |
+| Archived evidence files | 1,514, checksummed |
+| Raw data footprint | ≈160 GB, regenerable from public sources |
+
+## Why the results are credible
+
+A null result is only as strong as the evaluation that produced it. Each threat below is
+met by a structural control, not by discretion:
+
+| Threat | Control |
+| --- | --- |
+| "The agents failed because there was nothing to learn" | The venue's measured predictability is injected at certified strength; a capturable edge is proven present by a non-learning rule that captures it |
+| Selective reporting after many looks | Decision rules, thresholds and block assignments fixed in writing before the data they govern were seen ([registered protocols](#registered-protocols)) |
+| Overfitting to the evaluation period | One-use sealed confirmation blocks: each is spent on a single pre-stated test and never reopened |
+| Degenerate policies scoring well | A behavioural audit is applied before any cost comparison; collapsed policies are excluded with their exclusion recorded |
+| Luck read as skill | Paired common-random-number scoring against both fixed and adaptive TWAP; multiple-testing corrections where multiple tests exist |
+| Evaluation-period drift read as skill | A non-learning control trades the same episodes; drift it collects cannot be claimed by the agents |
+| Silent code regressions | 276 seed-fixed unit tests covering leakage, fills, reconstruction, calibration and evaluation, run in CI on every push |
+| Irreproducible results | Every reported number traces to a checksummed primary record in `results_archive/`; every figure and table is rebuilt from those records by a script that names its sources |
 
 ## Repository layout
 
@@ -154,7 +222,8 @@ docs/data_dictionary.md       Data dictionary for the pipeline outputs.
 - **Two-year snapshot record** (recorded-book environment): Hyperliquid's public archive
   (`s3://hyperliquid-archive`, requester-pays), BTC perpetual, January 2024 to December 2025.
 - **December 2025 per-order record** (simulator calibration and the venue measurement): the
-  "Open Book" Hyperliquid Level 4 dataset, Zenodo DOI 10.5281/zenodo.18184441 (CC BY 4.0).
+  "Open Book" Hyperliquid Level 4 dataset, Zenodo DOI
+  [10.5281/zenodo.18184441](https://doi.org/10.5281/zenodo.18184441) (CC BY 4.0).
 
 Bulk data (roughly 160 GB of raw archives, reconstructed books and training datasets) lives
 outside the repository and is regenerable from these public sources with the pipeline code.
@@ -169,8 +238,8 @@ python3.12 -m venv .venv
 
 ## Testing
 
-The suite holds 276 deterministic pytest unit tests (28 modules, one per component), run
-with:
+The suite holds 276 deterministic pytest unit tests (28 modules, one per component), run on
+every push by [CI](.github/workflows/tests.yml) and locally with:
 
 ```bash
 PYTHONPATH=src .venv/bin/pytest tests -q
@@ -239,6 +308,11 @@ the primary records they govern are in `results_archive/`.
 
 One contract (the BTC perpetual) on one venue; the simulator is calibrated to December 2025;
 execution is by market order at one of seven pace multiples of the TWAP rate.
+
+## Citation
+
+If you use this software or its results, please cite it via the repository's
+[`CITATION.cff`](CITATION.cff) (GitHub's "Cite this repository" button).
 
 ## Licence
 

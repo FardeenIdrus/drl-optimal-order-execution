@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this software or its results, please cite it as below."
+title: "Deep Reinforcement Learning for Order Execution on Hyperliquid"
+type: software
+authors:
+  - family-names: Idrus
+    given-names: Fardeen
+repository-code: "https://github.com/FardeenIdrus/drl-optimal-order-execution"
+license: MIT
+date-released: "2026-09-01"
+abstract: >-
+  A pre-registered evaluation of deep reinforcement learning for optimal trade
+  execution. The venue's own short-horizon predictability is measured from
+  per-order Hyperliquid data, injected at certified strength into a calibrated
+  queue-reactive simulator, and DQN and PPO agents are tested on whether they
+  can convert a signal known to be present, against TWAP benchmarks under
+  paired common-random-number scoring.
+keywords:
+  - reinforcement-learning
+  - optimal-execution
+  - market-microstructure
+  - limit-order-book
+  - quantitative-finance
