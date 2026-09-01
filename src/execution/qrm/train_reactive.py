@@ -1,4 +1,4 @@
-"""Step 5 — train DQN/PPO inside the reactive QRM (protocol: qrm_step4_criteria.md §4).
+"""Train DQN/PPO inside the reacting QRM (protocol: reports/qrm_step4_criteria.md §4).
 
 Reuses the L2 track's agent builders (same [30x5] LeakyReLU trunk, same hyperparameter
 discipline) so the L2-vs-QRM comparison isolates the ENVIRONMENT, not the architecture.

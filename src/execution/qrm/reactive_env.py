@@ -1,4 +1,4 @@
-"""Step 4.2 — the reactive execution environment (agent inside the calibrated QRM).
+"""The reacting execution environment: the agent trades inside the calibrated QRM.
 
 The agent executes a buy meta-order against the LIVING calibrated book: its market
 buys consume simulator queue units, the book refills at the calibrated state-dependent

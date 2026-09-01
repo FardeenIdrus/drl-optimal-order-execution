@@ -1,4 +1,4 @@
-"""Train DQN (and, in Step 7, PPO) on the real-data execution env.
+"""Train DQN or PPO on the real-data execution environment.
 
 Pipeline per run: load ``train.parquet`` -> chronological ``(train_sub, val)``
 split -> fit the normalizer on ``train_sub`` ONLY (leakage-free) -> calibrate the

@@ -1,4 +1,4 @@
-"""Stage 3a - classify each book event as limit / cancel / market.
+"""Classify each book event as limit / cancel / market.
 
 The QRM's three event types are: a **limit** order arriving (adds depth), a
 **cancellation** (removes depth without a trade), and a **market** order (a trade that
@@ -13,7 +13,7 @@ lifecycle:
 
 "Fully filled" is taken from the order-status file (statusId ``filled`` with remaining
 size 0); everything else removed is a cancel. This mirrors the reconstruction's removal
-logic and the 100%-coverage check from Step 2.
+logic and its 100%-coverage check.
 """
 from __future__ import annotations
 

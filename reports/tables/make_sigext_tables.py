@@ -1,4 +1,4 @@
-"""Measured-signal extension tables (Phase F) -> LaTeX fragments in reports/tables/.
+"""Measured-signal extension tables -> LaTeX fragments in reports/tables/.
 
 Companion to reports/figures/sigext/make_sigext_figures.py. Reads the FROZEN result
 JSONs only; every number traces to a source-of-record file archived under results_archive/.

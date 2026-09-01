@@ -1,4 +1,4 @@
-"""Measured-signal extension figures (Phase F).
+"""Measured-signal extension figures.
 
 Sibling suite to reports/figures/qrm/ and reports/figures/l2/. Generates PDF (vector,
 for \\includegraphics) + PNG (preview) from the FROZEN result JSONs only -- no new

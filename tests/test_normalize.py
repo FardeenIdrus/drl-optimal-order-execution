@@ -1,4 +1,4 @@
-"""Unit tests for the train-fit feature normalizer (Phase 2, Step 2).
+"""Unit tests for the train-fit feature normalizer.
 
 Run with:  PYTHONPATH=src .venv/bin/pytest tests/test_normalize.py
 """

@@ -1,4 +1,4 @@
-# Phase 2 experiment configuration (RL environment + agents).
+# Experiment configuration (RL environment + agents).
 # Single source of truth for env/agent parameters, analogous to pipeline.yaml for
 # the data pipeline. Dataset location is passed at runtime via --scratch-root
 # (data lives outside the repo); dataset_dir selects the subdir under it.
@@ -8,7 +8,7 @@ bar_seconds: 60               # bar width (s); n_steps * bar_seconds = 1800s = 3
 dataset_dir: dataset          # 60s dataset under --scratch-root (10s lives in dataset_10s/)
 
 env:
-  # Meta-order sized as a % of ADV (Setup Step 1). ADV = 19,313 BTC (BTC daily
+  # Meta-order sized as a % of ADV. ADV = 19,313 BTC (BTC daily
   # volume from the Hyperliquid candle API, 2024-2025; cached in
   # scratch/adv/btc_adv.json). Primary = 0.5% of ADV: meaningful impact for a
   # measurable RL edge; slice 3.2 BTC/min vs volatile per-step depth median 22 /
@@ -31,7 +31,7 @@ env:
   # can match TWAP by construction (fair "beat TWAP" test) and is interpretable as
   # deviation-from-TWAP; fine resolution near 1.0 captures a small well-timed edge.
   # Supersedes the earlier fraction-of-remaining grid, which (coarse) could not
-  # represent TWAP's per-step pace and forced lumpy front-loading (Phase 5 Step 5).
+  # represent TWAP's per-step pace and forced lumpy front-loading.
   action_mode: twap_pace_multiple
   actions: [0.0, 0.5, 0.8, 1.0, 1.2, 1.5, 2.0]
 
@@ -43,13 +43,13 @@ obs:
 
 split:
   # Validation carved chronologically from the END of train.parquet (most recent,
-  # adjacent to the test boundary) for the Phase-5 generalization gate. The
+  # adjacent to the test boundary) for the generalization gate. The
   # normalizer is fit on the training sub-split ONLY (leakage-free); TEST stays
-  # sealed until final evaluation. See EpisodeStore.chrono_split (Setup Step 3).
+  # sealed until final evaluation. See EpisodeStore.chrono_split.
   val_frac: 0.15
 
 agent:
-  # Phase 5 training. Reward = negative per-step IS in BPS of arrival notional
+  # Training. Reward = negative per-step IS in BPS of arrival notional
   # (well-conditioned; same objective as the is_bps eval metric). Device cpu (the
   # probe showed MPS ~9x slower for this small net). Budget is a starting value;
   # extend if the validation curve has not plateaued (never trade rigor for speed).
@@ -74,7 +74,7 @@ agent:
     n_steps: 1
     exploration_initial_eps: 1.0
     exploration_final_eps: 0.01
-    # exploration_fraction is DERIVED from the budget (Setup Step 5), not fixed:
+    # exploration_fraction is DERIVED from the budget, not fixed:
     # anneal epsilon over the warmup PLUS the first `exploration_anneal_frac` of the
     # post-warmup learning phase, so it scales with total_timesteps and never decays
     # before learning_starts. QRM's fixed 0.03 was tuned to their 6.24M budget and

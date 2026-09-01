@@ -1,4 +1,4 @@
-# Phase 2 experiment configuration -- FINER RESOLUTION (10s bars).
+# Experiment configuration -- FINER RESOLUTION (10s bars).
 # Identical to experiment.yaml EXCEPT: n_steps 30->180 (a 30-min episode is now 180
 # bars of 10s), a bar_seconds field (drives the daily-vol annualisation in the
 # benchmark report), a dataset_dir pointer to the 10s dataset, and a 6x training

@@ -83,12 +83,12 @@ class RealDataExecutionEnv(gym.Env):
         # real training/eval MUST pass the train-fit normalizer, see runner).
         self.normalizer = normalizer
         self.test_mode = bool(test_mode)
-        # Square-root deadline-residual pricing (Setup Step 2): per-regime
+        # Square-root deadline-residual pricing: per-regime
         # sqrt_coef (= Y*sigma) and ADV (V). When unset, the residual falls back
         # to the deepest-visible anchor only (no extrapolation beyond the book).
         self.residual_coef_by_regime = residual_coef_by_regime
         self.adv_btc = float(adv_btc) if adv_btc else None
-        # Reward scaling (Setup Step 5): when True the per-step reward is the
+        # Reward scaling: when True the per-step reward is the
         # negative implementation shortfall in BPS of arrival notional (well-
         # conditioned for DQN/PPO and the SAME objective as the is_bps eval
         # metric), and the terminal leftover penalty is in bps. This flag changes

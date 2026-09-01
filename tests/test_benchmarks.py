@@ -1,4 +1,4 @@
-"""Unit tests for the core execution benchmarks (Phase 3).
+"""Unit tests for the core execution benchmarks.
 
 Run with:  PYTHONPATH=src .venv/bin/pytest tests/test_benchmarks.py
 """

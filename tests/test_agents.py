@@ -1,4 +1,4 @@
-"""Unit tests for the Phase-5 agents (Step 5): DQN factory, policy adapter, and a
+"""Unit tests for the RL agents: DQN factory, policy adapter, and a
 single-seed training smoke that exercises the full env -> SB3 -> callback -> eval
 path on a tiny synthetic dataset.
 

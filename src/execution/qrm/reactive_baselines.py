@@ -1,4 +1,4 @@
-"""Step 4.3 — baseline policies through the SAME reactive environment.
+"""Baseline policies run through the SAME reacting environment.
 
 Every baseline runs through :class:`~execution.qrm.reactive_env.ReactiveQRMEnv`
 step-for-step (same fills, same reaction, same episode randomness), so agent-vs-

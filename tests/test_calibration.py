@@ -1,4 +1,4 @@
-"""Unit tests for impact calibration (Phase 5, Setup Step 2).
+"""Unit tests for impact calibration.
 
 Covers the OLS-through-origin coefficient recovery, the square-root fit gated on
 ADV, and the relative-daily-vol helper. The deadline-residual *pricing* (continuity

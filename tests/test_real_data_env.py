@@ -1,4 +1,4 @@
-"""Unit tests for RealDataExecutionEnv (Phase 2, Step 1).
+"""Unit tests for RealDataExecutionEnv.
 
 Covers fill/IS accounting, reward sign, termination, determinism, positional
 (no off-by-one) book access, the observation vector, and the §4 sanity checks

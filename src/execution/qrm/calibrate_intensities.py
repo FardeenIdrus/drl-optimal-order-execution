@@ -1,4 +1,4 @@
-"""Stage 3c/3d - measure QRM intensities and average event size from the real book.
+"""Measure QRM intensities and average event size from the real book.
 
 Drives a :class:`~execution.data.l4.book_engine.BookEngine` over the timestamped event
 stream and accumulates, for each (side, depth-from-best, queue-size bucket, event-type):

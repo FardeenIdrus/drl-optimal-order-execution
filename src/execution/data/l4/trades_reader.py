@@ -1,4 +1,4 @@
-"""Stage 3c - read BTC trades (market orders) from one hourly trades file.
+"""Read BTC trades (market orders) from one hourly trades file.
 
 The Oxford trades archive stores one gzip'd JSON-lines file per hour (``<date>/<H>.gz``,
 all coins interleaved). Each line is one trade with an aggressor ``side`` ("A" = sell

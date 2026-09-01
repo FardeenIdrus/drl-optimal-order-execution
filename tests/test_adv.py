@@ -1,4 +1,4 @@
-"""Unit tests for ADV order-sizing helpers (Phase 5, Setup Step 1).
+"""Unit tests for ADV order-sizing helpers.
 
 Covers the pure (no-network) pieces: candle parsing/validation, ADV computation,
 date->ms, and the volatile-regime depth cross-check. The networked fetch is not

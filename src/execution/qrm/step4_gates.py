@@ -1,4 +1,4 @@
-"""Step 4.5 — the three pre-training gates (bands frozen in reports/qrm_step4_criteria.md).
+"""The three pre-training gates (bands frozen in reports/qrm_step4_criteria.md).
 
 G1  Reaction lever: matched-pair episodes (identical seed; with-order vs background-only)
     -> mean |mid displacement| at T and size-monotonicity.

@@ -1,4 +1,4 @@
-"""Stage 3e - package the measured calibration into the QRM engine's format.
+"""Package the measured calibration into the QRM engine's format.
 
 Turns the raw ``counts`` / ``time_in_state`` accumulators into the three objects the
 vendored ``qrm_core`` engine samples from:

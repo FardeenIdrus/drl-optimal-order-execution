@@ -1,4 +1,4 @@
-"""Phase F archive: bring the results archive up to date and checksum everything.
+"""Archive tool: bring the results archive up to date and checksum everything.
 
 WHY. `results_archive/` is the version-controlled evidence layer -- the provenance appendix
 cites paths relative to it, and the claim made in its README is that every number in the

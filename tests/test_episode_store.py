@@ -1,4 +1,4 @@
-"""Unit tests for the EpisodeStore loader (Phase 2 env).
+"""Unit tests for the EpisodeStore loader.
 
 Run with:  PYTHONPATH=src .venv/bin/pytest tests/test_episode_store.py
 The real-data test is skipped automatically if the scratch dataset is absent.

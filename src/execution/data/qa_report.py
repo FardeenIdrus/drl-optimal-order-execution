@@ -1,4 +1,4 @@
-"""Stage 7 - consolidate per-stage QA into one Phase 1 evidence report.
+"""Stage 7 - consolidate per-stage QA into one pipeline evidence report.
 
 Reads the QA artifacts each stage already writes (coverage.json, the per-parquet
 .qa.json files, dataset_meta.json) plus the raw-file count, and renders a single
@@ -43,7 +43,7 @@ def build_report(cfg: dict, paths: Dict[str, Path]) -> dict:
         "stage4_features": feature_qa,
         "stage5_regimes": regime_qa,
         "stage6_datasets": dataset_meta,
-        "determinism": "Phase 1 has no randomness; same raw data + config => identical outputs.",
+        "determinism": "The pipeline has no randomness; same raw data + config => identical outputs.",
         "limitations": [
             "Minute resolution; one book snapshot per minute for fills (no intra-minute replenishment).",
             "Hyperliquid BTC perpetual futures (not spot/equities); single asset for now.",
@@ -60,7 +60,7 @@ def render_markdown(r: dict) -> str:
     regs = r.get("stage5_regimes", {})
     ds = r.get("stage6_datasets", {})
     L: list[str] = []
-    L.append(f"# Phase 1 Data Pipeline — QA Report ({s['coin']}, {s['start']} to {s['end']})\n")
+    L.append(f"# Data Pipeline — QA Report ({s['coin']}, {s['start']} to {s['end']})\n")
     L.append("Real Hyperliquid L2 order-book data; deterministic, leakage-checked pipeline.\n")
 
     L.append("## Source & coverage (Stage 0)")
@@ -121,7 +121,7 @@ def render_markdown(r: dict) -> str:
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
-    p = argparse.ArgumentParser(description="Stage 7 - consolidated Phase 1 QA report")
+    p = argparse.ArgumentParser(description="Stage 7 - consolidated data-pipeline QA report")
     p.add_argument("--config", required=True)
     p.add_argument("--scratch-root", required=True)
     p.add_argument("--out-dir", required=True, help="repo reports/ dir")

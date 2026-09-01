@@ -1,4 +1,4 @@
-"""QRM calibration (Step 3) - fit the Queue-Reactive Model on the reconstructed BTC book.
+"""QRM calibration: fit the Queue-Reactive Model on the reconstructed BTC book.
 
 Produces the inputs the vendored `qrm_core` engine consumes: an intensity table
 (rates per depth x queue-size x side x event-type), the invariant queue distributions

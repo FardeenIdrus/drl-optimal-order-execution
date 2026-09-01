@@ -1,4 +1,4 @@
-# Phase 1 data-pipeline configuration — the single source of truth for every
+# Data-pipeline configuration — the single source of truth for every
 # parameter across Stages 0-6. Reproduce the whole pipeline with:
 #
 #   PYTHONPATH=src .venv/bin/python -m execution.pipeline \

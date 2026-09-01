@@ -1,4 +1,4 @@
-"""Phase 1 pipeline orchestrator — reproduce the whole data pipeline from one config.
+"""Data-pipeline orchestrator: reproduce the whole pipeline from one config.
 
 Runs Stages 0-6 in order by invoking each stage's tested module entry point (so there
 is no duplicated stage logic to drift). Idempotent: a stage whose output already exists
@@ -140,7 +140,7 @@ def run(config_path: str, scratch_root: str, force: bool = False,
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
-    p = argparse.ArgumentParser(description="Phase 1 data-pipeline orchestrator")
+    p = argparse.ArgumentParser(description="data-pipeline orchestrator")
     p.add_argument("--config", required=True)
     p.add_argument("--scratch-root", required=True, help="root for data artifacts (outside the repo)")
     p.add_argument("--force", action="store_true", help="re-run stages even if outputs exist")

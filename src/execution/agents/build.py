@@ -3,7 +3,7 @@ hyperparameters (arXiv 2511.15262), wrapped around our ``RealDataExecutionEnv``.
 
 The hyperparameters live in ``configs/experiment.yaml`` (``agent.dqn``) so a run is
 fully reproducible from config; only the activation function is mapped from a name
-here. PPO is added in Step 7 (same factory module).
+here. PPO is built by the same factory module.
 """
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ _ACTIVATIONS: dict[str, type[nn.Module]] = {
 
 def derive_exploration_fraction(total_timesteps: int, learning_starts: int,
                                 anneal_frac: float) -> float:
-    """Budget-relative epsilon-anneal window (Setup Step 5).
+    """Budget-relative epsilon-anneal window.
 
     SB3 measures ``exploration_fraction`` against *total* timesteps with the clock
     starting at step 0, so a fixed value tuned to a different budget can decay
@@ -102,7 +102,7 @@ def make_ppo(env: Any, hp: dict, *, seed: int, device: str = "cpu") -> PPO:
     DQN); they are the well-established SB3 defaults with ``gamma`` matched to the
     DQN and a small positive ``ent_coef``, all set in config for reproducibility.
 
-    Note for Phase-7 SHAP: PPO has no ``replay_buffer``, so attribution states must
+    Note for SHAP attribution: PPO has no ``replay_buffer``, so attribution states must
     be sourced from a policy rollout, not ``model.replay_buffer``.
     """
     activation = _ACTIVATIONS[hp.get("activation", "LeakyReLU")]

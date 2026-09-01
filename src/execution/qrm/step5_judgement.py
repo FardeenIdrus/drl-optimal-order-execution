@@ -1,4 +1,4 @@
-"""Step 5 judgement — behaviour audit FIRST, then the frozen 2,000-episode verdict.
+"""The judgement: behaviour audit FIRST, then the frozen 2,000-episode verdict.
 
 Protocol: reports/qrm_step4_criteria.md §3-§4 (frozen 2026-07-06). Order enforced in
 code: the audit (action histograms + deadline-residual reliance) runs and is WRITTEN

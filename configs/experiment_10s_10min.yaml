@@ -1,4 +1,4 @@
-# Phase 2 experiment configuration -- 10s bars, SHORTER 10-minute horizon (Option 2).
+# Experiment configuration -- 10s bars, SHORTER 10-minute horizon (Option 2).
 # Identical to experiment_10s.yaml EXCEPT n_steps (180 -> 60, a 10-min horizon at 10s) and
 # dataset_dir (-> dataset_10s_10min). gamma stays 0.9992 (same 10s bar, so the per-step
 # discount is unchanged; a shorter episode just means fewer steps). A 10-minute window

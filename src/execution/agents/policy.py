@@ -3,8 +3,8 @@
 ``execution.eval.runner.run_episodes`` drives any object with ``reset(env)`` /
 ``action(obs, info)`` and an ``absolute`` flag. Wrapping the SB3 model in that
 interface lets the agent be evaluated through the *same* loop and fill engine as
-TWAP / Almgren-Chriss -- apples-to-apples for the generalization gate (Step 6) and
-the Layer-1/2 evaluation.
+TWAP / Almgren-Chriss -- apples-to-apples for the generalization gate and
+the paired evaluation.
 """
 from __future__ import annotations
 

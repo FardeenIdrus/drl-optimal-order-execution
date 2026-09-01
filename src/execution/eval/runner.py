@@ -1,10 +1,10 @@
 """Evaluation runner: drive a policy over dataset episodes and collect metrics.
 
-Step 1 uses this to validate the environment end-to-end: run TWAP across the
+Used to validate the environment end-to-end: run TWAP across the
 held-out test episodes and report the implementation-shortfall distribution, plus
 the sanity diagnostics (instant liquidation = worst cost; do-nothing =
 force-execution penalty). The loop is generic and carries forward to the
-Layer-1/2 evaluation in Step 5.
+paired agent-versus-benchmark evaluation.
 
 CLI (smoke test):
     PYTHONPATH=src .venv/bin/python -m execution.eval.runner \
@@ -112,7 +112,7 @@ def _fmt(name: str, st: dict) -> str:
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Phase-2 Step-1 env smoke test (TWAP on real data)")
+    ap = argparse.ArgumentParser(description="env smoke test (TWAP on real data)")
     ap.add_argument("--scratch-root", required=True, help="path to scratch_hyperliquid/")
     ap.add_argument("--config", default="configs/experiment.yaml")
     ap.add_argument("--split", default="test", choices=["train", "val", "test"])
@@ -162,7 +162,7 @@ def main() -> None:
     cal = calibrate_temporary_impact(calib_store, q_grid, adv=adv)
 
     residual_coef_by_regime: dict[str, float] = {}
-    print("\n=== Phase 3 benchmarks (real Hyperliquid L2) ===")
+    print("\n=== Benchmark evaluation (real Hyperliquid L2) ===")
     print(f"split: {args.split}   episodes: {n}   meta-order: {inv} BTC over {N} steps   "
           f"ADV: {adv} BTC\n")
     print("Calibrated impact (TRAIN book):")

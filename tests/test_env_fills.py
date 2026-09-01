@@ -1,4 +1,4 @@
-"""Unit tests for the ask-ladder fill engine (Stage 2 / Phase 2 env).
+"""Unit tests for the ask-ladder fill engine.
 
 Run with:  PYTHONPATH=src .venv/bin/pytest tests/test_env_fills.py
 """

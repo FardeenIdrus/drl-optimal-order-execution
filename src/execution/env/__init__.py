@@ -1,4 +1,4 @@
-"""Real-data order-execution environment (Phase 2).
+"""Real-data order-execution environment.
 
 Replaces the QRM simulator as the order-book source: the RL agent executes a buy
 meta-order against *replayed* real Hyperliquid L2 books (the frozen Stage-6

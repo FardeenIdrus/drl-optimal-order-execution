@@ -55,7 +55,7 @@ class EpisodeStore:
         the chronological ``episode_id``), so the last ``val_frac`` fraction are
         the most recent -- adjacent to the test boundary -- and become validation;
         the earlier episodes are the training sub-split. The TEST set is a separate
-        file and is untouched. Used by the Phase-5 generalization gate: train and
+        file and is untouched. Used by the generalization gate: train and
         gate on ``(train_sub, val)`` while TEST stays sealed.
 
         Returns ``(train_sub, val)``; each is non-empty for ``val_frac`` in (0, 1).

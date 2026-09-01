@@ -71,5 +71,5 @@ def test_qa_render_has_sections():
         "determinism": "deterministic", "limitations": ["minute resolution"],
     }
     md = Q.render_markdown(report)
-    assert "# Phase 1 Data Pipeline" in md
+    assert "# Data Pipeline" in md
     assert "coverage gate" in md.lower() and "Limitation" in md
