@@ -4,8 +4,6 @@ Run with:  PYTHONPATH=src pytest tests/test_qrm_ref_frame.py
 """
 import random
 
-import numpy as np
-
 from execution.data.l4.book_diffs_reader import ASK, BID, NEW, REMOVE, UPDATE, BookEvent
 from execution.data.l4.book_engine import BookEngine
 from execution.qrm.calibrate_intensities import calibrate_ref_frame

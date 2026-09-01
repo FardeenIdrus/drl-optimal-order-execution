@@ -7,6 +7,7 @@ authors:
     given-names: Fardeen
 repository-code: "https://github.com/FardeenIdrus/drl-optimal-order-execution"
 license: MIT
+version: "1.0.0"
 date-released: "2026-09-01"
 abstract: >-
   A pre-registered evaluation of deep reinforcement learning for optimal trade

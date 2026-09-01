@@ -245,8 +245,12 @@ class _FakeEnv:
 
 
 def test_sample_episode_records_before_advancing_and_planted_slope():
-    from execution.qrm.signal_measure import (HORIZONS_S, RegAccum, accumulate_episode,
-                                              sample_episode)
+    from execution.qrm.signal_measure import (
+        HORIZONS_S,
+        RegAccum,
+        accumulate_episode,
+        sample_episode,
+    )
     rng = np.random.default_rng(5)
     script = [(3, 1) if rng.random() < 0.5 else (1, 3) for _ in range(400)]
     env = _FakeEnv(script)

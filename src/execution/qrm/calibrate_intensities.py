@@ -152,7 +152,12 @@ def measure_aes_ref_frame(
     depth k+1 and ``q1_seconds[v]`` is the time (s) the depth-1 ask queue spent holding
     ~``v`` AES units of volume (rounded; ``v`` capped at 500) -- used to choose Q from data.
     """
-    from execution.qrm.ref_frame import CachedBestEngine, RefPriceTracker, depth_in_frame, window_volumes
+    from execution.qrm.ref_frame import (
+        CachedBestEngine,
+        RefPriceTracker,
+        depth_in_frame,
+        window_volumes,
+    )
 
     sums = np.zeros(K)
     cnts = np.zeros(K)
@@ -204,7 +209,12 @@ def calibrate_ref_frame(
     measurable. Trades are counted as market orders and not applied (the diff stream
     already carries their depth consumption).
     """
-    from execution.qrm.ref_frame import CachedBestEngine, RefPriceTracker, depth_in_frame, window_volumes
+    from execution.qrm.ref_frame import (
+        CachedBestEngine,
+        RefPriceTracker,
+        depth_in_frame,
+        window_volumes,
+    )
 
     aes = np.asarray(aes, float)
     counts = np.zeros((K, Q + 1, 2, 3))

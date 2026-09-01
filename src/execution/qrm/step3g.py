@@ -307,7 +307,6 @@ def cmd_gate_regime(args: argparse.Namespace) -> None:
     from execution.qrm.assemble import load_bundle
     from execution.qrm.exo_ref_sim import run_exo_qrm
 
-    scratch = Path(args.scratch)
     out_dir = Path(args.out_dir)
     book_dir = Path(args.book_dir)
     tol = json.loads(Path(args.tolerances).read_text())["tolerances"]
@@ -450,7 +449,7 @@ def cmd_center_move_process(args) -> None:
         std0 = float(np.sqrt((pr * k * k).sum() - mean0 ** 2))
 
         m1, w = _tilt_to_zero_mean(k, pr)
-        theta = float("nan")  # recorded implicitly by the saved probs
+        # theta is recorded implicitly by the saved probs
         std1 = float(np.sqrt((w * k * k).sum() - m1 ** 2))
         np.savez(out_dir / f"move_process_{regime}_centered.npz",
                  interval_s=float(d["interval_s"]), moves=d["moves"], probs=w,
@@ -472,6 +471,7 @@ def cmd_deconvolve_endo(args) -> None:
     Measured 2026-07-07: calm 11.5% (deconvolve), volatile 3.7% (document only).
     """
     from pathlib import Path
+
     from execution.qrm.reactive_env import ReactiveQRMEnv
     out_dir = Path(args.out_dir)
     regime = args.regime
@@ -577,8 +577,9 @@ def cmd_neutralize_drift(args) -> None:
     essentially unchanged. Overwrites move_process_{regime}_centered.npz and backs up the
     drifty original once. Run AFTER center-move-process + deconvolve-endo (the last step)."""
     from pathlib import Path
-    from execution.qrm.reactive_env import ReactiveQRMEnv, INTERVALS_PER_DECISION
+
     from execution.qrm.exo_ref_sim import MoveProcess
+    from execution.qrm.reactive_env import INTERVALS_PER_DECISION, ReactiveQRMEnv
     out_dir = Path(args.out_dir)
     regime = args.regime
     mp_path = out_dir / f"move_process_{regime}_centered.npz"
@@ -632,6 +633,7 @@ def cmd_fairness_gate(args) -> None:
     front-loading advantage over adaptive-TWAP (not [mean <= -0.02 bps and t <= -2.5]).
     Writes fairness_verdict_{regime}.json."""
     from pathlib import Path
+
     from execution.qrm.reactive_env import ReactiveQRMEnv
     out_dir = Path(args.out_dir)
     regime = args.regime

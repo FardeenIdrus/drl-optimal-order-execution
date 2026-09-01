@@ -22,7 +22,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr
 
-from execution.qrm.reactive_baselines import adaptive_twap, instant_dump, run_episodes
+from execution.qrm.reactive_baselines import adaptive_twap, run_episodes
 from execution.qrm.reactive_env import ACTIONS, ReactiveQRMEnv
 
 logger = logging.getLogger(__name__)

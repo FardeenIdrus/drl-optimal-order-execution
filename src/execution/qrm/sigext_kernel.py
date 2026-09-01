@@ -19,13 +19,17 @@ import argparse
 import json
 import logging
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 import numpy as np
 
 from execution.qrm.reactive_env import ReactiveQRMEnv
-from execution.qrm.signal_measure import (HORIZONS_S, RegAccum, accumulate_episode,
-                                          sample_episode)
+from execution.qrm.signal_measure import (
+    HORIZONS_S,
+    RegAccum,
+    accumulate_episode,
+    sample_episode,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +68,9 @@ def measure_rho(env: ReactiveQRMEnv, n_eps: int) -> Dict:
     for i in range(n_eps):
         _, s2 = sample_episode(env, RHO_SEED_BASE + i)
         x = s2[np.isfinite(s2)]
-        s_sum += x.sum(); s_sq += (x * x).sum(); s_n += len(x)
+        s_sum += x.sum()
+        s_sq += (x * x).sum()
+        s_n += len(x)
         for lag in range(RHO_LAGS):
             if lag >= len(s2):
                 break
@@ -128,7 +134,9 @@ def measure_curve(env: ReactiveQRMEnv, n_eps: int, seed_base: int) -> Dict:
         accumulate_episode(accums, mids, sig)
         comp = env._ep.s2_path * norm            # composite delta in bps
         x = comp[np.isfinite(comp)]
-        comp_sum += x.sum(); comp_sq += (x * x).sum(); comp_n += len(x)
+        comp_sum += x.sum()
+        comp_sq += (x * x).sum()
+        comp_n += len(x)
     m = comp_sum / max(comp_n, 1)
     return {"slopes": {h: accums[h].stats()["slope"] for h in HORIZONS_S},
             "mean_delta_bps": m,

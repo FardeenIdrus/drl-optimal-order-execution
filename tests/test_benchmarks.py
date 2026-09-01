@@ -9,7 +9,6 @@ from execution.data.features import FEATURE_COLUMNS
 from execution.env.benchmarks import (
     AlmgrenChriss,
     FixedLiquidityParticipation,
-    TWAP,
 )
 from execution.env.calibration import calibrate_temporary_impact, estimate_volatility
 from execution.env.episode_store import EpisodeStore

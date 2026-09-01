@@ -25,7 +25,7 @@ try:  # gymnasium is pinned in the venv (L2 track dependency)
 except ImportError:  # pragma: no cover
     raise SystemExit("gymnasium required")
 
-from execution.qrm.reactive_env import ACTIONS, ReactiveQRMEnv
+from execution.qrm.reactive_env import ReactiveQRMEnv
 
 logger = logging.getLogger(__name__)
 

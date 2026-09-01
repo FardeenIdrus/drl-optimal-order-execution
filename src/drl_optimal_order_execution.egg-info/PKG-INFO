@@ -1,3 +1,17 @@
+Metadata-Version: 2.4
+Name: drl-optimal-order-execution
+Version: 1.0.0
+Summary: Deep reinforcement learning for order execution on Hyperliquid: DQN/PPO vs TWAP in a calibrated reacting order-book simulator with a venue-measured injected signal.
+Author: Fardeen Idrus
+License: MIT
+Project-URL: Repository, https://github.com/FardeenIdrus/drl-optimal-order-execution
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Provides-Extra: dev
+Requires-Dist: ruff==0.16.5; extra == "dev"
+Dynamic: license-file
+
 <p align="center">
   <img src="docs/assets/banner.svg" alt="Deep Reinforcement Learning for Order Execution on Hyperliquid" width="100%">
 </p>
@@ -6,7 +20,6 @@
   <a href="https://github.com/FardeenIdrus/drl-optimal-order-execution/actions/workflows/tests.yml"><img src="https://github.com/FardeenIdrus/drl-optimal-order-execution/actions/workflows/tests.yml/badge.svg" alt="CI"></a>
   <a href="requirements.txt"><img src="https://img.shields.io/badge/python-3.12-0072B2?labelColor=1f2328" alt="Python 3.12"></a>
   <a href="tests/"><img src="https://img.shields.io/badge/unit%20tests-276-009E73?labelColor=1f2328" alt="276 unit tests"></a>
-  <a href="pyproject.toml"><img src="https://img.shields.io/badge/lint-ruff-009E73?labelColor=1f2328" alt="Linted with ruff"></a>
   <a href="reports/qrm_step4_criteria.md"><img src="https://img.shields.io/badge/design-pre--registered-D55E00?labelColor=1f2328" alt="Pre-registered design"></a>
   <a href="results_archive/"><img src="https://img.shields.io/badge/evidence-1514%20files%20checksummed-D55E00?labelColor=1f2328" alt="Checksummed evidence archive"></a>
   <a href="https://doi.org/10.5281/zenodo.18184441"><img src="https://img.shields.io/badge/L4%20data-DOI%2010.5281%2Fzenodo.18184441-59636e?labelColor=1f2328" alt="Data DOI"></a>
@@ -234,21 +247,16 @@ outside the repository and is regenerable from these public sources with the pip
 ```bash
 # Python 3.12
 python3.12 -m venv .venv
-.venv/bin/pip install -r requirements.txt   # pinned environment
-.venv/bin/pip install -e ".[dev]"           # the package itself, plus the lint gate
+.venv/bin/pip install -r requirements.txt
 ```
-
-Or equivalently `make install`. The `Makefile` also exposes the quality gates:
-`make test`, `make lint`, `make verify-archive`.
 
 ## Testing
 
-The suite holds 276 deterministic pytest unit tests (28 modules, one per component). CI
-runs the lint gate and the full suite on every push; locally:
+The suite holds 276 deterministic pytest unit tests (28 modules, one per component), run on
+every push by [CI](.github/workflows/tests.yml) and locally with:
 
 ```bash
-.venv/bin/pytest tests -q    # or: make test
-.venv/bin/ruff check src tests    # or: make lint
+PYTHONPATH=src .venv/bin/pytest tests -q
 ```
 
 Coverage by area:
@@ -279,16 +287,16 @@ Every test is seed-fixed; the suite passes from a fresh clone with no external d
 
 ```bash
 # recorded-book data pipeline (idempotent; skips completed stages)
-.venv/bin/python -m execution.pipeline \
+PYTHONPATH=src .venv/bin/python -m execution.pipeline \
     --config configs/pipeline.yaml --scratch-root <scratch>
 
 # per-order book reconstruction and simulator calibration
-.venv/bin/python -m execution.data.l4.reconstruct_month --help
-.venv/bin/python -m execution.qrm.step3g --help
+PYTHONPATH=src .venv/bin/python -m execution.data.l4.reconstruct_month --help
+PYTHONPATH=src .venv/bin/python -m execution.qrm.step3g --help
 
 # train one agent; evaluate a set of runs
-.venv/bin/python -m execution.qrm.train_reactive --help
-.venv/bin/python -m execution.qrm.step5_judgement --help
+PYTHONPATH=src .venv/bin/python -m execution.qrm.train_reactive --help
+PYTHONPATH=src .venv/bin/python -m execution.qrm.step5_judgement --help
 ```
 
 ## Verifying archived results

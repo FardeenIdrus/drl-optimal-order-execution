@@ -124,7 +124,8 @@ def test_total_executed_equals_order_non_divisible(tmp_path):
     counts[:, :, :, 0] = 8.0
     counts[:, :, :, 1] = 1.0
     bundle = assemble(counts, time_in, aes=[0.5, 0.5, 0.5], tick=1.0, invariant="empirical")
-    bp = tmp_path / "b.npz"; bundle.save(str(bp))
+    bp = tmp_path / "b.npz"
+    bundle.save(str(bp))
     mp = tmp_path / "m.npz"
     np.savez(mp, interval_s=0.5, moves=np.array([0]), probs=np.array([1.0]))
     e = ReactiveQRMEnv(str(bp), str(mp), order_btc=1.3, n_steps=10)
@@ -149,10 +150,12 @@ def test_per_depth_unit_sizes_price_and_credit_correctly(tmp_path):
     # remediation I3: a unit at slot i is aes[i] BTC — cost and BTC credited must use
     # the slot's own size, not the touch size
     K, Q = 3, 6
-    counts = np.zeros((K, Q + 1, 2, 3)); time_in = np.ones((K, Q + 1, 2))
+    counts = np.zeros((K, Q + 1, 2, 3))
+    time_in = np.ones((K, Q + 1, 2))
     counts[:, :, :, 0] = 4.0
     bundle = assemble(counts, time_in, aes=[0.5, 1.0, 2.0], tick=1.0, invariant="empirical")
-    bp = tmp_path / "b.npz"; bundle.save(str(bp))
+    bp = tmp_path / "b.npz"
+    bundle.save(str(bp))
     mp = tmp_path / "m.npz"
     np.savez(mp, interval_s=0.5, moves=np.array([0]), probs=np.array([1.0]))
     e = ReactiveQRMEnv(str(bp), str(mp), order_btc=5.0, n_steps=10)
@@ -172,10 +175,12 @@ def test_per_depth_unit_sizes_price_and_credit_correctly(tmp_path):
 
 def test_empty_ask_side_widens_quotes_instead_of_pinning_mid(tmp_path):
     K, Q = 3, 6
-    counts = np.zeros((K, Q + 1, 2, 3)); time_in = np.ones((K, Q + 1, 2))
+    counts = np.zeros((K, Q + 1, 2, 3))
+    time_in = np.ones((K, Q + 1, 2))
     counts[:, :, :, 0] = 4.0
     bundle = assemble(counts, time_in, aes=[0.5, 0.5, 0.5], tick=1.0, invariant="empirical")
-    bp = tmp_path / "b.npz"; bundle.save(str(bp))
+    bp = tmp_path / "b.npz"
+    bundle.save(str(bp))
     mp = tmp_path / "m.npz"
     np.savez(mp, interval_s=0.5, moves=np.array([0]), probs=np.array([1.0]))
     e = ReactiveQRMEnv(str(bp), str(mp), order_btc=5.0, n_steps=10)

@@ -13,7 +13,11 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "reports" / "diagnostics"))
 from tick_class_measure import (  # noqa: E402
-    AucAccum, auc_from_histograms, bin_index, infer_tick, queue_imbalance,
+    AucAccum,
+    auc_from_histograms,
+    bin_index,
+    infer_tick,
+    queue_imbalance,
 )
 
 
@@ -51,8 +55,10 @@ def test_predictor_is_causal_elementwise():
 
 # ------------------------------------------------------------------------------ AUC maths
 def test_auc_perfect_separation_is_one():
-    pos = np.zeros(10); pos[9] = 5.0
-    neg = np.zeros(10); neg[0] = 5.0
+    pos = np.zeros(10)
+    pos[9] = 5.0
+    neg = np.zeros(10)
+    neg[0] = 5.0
     assert auc_from_histograms(pos, neg) == pytest.approx(1.0)
 
 
@@ -110,18 +116,21 @@ def test_planted_signal_is_recovered():
     imb = rng.uniform(-1, 1, n)
 
     informative = np.sign(imb + rng.normal(0, 0.25, n))
-    acc = AucAccum(); acc.add(imb, informative)
+    acc = AucAccum()
+    acc.add(imb, informative)
     assert acc.result()["auc"] > 0.90
 
     noise = np.sign(rng.normal(0, 1, n))
-    acc2 = AucAccum(); acc2.add(imb, noise)
+    acc2 = AucAccum()
+    acc2.add(imb, noise)
     assert abs(acc2.result()["auc"] - 0.5) < 0.01
 
 
 def test_no_change_intervals_are_excluded_not_counted():
     imb = np.array([0.5, -0.5, 0.9, -0.9])
     fwd = np.array([1.0, -1.0, 0.0, 0.0])
-    acc = AucAccum(); acc.add(imb, fwd)
+    acc = AucAccum()
+    acc.add(imb, fwd)
     r = acc.result()
     assert r["n"] == 2
     assert r["n_excluded_no_change"] == 2
@@ -130,7 +139,8 @@ def test_no_change_intervals_are_excluded_not_counted():
 def test_nan_predictor_rows_are_dropped():
     imb = np.array([np.nan, 0.5, -0.5])
     fwd = np.array([1.0, 1.0, -1.0])
-    acc = AucAccum(); acc.add(imb, fwd)
+    acc = AucAccum()
+    acc.add(imb, fwd)
     assert acc.result()["n"] == 2
 
 
@@ -140,14 +150,16 @@ def test_accumulation_is_order_independent_and_deterministic():
     imb = rng.uniform(-1, 1, 5_000)
     fwd = np.sign(imb + rng.normal(0, 0.5, 5_000))
 
-    one = AucAccum(); one.add(imb, fwd)
+    one = AucAccum()
+    one.add(imb, fwd)
     chunked = AucAccum()
     for s in range(0, 5_000, 137):
         chunked.add(imb[s:s + 137], fwd[s:s + 137])
     assert one.result()["auc"] == pytest.approx(chunked.result()["auc"])
     assert one.result()["n"] == chunked.result()["n"]
 
-    again = AucAccum(); again.add(imb, fwd)
+    again = AucAccum()
+    again.add(imb, fwd)
     assert again.result()["auc"] == one.result()["auc"]
 
 

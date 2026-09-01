@@ -6,7 +6,6 @@ exercised here (it is a one-time cached pull).
 
 Run with:  PYTHONPATH=src .venv/bin/pytest tests/test_adv.py
 """
-import numpy as np
 import pandas as pd
 import pytest
 

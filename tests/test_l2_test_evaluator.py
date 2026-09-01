@@ -7,8 +7,6 @@ statistics -- without loading any parquet, so they are fast and touch no dataset
 """
 from __future__ import annotations
 
-import json
-
 import numpy as np
 
 from execution.eval.test_evaluator import (

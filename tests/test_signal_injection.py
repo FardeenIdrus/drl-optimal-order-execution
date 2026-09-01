@@ -10,8 +10,8 @@ import numpy as np
 import pytest
 
 from execution.qrm.assemble import assemble
-from execution.qrm.reactive_env import (ACTIONS, WARMUP_INTERVALS, ReactiveQRMEnv)
 from execution.qrm.reactive_baselines import A_ONE, signal_follower
+from execution.qrm.reactive_env import ACTIONS, WARMUP_INTERVALS, ReactiveQRMEnv
 
 
 def _paths(tmp_path):

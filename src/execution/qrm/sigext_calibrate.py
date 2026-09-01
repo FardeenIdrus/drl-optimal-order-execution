@@ -22,8 +22,12 @@ from typing import Dict
 import numpy as np
 
 from execution.qrm.reactive_env import ReactiveQRMEnv
-from execution.qrm.signal_measure import (HORIZONS_S, RegAccum, accumulate_episode,
-                                          sample_episode)
+from execution.qrm.signal_measure import (
+    HORIZONS_S,
+    RegAccum,
+    accumulate_episode,
+    sample_episode,
+)
 
 logger = logging.getLogger(__name__)
 

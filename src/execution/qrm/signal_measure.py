@@ -110,8 +110,10 @@ class RegAccum:
         m = np.isfinite(x) & np.isfinite(y)
         x, y = x[m], y[m]
         self.n += len(x)
-        self.sx += float(x.sum()); self.sy += float(y.sum())
-        self.sxx += float((x * x).sum()); self.syy += float((y * y).sum())
+        self.sx += float(x.sum())
+        self.sy += float(y.sum())
+        self.sxx += float((x * x).sum())
+        self.syy += float((y * y).sum())
         self.sxy += float((x * y).sum())
 
     def stats(self) -> Dict[str, float]:
@@ -202,7 +204,6 @@ def run_measurement(scratch: Path, out_path: Path) -> Dict:
     bound_store: Dict[Tuple[str, str], List[np.ndarray]] = {}
     hours_used: Dict[Tuple[str, str], int] = {}
 
-    max_h = max(HORIZONS_S.values())
     for date, day_labels in labels.groupby("date", sort=True):
         book_file = book_dir / f"{date}.parquet"
         if not book_file.exists():

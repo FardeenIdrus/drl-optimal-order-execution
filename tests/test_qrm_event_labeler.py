@@ -2,7 +2,7 @@
 
 Run with:  PYTHONPATH=src pytest tests/test_qrm_event_labeler.py
 """
-from execution.data.l4.book_diffs_reader import ASK, BID, NEW, REMOVE, UPDATE, BookEvent
+from execution.data.l4.book_diffs_reader import BID, NEW, REMOVE, UPDATE, BookEvent
 from execution.qrm.event_labeler import (
     CANCEL,
     LIMIT,

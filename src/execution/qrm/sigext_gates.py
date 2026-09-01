@@ -34,10 +34,19 @@ import numpy as np
 
 from execution.qrm import step4_gates as g4
 from execution.qrm.reactive_env import ReactiveQRMEnv
-from execution.qrm.signal_measure import (A2_EPISODES, A2_SEED_BASE, HORIZONS_S,
-                                          RegAccum, accumulate_episode, sample_episode)
-from execution.qrm.step3g import (FAIRNESS_SEED0, _measure_bg_drift,
-                                  _measure_pace_gradient)
+from execution.qrm.signal_measure import (
+    A2_EPISODES,
+    A2_SEED_BASE,
+    HORIZONS_S,
+    RegAccum,
+    accumulate_episode,
+    sample_episode,
+)
+from execution.qrm.step3g import (
+    FAIRNESS_SEED0,
+    _measure_bg_drift,
+    _measure_pace_gradient,
+)
 
 logger = logging.getLogger(__name__)
 

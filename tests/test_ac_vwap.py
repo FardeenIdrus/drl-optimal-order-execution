@@ -2,8 +2,13 @@
 import numpy as np
 import pytest
 
-from execution.qrm.ac_vwap import (KAPPA_T_GRID, _remaining_fraction, make_ac,
-                                   make_schedule_policy, make_vwap_expected)
+from execution.qrm.ac_vwap import (
+    KAPPA_T_GRID,
+    _remaining_fraction,
+    make_ac,
+    make_schedule_policy,
+    make_vwap_expected,
+)
 from execution.qrm.reactive_baselines import ACTIONS
 
 

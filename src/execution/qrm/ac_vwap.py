@@ -24,8 +24,12 @@ from pathlib import Path
 
 import numpy as np
 
-from execution.qrm.reactive_baselines import (ACTIONS, adaptive_twap, make_fixed_twap,
-                                              run_episodes)
+from execution.qrm.reactive_baselines import (
+    ACTIONS,
+    adaptive_twap,
+    make_fixed_twap,
+    run_episodes,
+)
 from execution.qrm.reactive_env import ReactiveQRMEnv
 
 logger = logging.getLogger(__name__)

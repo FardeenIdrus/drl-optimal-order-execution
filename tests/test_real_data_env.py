@@ -19,7 +19,7 @@ from execution.env.real_data_env import RealDataExecutionEnv
 def make_store(n_ep=2, n_steps=3, n_levels=3, mid=100.0,
                px=(101.0, 102.0, 103.0), sz=(1.0, 1.0, 1.0)):
     """Flat store: every step of every episode has the same ladder."""
-    E, T, L = n_ep, n_steps, n_levels
+    E, T = n_ep, n_steps
     midA = np.full((E, T), mid)
     ask_px = np.tile(np.asarray(px, float), (E, T, 1))
     ask_sz = np.tile(np.asarray(sz, float), (E, T, 1))

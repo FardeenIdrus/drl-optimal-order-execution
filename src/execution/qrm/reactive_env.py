@@ -34,7 +34,6 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import List, Optional, Tuple
 
 import numpy as np
@@ -91,7 +90,7 @@ class ReactiveQRMEnv:
         obs_price_vs_arrival: bool = False,
     ) -> None:
         add_vendored_path()
-        from qrm_core.engine import simulate_QRM_jit          # noqa: PLC0415
+        from qrm_core.engine import simulate_QRM_jit  # noqa: PLC0415
         from qrm_core.sampling import sample_stationary_lob, update_LOB  # noqa: PLC0415
 
         self._sim = simulate_QRM_jit

@@ -36,7 +36,6 @@ from execution.qrm.assemble import assemble
 from execution.qrm.event_labeler import full_fill_oids
 from execution.qrm.exo_ref_sim import move_process_from_mids, run_exo_qrm
 from execution.qrm.quiet_spell import (
-    QuietStats,
     calibrate_quiet,
     choose_q,
     decide_guard,

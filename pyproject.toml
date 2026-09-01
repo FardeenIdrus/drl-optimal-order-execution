@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "drl-optimal-order-execution"
+version = "1.0.0"
+description = "Deep reinforcement learning for order execution on Hyperliquid: DQN/PPO vs TWAP in a calibrated reacting order-book simulator with a venue-measured injected signal."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "Fardeen Idrus" }]
+# The pinned environment is requirements.txt (single source of truth); install it
+# first, then `pip install -e .` registers the package itself.
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["ruff==0.16.5"]
+
+[project.urls]
+Repository = "https://github.com/FardeenIdrus/drl-optimal-order-execution"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+extend-exclude = ["qrm_optimal_execution", "results_archive"]
+line-length = 100
+
+[tool.ruff.lint]
+# The enforced set: pycodestyle errors, pyflakes, import order. Enforced in CI.
+select = ["E4", "E7", "E9", "F", "I"]

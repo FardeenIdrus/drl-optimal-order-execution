@@ -21,9 +21,14 @@ import logging
 from pathlib import Path
 
 import numpy as np
-from scipy.stats import wilcoxon, ttest_1samp, t as tdist
+from scipy.stats import t as tdist
+from scipy.stats import ttest_1samp, wilcoxon
 
-from execution.qrm.reactive_baselines import adaptive_twap, make_fixed_twap, run_episodes
+from execution.qrm.reactive_baselines import (
+    adaptive_twap,
+    make_fixed_twap,
+    run_episodes,
+)
 from execution.qrm.reactive_env import ACTIONS, ReactiveQRMEnv
 
 logger = logging.getLogger(__name__)

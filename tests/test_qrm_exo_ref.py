@@ -6,7 +6,12 @@ import numpy as np
 import pandas as pd
 
 from execution.qrm.assemble import assemble
-from execution.qrm.exo_ref_sim import MAX_ABS_MOVE, MoveProcess, measure_move_process, run_exo_qrm
+from execution.qrm.exo_ref_sim import (
+    MAX_ABS_MOVE,
+    MoveProcess,
+    measure_move_process,
+    run_exo_qrm,
+)
 
 
 def test_measure_move_process_counts_tick_moves(tmp_path):

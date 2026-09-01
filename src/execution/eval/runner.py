@@ -20,9 +20,9 @@ import pandas as pd
 import yaml
 
 from execution.env.benchmarks import (
+    TWAP,
     AlmgrenChriss,
     FixedLiquidityParticipation,
-    TWAP,
 )
 from execution.env.calibration import (
     calibrate_temporary_impact,

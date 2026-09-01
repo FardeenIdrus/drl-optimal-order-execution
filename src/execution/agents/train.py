@@ -29,7 +29,6 @@ from stable_baselines3.common.monitor import Monitor
 
 from execution.agents.build import make_dqn, make_ppo
 from execution.agents.callbacks import ValidationCurveCallback
-from execution.agents.policy import SB3Policy
 from execution.env.benchmarks import TWAP
 from execution.env.calibration import calibrate_temporary_impact
 from execution.env.episode_store import EpisodeStore
@@ -183,7 +182,7 @@ def main() -> None:
     total = args.total_timesteps if args.total_timesteps is not None else acfg["total_timesteps"]
     out_root = Path(args.out_root) if args.out_root else Path(args.scratch_root) / "runs"
 
-    print(f"setup: loading data, splitting, calibrating residual ...")
+    print("setup: loading data, splitting, calibrating residual ...")
     setup = setup_data(args.scratch_root, cfg)
     print(f"  train_sub {setup.train_sub.n_episodes} | val {setup.val.n_episodes} eps | "
           f"size {size} BTC | seeds {seeds} | budget {total:,} | device {args.device}")

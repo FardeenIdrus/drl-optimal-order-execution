@@ -31,7 +31,7 @@ import argparse
 import json
 import logging
 from pathlib import Path
-from typing import Dict, Tuple, Union
+from typing import Dict, Tuple
 
 import numpy as np
 import pandas as pd
@@ -60,7 +60,6 @@ def build_episodes(
     """
     if bar_seconds <= 0 or 60 % bar_seconds != 0:
         raise ValueError(f"bar_seconds must be a positive divisor of 60, got {bar_seconds}")
-    bar_ms = bar_seconds * 1000
     bars_per_episode = episode_minutes * 60 // bar_seconds
     ep_ms = episode_minutes * MS_PER_MINUTE
     j = features_df[["ts", "feature_valid"]].merge(

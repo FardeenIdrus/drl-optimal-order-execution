@@ -21,9 +21,7 @@ import logging
 from pathlib import Path
 from typing import Set, Union
 
-import numpy as np
-
-from execution.data.l4.book_diffs_reader import NEW, REMOVE, UPDATE, BookEvent
+from execution.data.l4.book_diffs_reader import NEW, UPDATE, BookEvent
 from execution.data.l4.orders_reader import STATUS_FILLED, read_records
 
 logger = logging.getLogger(__name__)

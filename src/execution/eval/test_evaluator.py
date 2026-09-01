@@ -53,12 +53,12 @@ import numpy as np
 import yaml
 from scipy import stats
 
+from execution.agents.policy import SB3Policy
 from execution.env.benchmarks import TWAP
 from execution.env.episode_store import EpisodeStore
 from execution.env.normalize import FeatureNormalizer
 from execution.env.real_data_env import RealDataExecutionEnv
 from execution.eval.runner import run_episodes
-from execution.agents.policy import SB3Policy
 
 # Fixed subset construction, IDENTICAL to execution.agents.train.train_one_seed:
 #   rng = np.random.default_rng(12345); indices = sorted(rng.choice(n, size=k, ...))
